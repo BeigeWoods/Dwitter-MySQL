@@ -6,31 +6,31 @@ export default class TweetService {
   }
 
   async getTweets(username) {
-    const query = username ? `?username=${username}` : '';
-    return this.http.fetch(`/tweets${query}`, {
-      method: 'GET',
+    const query = username ? `?username=${username}` : "";
+    return this.http.fetch(`/${query}`, {
+      method: "GET",
       headers: this.getHeaders(),
     });
   }
 
   async postTweet(text) {
-    return this.http.fetch(`/tweets`, {
-      method: 'POST',
+    return this.http.fetch(`/`, {
+      method: "POST",
       headers: this.getHeaders(),
-      body: JSON.stringify({ text, username: 'ellie', name: 'Ellie' }),
+      body: JSON.stringify({ text, username: "ellie", name: "Ellie" }),
     });
   }
 
   async deleteTweet(tweetId) {
-    return this.http.fetch(`/tweets/${tweetId}`, {
-      method: 'DELETE',
+    return this.http.fetch(`/${tweetId}`, {
+      method: "DELETE",
       headers: this.getHeaders(),
     });
   }
 
   async updateTweet(tweetId, text) {
-    return this.http.fetch(`/tweets/${tweetId}`, {
-      method: 'PUT',
+    return this.http.fetch(`/${tweetId}`, {
+      method: "PUT",
       headers: this.getHeaders(),
       body: JSON.stringify({ text }),
     });
@@ -44,6 +44,6 @@ export default class TweetService {
   }
 
   onSync(callback) {
-    return this.socket.onSync('tweets', callback);
+    return this.socket.onSync("tweets", callback);
   }
 }
