@@ -1,8 +1,9 @@
-import SQ from "sequelize";
+import SQ, { Model } from "sequelize";
 import { config } from "../config.js";
 
 const { database, user, password, host } = config.db;
-const DataTypes = SQ.DataTypes;
+
+const { DataTypes } = SQ;
 
 export const sequelize = new SQ.Sequelize(database, user, password, {
   host,
@@ -10,7 +11,24 @@ export const sequelize = new SQ.Sequelize(database, user, password, {
   logging: false, //database 테이블 정보 출력
 });
 
-export const User = sequelize.define(
+export interface UserModel extends Model {
+  readonly id: number;
+  username: string;
+  password: string;
+  name: string;
+  email: string;
+  url?: string;
+  readonly dataValues?: any;
+}
+
+export interface TweetModel extends Model {
+  readonly userId?: number;
+  readonly id: number;
+  text: string;
+  readonly dataValues?: any;
+}
+
+export const User = sequelize.define<UserModel>(
   "user",
   {
     id: {
@@ -42,7 +60,7 @@ export const User = sequelize.define(
   { timestamps: false }
 );
 
-export const Tweet = sequelize.define("tweet", {
+export const Tweet = sequelize.define<TweetModel>("tweet", {
   id: {
     type: DataTypes.INTEGER,
     allowNull: false,

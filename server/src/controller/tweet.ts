@@ -1,15 +1,16 @@
 import * as tweetRepository from "../data/tweet.js";
 import { getSocketIO } from "../connection/socket.js";
+import { Request, Response } from "express";
 
-export async function getTweets(req, res) {
-  const username = req.query.username;
+export async function getTweets(req: Request, res: Response) {
+  const username: any = req.query.username;
   const data = await (username
     ? tweetRepository.getAllByUsername(username)
     : tweetRepository.getAll());
   res.status(200).json(data);
 }
 
-export async function getTweet(req, res, next) {
+export async function getTweet(req: Request, res: Response) {
   const id = req.params.id;
   const tweet = await tweetRepository.getById(id);
   if (tweet) {
@@ -19,14 +20,14 @@ export async function getTweet(req, res, next) {
   }
 }
 
-export async function createTweet(req, res, next) {
+export async function createTweet(req: Request, res: Response) {
   const { text } = req.body;
   const tweet = await tweetRepository.create(text, req.userId);
   res.status(201).json(tweet);
   getSocketIO().emit("tweets", tweet);
 }
 
-export async function updateTweet(req, res, next) {
+export async function updateTweet(req: Request, res: Response) {
   const id = req.params.id;
   const text = req.body.text;
   const tweet = await tweetRepository.getById(id);
@@ -40,7 +41,7 @@ export async function updateTweet(req, res, next) {
   res.status(200).json(updated);
 }
 
-export async function deleteTweet(req, res, next) {
+export async function deleteTweet(req: Request, res: Response) {
   const id = req.params.id;
   const tweet = await tweetRepository.getById(id);
   if (!tweet) {

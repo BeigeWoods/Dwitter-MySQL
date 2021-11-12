@@ -7,18 +7,21 @@ import {
   useImperativeHandle,
   useMemo,
   useState,
-} from 'react';
-import Header from '../components/Header';
-import Login from '../pages/Login';
+} from "react";
+import Header from "../components/Header";
+import Login from "../pages/Login";
 
 const AuthContext = createContext({});
 
-const contextRef = createRef();
+const tokenRef = createRef();
+const csrfRef = createRef();
 
 export function AuthProvider({ authService, authErrorEventBus, children }) {
   const [user, setUser] = useState(undefined);
-
-  useImperativeHandle(contextRef, () => (user ? user.token : undefined));
+  const [csrfToken, setCsrfToken] = useState(undefined);
+  // 2. Ref에 다음 토큰 저장하기
+  useImperativeHandle(tokenRef, () => (user ? user.token : undefined));
+  useImperativeHandle(csrfRef, () => csrfToken);
 
   useEffect(() => {
     authErrorEventBus.listen((err) => {
@@ -26,6 +29,10 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
       setUser(undefined);
     });
   }, [authErrorEventBus]);
+  // 1. useEffect는 authService에서 토큰을 받아와서 modify 함수에 저장하기
+  useEffect(() => {
+    authService.csrfToken().then(setCsrfToken).catch(console.error);
+  }, [authService]);
 
   useEffect(() => {
     authService.me().then(setUser).catch(console.error);
@@ -65,8 +72,10 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
       {user ? (
         children
       ) : (
-        <div className='app'>
+        <div className="app">
           <Header />
+          {console.log(signUp)}
+          {console.log(logIn)}
           <Login onSignUp={signUp} onLogin={logIn} />
         </div>
       )}
@@ -84,5 +93,6 @@ export class AuthErrorEventBus {
 }
 
 export default AuthContext;
-export const fetchToken = () => contextRef.current;
+export const fetchToken = () => tokenRef.current;
+export const fetchCsrfToken = () => csrfRef.current;
 export const useAuth = () => useContext(AuthContext);
