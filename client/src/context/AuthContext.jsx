@@ -74,8 +74,6 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
       ) : (
         <div className="app">
           <Header />
-          {console.log(signUp)}
-          {console.log(logIn)}
           <Login onSignUp={signUp} onLogin={logIn} />
         </div>
       )}
