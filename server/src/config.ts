@@ -31,4 +31,8 @@ export const config = {
   csrf: {
     plainToken: required("CSRF_SECRET_KEY"),
   },
+  ghOauth: {
+    clientId: required("GH_CLIENT_ID"),
+    clientSecret: required("GH_CLIENT_SECRETS"),
+  },
 };

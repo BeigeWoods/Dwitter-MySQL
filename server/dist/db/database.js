@@ -22,7 +22,6 @@ export const User = sequelize.define("user", {
     },
     password: {
         type: DataTypes.STRING(128),
-        allowNull: false,
     },
     name: {
         type: DataTypes.STRING(128),
@@ -30,10 +29,15 @@ export const User = sequelize.define("user", {
     },
     email: {
         type: DataTypes.STRING(128),
+        unique: true,
+        allowNull: false,
+    },
+    socialLogin: {
+        type: DataTypes.BOOLEAN,
         allowNull: false,
     },
     url: DataTypes.TEXT,
-}, { timestamps: false });
+}, { timestamps: false, charset: "utf8mb4", collate: "utf8mb4_general_ci" });
 export const Tweet = sequelize.define("tweet", {
     id: {
         type: DataTypes.INTEGER,
@@ -46,6 +50,9 @@ export const Tweet = sequelize.define("tweet", {
         type: DataTypes.TEXT,
         allowNull: false,
     },
+}, {
+    charset: "utf8mb4",
+    collate: "utf8mb4_general_ci",
 });
 Tweet.belongsTo(User);
 //# sourceMappingURL=database.js.map

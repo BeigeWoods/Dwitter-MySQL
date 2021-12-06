@@ -11,7 +11,7 @@ import * as tweetRepository from "../data/tweet.js";
 import { getSocketIO } from "../connection/socket.js";
 export function getTweets(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const username = req.query.username;
+        const { username } = req.query;
         const data = yield (username
             ? tweetRepository.getAllByUsername(username)
             : tweetRepository.getAll());
@@ -20,7 +20,7 @@ export function getTweets(req, res) {
 }
 export function getTweet(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const id = req.params.id;
+        const { id } = req.params;
         const tweet = yield tweetRepository.getById(id);
         if (tweet) {
             res.status(200).json(tweet);
@@ -40,8 +40,8 @@ export function createTweet(req, res) {
 }
 export function updateTweet(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const id = req.params.id;
-        const text = req.body.text;
+        const { id } = req.params;
+        const { text } = req.body;
         const tweet = yield tweetRepository.getById(id);
         if (!tweet) {
             return res.status(404).json({ message: `Tweet not found: ${id}` });
@@ -55,7 +55,7 @@ export function updateTweet(req, res) {
 }
 export function deleteTweet(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const id = req.params.id;
+        const { id } = req.params;
         const tweet = yield tweetRepository.getById(id);
         if (!tweet) {
             return res.status(404).json({ message: `Tweet not found: ${id}` });

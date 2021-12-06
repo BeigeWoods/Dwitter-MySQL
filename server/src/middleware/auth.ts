@@ -11,7 +11,6 @@ export const isAuth = async (
   next: NextFunction
 ) => {
   let token: string;
-
   // check the header(for Non-Browser Client) first
   const authHeader = req.get("Authorization");
   if (authHeader && authHeader.startsWith("Bearer ")) {

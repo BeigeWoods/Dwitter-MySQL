@@ -3,7 +3,7 @@ import { getSocketIO } from "../connection/socket.js";
 import { Request, Response } from "express";
 
 export async function getTweets(req: Request, res: Response) {
-  const username: any = req.query.username;
+  const { username }: any = req.query;
   const data = await (username
     ? tweetRepository.getAllByUsername(username)
     : tweetRepository.getAll());
@@ -11,7 +11,7 @@ export async function getTweets(req: Request, res: Response) {
 }
 
 export async function getTweet(req: Request, res: Response) {
-  const id = req.params.id;
+  const { id } = req.params;
   const tweet = await tweetRepository.getById(id);
   if (tweet) {
     res.status(200).json(tweet);
@@ -28,8 +28,8 @@ export async function createTweet(req: Request, res: Response) {
 }
 
 export async function updateTweet(req: Request, res: Response) {
-  const id = req.params.id;
-  const text = req.body.text;
+  const { id } = req.params;
+  const { text } = req.body;
   const tweet = await tweetRepository.getById(id);
   if (!tweet) {
     return res.status(404).json({ message: `Tweet not found: ${id}` });
@@ -42,7 +42,7 @@ export async function updateTweet(req: Request, res: Response) {
 }
 
 export async function deleteTweet(req: Request, res: Response) {
-  const id = req.params.id;
+  const { id } = req.params;
   const tweet = await tweetRepository.getById(id);
   if (!tweet) {
     return res.status(404).json({ message: `Tweet not found: ${id}` });

@@ -14,10 +14,11 @@ export const sequelize = new SQ.Sequelize(database, user, password, {
 export interface UserModel extends Model {
   readonly id: number;
   username: string;
-  password: string;
+  password?: string;
   name: string;
   email: string;
   url?: string;
+  socialLogin: boolean;
   readonly dataValues?: any;
 }
 
@@ -45,7 +46,7 @@ export const User = sequelize.define<UserModel>(
     },
     password: {
       type: DataTypes.STRING(128),
-      allowNull: false,
+      // allowNull: false,
     },
     name: {
       type: DataTypes.STRING(128),
@@ -53,25 +54,37 @@ export const User = sequelize.define<UserModel>(
     },
     email: {
       type: DataTypes.STRING(128),
+      unique: true,
+      allowNull: false,
+    },
+    socialLogin: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
     },
     url: DataTypes.TEXT,
   },
-  { timestamps: false }
+  { timestamps: false, charset: "utf8mb4", collate: "utf8mb4_general_ci" }
 );
 
-export const Tweet = sequelize.define<TweetModel>("tweet", {
-  id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    unique: true,
-    primaryKey: true,
-    autoIncrement: true,
+export const Tweet = sequelize.define<TweetModel>(
+  "tweet",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      unique: true,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    text: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
   },
-  text: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-});
+  {
+    charset: "utf8mb4",
+    collate: "utf8mb4_general_ci",
+  }
+);
 
 Tweet.belongsTo(User);
