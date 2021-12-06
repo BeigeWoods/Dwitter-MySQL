@@ -9,6 +9,7 @@ export default class HttpClient {
     const res = await fetch(`${this.baseURL}${url}`, {
       ...options,
       headers: {
+        Accept: "application/json",
         "Content-Type": "application/json",
         ...options.headers,
         "dwitter_csrf-token": this.getCsrfToken(),

@@ -1,15 +1,17 @@
-import { Switch, Route, useHistory } from 'react-router-dom';
-import Header from './components/Header';
-import AllTweets from './pages/AllTweets';
-import MyTweets from './pages/MyTweets';
-import { useAuth } from './context/AuthContext';
+import { Switch, Route, useHistory } from "react-router-dom";
+import Header from "./components/Header";
+import AllTweets from "./pages/AllTweets";
+import MyTweets from "./pages/MyTweets";
+import { useAuth } from "./context/AuthContext";
+import Profile from "./pages/Profile";
+import ChangePassword from "./pages/ChangePassword";
 
-function App({ tweetService }) {
+function App({ tweetService, authService }) {
   const history = useHistory();
-  const { user, logout } = useAuth();
+  const { user, logout, withdrawal } = useAuth();
 
   const onAllTweets = () => {
-    history.push('/');
+    history.push("/");
   };
 
   const onMyTweets = () => {
@@ -17,14 +19,21 @@ function App({ tweetService }) {
   };
 
   const onLogout = () => {
-    if (window.confirm('Do you want to log out?')) {
+    if (window.confirm("Do you want to log out?")) {
       logout();
-      history.push('/');
+      history.push("/");
+    }
+  };
+
+  const onWithdrawal = () => {
+    if (window.confirm("Do you want to leave us?")) {
+      withdrawal();
+      history.push("/");
     }
   };
 
   return (
-    <div className='app'>
+    <div className="app">
       <Header
         username={user.username}
         onLogout={onLogout}
@@ -34,11 +43,17 @@ function App({ tweetService }) {
       <Switch>
         (
         <>
-          <Route exact path='/'>
+          <Route exact path="/">
             <AllTweets tweetService={tweetService} />
           </Route>
-          <Route exact path='/:username'>
+          <Route exact path="/:username">
             <MyTweets tweetService={tweetService} />
+          </Route>
+          <Route exact path="/auth/profile">
+            <Profile onWithdrawal={onWithdrawal} authService={authService} />
+          </Route>
+          <Route exact path="/auth/change-password">
+            <ChangePassword authService={authService} />
           </Route>
         </>
         )

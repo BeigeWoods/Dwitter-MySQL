@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.css";
+import "./css/index.css";
 import App from "./App";
 import AuthService from "./service/auth";
 import TweetService from "./service/tweet";
@@ -14,7 +14,7 @@ import { AuthErrorEventBus } from "./context/AuthContext";
 import HttpClient from "./network/http";
 import Socket from "./network/socket";
 
-const baseURL = process.env.REACT_APP_BASE_URL;
+export const baseURL = process.env.REACT_APP_BASE_URL;
 const authErrorEventBus = new AuthErrorEventBus();
 const httpClient = new HttpClient(baseURL, authErrorEventBus, () =>
   fetchCsrfToken()
@@ -30,7 +30,7 @@ ReactDOM.render(
         authService={authService}
         authErrorEventBus={authErrorEventBus}
       >
-        <App tweetService={tweetService} />
+        <App tweetService={tweetService} authService={authService} />
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>,

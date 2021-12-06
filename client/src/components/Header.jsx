@@ -1,23 +1,88 @@
-import React, { memo } from 'react';
+import React, { memo } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faComments,
+  faBookReader,
+  faUser,
+  faSignOutAlt,
+} from "@fortawesome/free-solid-svg-icons";
+import { useHistory } from "react-router";
+import styled from "styled-components";
 
+// Style
+const PageHeader = styled.header`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-black);
+  padding: 8px;
+`;
+
+const Logo = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+`;
+
+const Image = styled.img`
+  width: 32px;
+  height: 32px;
+  margin-left: 5px;
+`;
+
+const Title = styled.h1`
+  font-size: 2rem;
+  margin: 8px;
+`;
+
+const Username = styled.span`
+  font-size: 0.7rem;
+  color: var(--color-blue);
+  padding-top: 8px;
+`;
+
+const Menu = styled.nav`
+  color: var(--color-white);
+  display: flex;
+  justify-content: space-between;
+  width: 125px;
+`;
+
+const Button = styled.button`
+  font-size: 17px;
+`;
+
+// Component
 const Header = memo(({ username, onLogout, onMyTweets, onAllTweets }) => {
+  const history = useHistory();
+  const onProfile = () => {
+    history.push("/auth/profile");
+  };
   return (
-    <header className='header'>
-      <div className='logo'>
-        <img src='./img/logo.png' alt='Dwitter Logo' className='logo-img' />
-        <h1 className='logo-name'>Dwitter</h1>
-        {username && <span className='logo-user'>@{username}</span>}
-      </div>
+    <PageHeader>
+      <Logo>
+        <Image src="./img/logo.png" alt="Dwitter Logo" />
+        <Title>Dwitter</Title>
+        {username && <Username>@{username}</Username>}
+      </Logo>
       {username && (
-        <nav className='menu'>
-          <button onClick={onAllTweets}>All Tweets</button>
-          <button onClick={onMyTweets}>My Tweets</button>
-          <button className='menu-item' onClick={onLogout}>
-            Logout
-          </button>
-        </nav>
+        <Menu>
+          <Button onClick={onAllTweets}>
+            <FontAwesomeIcon icon={faComments} />
+          </Button>
+          <Button onClick={onMyTweets}>
+            <FontAwesomeIcon icon={faBookReader} />
+          </Button>
+          <Button onClick={onProfile}>
+            <FontAwesomeIcon icon={faUser} />
+          </Button>
+          <Button onClick={onLogout}>
+            <FontAwesomeIcon icon={faSignOutAlt} />
+          </Button>
+        </Menu>
       )}
-    </header>
+    </PageHeader>
   );
 });
 
