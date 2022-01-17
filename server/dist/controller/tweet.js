@@ -7,64 +7,58 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import * as tweetRepository from "../data/tweet.js";
-import { getSocketIO } from "../connection/socket.js";
-export function getTweets(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { username } = req.query;
-        const data = yield (username
-            ? tweetRepository.getAllByUsername(username)
-            : tweetRepository.getAll());
-        res.status(200).json(data);
-    });
-}
-export function getTweet(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { id } = req.params;
-        const tweet = yield tweetRepository.getById(id);
-        if (tweet) {
-            res.status(200).json(tweet);
-        }
-        else {
-            res.status(404).json({ message: `Tweet id(${id}) not found` });
-        }
-    });
-}
-export function createTweet(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { text } = req.body;
-        const tweet = yield tweetRepository.create(text, req.userId);
-        res.status(201).json(tweet);
-        getSocketIO().emit("tweets", tweet);
-    });
-}
-export function updateTweet(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { id } = req.params;
-        const { text } = req.body;
-        const tweet = yield tweetRepository.getById(id);
-        if (!tweet) {
-            return res.status(404).json({ message: `Tweet not found: ${id}` });
-        }
-        if (tweet.userId !== req.userId) {
-            return res.sendStatus(403);
-        }
-        const updated = yield tweetRepository.update(id, text);
-        res.status(200).json(updated);
-    });
-}
-export function deleteTweet(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { id } = req.params;
-        const tweet = yield tweetRepository.getById(id);
-        if (!tweet) {
-            return res.status(404).json({ message: `Tweet not found: ${id}` });
-        }
-        if (tweet.userId !== req.userId) {
-            return res.sendStatus(403);
-        }
-        yield tweetRepository.remove(id);
-        res.sendStatus(204);
-    });
+export class TweetController {
+    constructor(tweetRepository, socketIO) {
+        this.tweetRepository = tweetRepository;
+        this.socketIO = socketIO;
+        this.getTweets = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const username = req.query.username;
+            const data = yield (username
+                ? this.tweetRepository.getAllByUsername(username)
+                : this.tweetRepository.getAll());
+            res.status(200).json(data);
+        });
+        this.getTweet = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { id } = req.params;
+            const tweet = yield this.tweetRepository.getById(id);
+            if (tweet) {
+                res.status(200).json(tweet);
+            }
+            else {
+                res.status(404).json({ message: `Tweet id(${id}) not found` });
+            }
+        });
+        this.createTweet = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const text = req.body.text;
+            const tweet = yield this.tweetRepository.create(text, req.userId);
+            res.status(201).json(tweet);
+            this.socketIO.emit("tweets", tweet);
+        });
+        this.updateTweet = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { id } = req.params;
+            const text = req.body.text;
+            const tweet = yield this.tweetRepository.getById(id);
+            if (!tweet) {
+                return res.status(404).json({ message: `Tweet not found: ${id}` });
+            }
+            if (tweet.userId !== req.userId) {
+                return res.sendStatus(403);
+            }
+            const updated = yield this.tweetRepository.update(id, text);
+            res.status(200).json(updated);
+        });
+        this.deleteTweet = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { id } = req.params;
+            const tweet = yield this.tweetRepository.getById(id);
+            if (!tweet) {
+                return res.status(404).json({ message: `Tweet not found: ${id}` });
+            }
+            if (tweet.userId !== req.userId) {
+                return res.sendStatus(403);
+            }
+            yield this.tweetRepository.remove(id);
+            res.sendStatus(204);
+        });
+    }
 }
 //# sourceMappingURL=tweet.js.map

@@ -1,11 +1,16 @@
+import { getSocketIO } from "../connection/socket.js";
+import { TweetRepository } from "../data/tweet.js";
+import { Tweet, User } from "../db/database.js";
 import express from "express";
 import "express-async-errors";
 import { body } from "express-validator";
-import * as tweetController from "../controller/tweet.js";
+import { TweetController } from "../controller/tweet.js";
 import { isAuth } from "../middleware/auth.js";
 import { validate } from "../middleware/validator.js";
 
 const router = express.Router();
+const tweetRepository = new TweetRepository(Tweet, User);
+const tweetController = new TweetController(tweetRepository, getSocketIO);
 
 const validateTweet: Array<any> = [
   body("text")

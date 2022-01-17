@@ -8,6 +8,7 @@
     "allowJs": false,
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "removeComments": true
+    "removeComments": true,
+    "typeRoots": ["./node_modules/@types","./src/customType"]
   }
 }

@@ -37,7 +37,7 @@ export function initSocket(server) {
     socket = new httpSocket(server);
   }
 }
-export function getSocketIO() {
+export function getSocketIO(): Socket {
   if (!socket) {
     throw new Error("Please call init first");
   }

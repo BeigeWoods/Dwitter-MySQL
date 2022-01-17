@@ -1,55 +1,73 @@
-import * as tweetRepository from "../data/tweet.js";
-import { getSocketIO } from "../connection/socket.js";
+import { TweetDataHandler } from "data/tweet";
 import { Request, Response } from "express";
+import { Socket } from "socket.io";
 
-export async function getTweets(req: Request, res: Response) {
-  const { username }: any = req.query;
-  const data = await (username
-    ? tweetRepository.getAllByUsername(username)
-    : tweetRepository.getAll());
-  res.status(200).json(data);
+// type GetSocketIO = {
+//   getSoketIO(): Socket;
+// };
+export interface TweetHandler {
+  getTweets(req: Request, res: Response): void;
+  getTweet(req: Request, res: Response): void;
+  createTweet(req: Request, res: Response): void;
+  updateTweet(req: Request, res: Response): void;
+  deleteTweet(req: Request, res: Response): void;
 }
 
-export async function getTweet(req: Request, res: Response) {
-  const { id } = req.params;
-  const tweet = await tweetRepository.getById(id);
-  if (tweet) {
-    res.status(200).json(tweet);
-  } else {
-    res.status(404).json({ message: `Tweet id(${id}) not found` });
-  }
-}
+export class TweetController implements TweetHandler {
+  constructor(
+    private tweetRepository: TweetDataHandler,
+    private socketIO: any
+  ) {}
 
-export async function createTweet(req: Request, res: Response) {
-  const { text } = req.body;
-  const tweet = await tweetRepository.create(text, req.userId);
-  res.status(201).json(tweet);
-  getSocketIO().emit("tweets", tweet);
-}
+  getTweets = async (req: Request, res: Response) => {
+    const username = req.query.username! as string;
+    const data = await (username
+      ? this.tweetRepository.getAllByUsername(username)
+      : this.tweetRepository.getAll());
+    res.status(200).json(data);
+  };
 
-export async function updateTweet(req: Request, res: Response) {
-  const { id } = req.params;
-  const { text } = req.body;
-  const tweet = await tweetRepository.getById(id);
-  if (!tweet) {
-    return res.status(404).json({ message: `Tweet not found: ${id}` });
-  }
-  if (tweet.userId !== req.userId) {
-    return res.sendStatus(403);
-  }
-  const updated = await tweetRepository.update(id, text);
-  res.status(200).json(updated);
-}
+  getTweet = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const tweet = await this.tweetRepository.getById(id);
+    if (tweet) {
+      res.status(200).json(tweet);
+    } else {
+      res.status(404).json({ message: `Tweet id(${id}) not found` });
+    }
+  };
 
-export async function deleteTweet(req: Request, res: Response) {
-  const { id } = req.params;
-  const tweet = await tweetRepository.getById(id);
-  if (!tweet) {
-    return res.status(404).json({ message: `Tweet not found: ${id}` });
-  }
-  if (tweet.userId !== req.userId) {
-    return res.sendStatus(403);
-  }
-  await tweetRepository.remove(id);
-  res.sendStatus(204);
+  createTweet = async (req: Request, res: Response) => {
+    const text = req.body.text! as string;
+    const tweet = await this.tweetRepository.create(text, req.userId);
+    res.status(201).json(tweet);
+    this.socketIO.emit("tweets", tweet);
+  };
+
+  updateTweet = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const text = req.body.text! as string;
+    const tweet = await this.tweetRepository.getById(id);
+    if (!tweet) {
+      return res.status(404).json({ message: `Tweet not found: ${id}` });
+    }
+    if (tweet.userId !== req.userId) {
+      return res.sendStatus(403);
+    }
+    const updated = await this.tweetRepository.update(id, text);
+    res.status(200).json(updated);
+  };
+
+  deleteTweet = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const tweet = await this.tweetRepository.getById(id);
+    if (!tweet) {
+      return res.status(404).json({ message: `Tweet not found: ${id}` });
+    }
+    if (tweet.userId !== req.userId) {
+      return res.sendStatus(403);
+    }
+    await this.tweetRepository.remove(id);
+    res.sendStatus(204);
+  };
 }

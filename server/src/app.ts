@@ -10,6 +10,7 @@ import { config } from "./config.js";
 import { initSocket } from "./connection/socket.js";
 import { sequelize } from "./db/database.js";
 import { csrfCheck } from "./middleware/csrf.js";
+import { Server } from "http";
 
 const app = express();
 const corsOption = {
@@ -40,7 +41,7 @@ app.use((req: Request, error: any, res: Response, next: NextFunction) => {
 sequelize
   .sync()
   .then(() => {
-    const server = app.listen(config.port);
+    const server: Server = app.listen(config.port);
     initSocket(server);
   })
-  .catch((err) => console.error(err));
+  .catch((err: Error) => console.error(err));
