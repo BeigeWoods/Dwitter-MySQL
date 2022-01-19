@@ -1,18 +1,11 @@
-import { getSocketIO } from "../connection/socket.js";
-import { TweetRepository } from "../data/tweet.js";
-import { Tweet, User } from "../db/database.js";
 import express from "express";
 import "express-async-errors";
-import { body } from "express-validator";
-import { TweetController } from "../controller/tweet.js";
+import { TweetHandler } from "controller/tweet.js";
+import { body, ValidationChain } from "express-validator";
 import { isAuth } from "../middleware/auth.js";
-import { validate } from "../middleware/validator.js";
+import { Validate, validate } from "../middleware/validator.js";
 
-const router = express.Router();
-const tweetRepository = new TweetRepository(Tweet, User);
-const tweetController = new TweetController(tweetRepository, getSocketIO);
-
-const validateTweet: Array<any> = [
+const validateTweet: Array<ValidationChain | Validate> = [
   body("text")
     .trim()
     .isLength({ min: 3 })
@@ -20,20 +13,25 @@ const validateTweet: Array<any> = [
   validate,
 ];
 
-// GET /tweet
-// GET /tweets?username=:username
-router.get("/", isAuth, tweetController.getTweets);
+export default function tweetsRouter(
+  tweetController: TweetHandler
+): express.IRouter {
+  const router = express.Router();
+  // GET /tweet
+  // GET /tweets?username=:username
+  router.get("/", isAuth, tweetController.getTweets);
 
-// GET /tweets/:id
-router.get("/:id", isAuth, tweetController.getTweet);
+  // GET /tweets/:id
+  router.get("/:id", isAuth, tweetController.getTweet);
 
-// POST /tweeets
-router.post("/", isAuth, validateTweet, tweetController.createTweet);
+  // POST /tweeets
+  router.post("/", isAuth, validateTweet, tweetController.createTweet);
 
-// PUT /tweets/:id
-router.put("/:id", isAuth, validateTweet, tweetController.updateTweet);
+  // PUT /tweets/:id
+  router.put("/:id", isAuth, validateTweet, tweetController.updateTweet);
 
-// DELETE /tweets/:id
-router.delete("/:id", isAuth, tweetController.deleteTweet);
+  // DELETE /tweets/:id
+  router.delete("/:id", isAuth, tweetController.deleteTweet);
 
-export default router;
+  return router;
+}

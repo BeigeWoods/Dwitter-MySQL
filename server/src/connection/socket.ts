@@ -1,11 +1,15 @@
 import { Server, Socket } from "socket.io";
 import jwt from "jsonwebtoken";
-import { config } from "../config.js";
 import { NextFunction } from "express";
+import { config } from "../config.js";
 
-class httpSocket {
-  io: any;
-  constructor(server) {
+interface HttpSocket {
+  readonly io: Server;
+}
+
+class httpSocket implements HttpSocket {
+  io: Server;
+  constructor(server: Express.Application) {
     this.io = new Server(server, {
       cors: {
         origin: config.cors.allowedOrigin,
@@ -13,11 +17,11 @@ class httpSocket {
     });
 
     this.io.use((socket: Socket, next: NextFunction) => {
-      const token = socket.handshake.auth.token;
+      const token: string = socket.handshake.auth.token;
       if (!token) {
         return next(new Error("Authentication error"));
       }
-      jwt.verify(token, config.jwt.secretKey, (error: any) => {
+      jwt.verify(token, config.jwt.secretKey, (error: Error) => {
         if (error) {
           return next(new Error("Authentication error"));
         }
@@ -31,13 +35,14 @@ class httpSocket {
   }
 }
 
-let socket;
-export function initSocket(server) {
+let socket: HttpSocket;
+export function initSocket(server: Express.Application) {
   if (!socket) {
     socket = new httpSocket(server);
   }
 }
-export function getSocketIO(): Socket {
+
+export function getSocketIO(): Server {
   if (!socket) {
     throw new Error("Please call init first");
   }

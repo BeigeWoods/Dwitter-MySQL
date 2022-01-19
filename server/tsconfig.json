@@ -9,6 +9,8 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "removeComments": true,
-    "typeRoots": ["./node_modules/@types","./src/customType"]
+    "typeRoots": ["./node_modules/@types", "./src/customType"],
+    "composite": true,
+    "incremental": true
   }
 }

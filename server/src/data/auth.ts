@@ -1,4 +1,4 @@
-import { Tweet, User, UserModel } from "../db/database.js";
+import { Tweet, User, UserModel } from "../db/database";
 
 interface UserInfo {
   username: string;
