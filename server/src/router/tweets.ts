@@ -1,9 +1,9 @@
 import express from "express";
 import "express-async-errors";
-import { TweetHandler } from "controller/tweet.js";
+import { TweetHandler } from "../controller/tweet.js";
 import { body, ValidationChain } from "express-validator";
-import { isAuth } from "../middleware/auth.js";
 import { Validate, validate } from "../middleware/validator.js";
+import { AuthValidateHandler } from "../middleware/auth.js";
 
 const validateTweet: Array<ValidationChain | Validate> = [
   body("text")
@@ -14,24 +14,35 @@ const validateTweet: Array<ValidationChain | Validate> = [
 ];
 
 export default function tweetsRouter(
+  authValidator: AuthValidateHandler,
   tweetController: TweetHandler
 ): express.IRouter {
   const router = express.Router();
   // GET /tweet
   // GET /tweets?username=:username
-  router.get("/", isAuth, tweetController.getTweets);
+  router.get("/", authValidator.isAuth, tweetController.getTweets);
 
   // GET /tweets/:id
-  router.get("/:id", isAuth, tweetController.getTweet);
+  router.get("/:id", authValidator.isAuth, tweetController.getTweet);
 
   // POST /tweeets
-  router.post("/", isAuth, validateTweet, tweetController.createTweet);
+  router.post(
+    "/",
+    authValidator.isAuth,
+    validateTweet,
+    tweetController.createTweet
+  );
 
   // PUT /tweets/:id
-  router.put("/:id", isAuth, validateTweet, tweetController.updateTweet);
+  router.put(
+    "/:id",
+    authValidator.isAuth,
+    validateTweet,
+    tweetController.updateTweet
+  );
 
   // DELETE /tweets/:id
-  router.delete("/:id", isAuth, tweetController.deleteTweet);
+  router.delete("/:id", authValidator.isAuth, tweetController.deleteTweet);
 
   return router;
 }

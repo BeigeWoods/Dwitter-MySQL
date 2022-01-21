@@ -1,15 +1,13 @@
 import express from "express";
 import {} from "express-async-errors";
-import { body } from "express-validator";
-import { validate } from "../middleware/validator.js";
-import * as authController from "../controller/auth/auth.js";
-import * as oauthController from "../controller/auth/oauth.js";
-import { isAuth } from "../middleware/auth.js";
-import * as tokenController from "../controller/auth/token.js";
+import { body, ValidationChain } from "express-validator";
+import { Validate, validate } from "../middleware/validator.js";
+import { AuthValidateHandler } from "../middleware/auth.js";
+import { AuthDataHandler } from "../controller/auth/auth.js";
+import { GithubOauth } from "../controller/auth/oauth.js";
+import { TokenHandler } from "../controller/auth/token.js";
 
-const router = express.Router();
-
-const validateCredential: Array<any> = [
+const validateCredential: Array<ValidationChain | Validate> = [
   body("username")
     .trim()
     .notEmpty()
@@ -23,7 +21,7 @@ const validateCredential: Array<any> = [
   validate,
 ];
 
-const validateInformation: Array<any> = [
+const validateInformation: Array<ValidationChain | Validate> = [
   body("name").notEmpty().withMessage("name is missing"),
   body("email")
     .notEmpty()
@@ -37,12 +35,12 @@ const validateInformation: Array<any> = [
   validate,
 ];
 
-const validateSignup: Array<any> = [
+const validateSignup: Array<ValidationChain | Validate> = [
   ...validateCredential,
   ...validateInformation,
 ];
 
-const validateProfile: Array<any> = [
+const validateProfile: Array<ValidationChain | Validate> = [
   body("username")
     .trim()
     .notEmpty()
@@ -51,7 +49,7 @@ const validateProfile: Array<any> = [
   ...validateInformation,
 ];
 
-const validatePassword: Array<any> = [
+const validatePassword: Array<ValidationChain | Validate> = [
   body("oldPassword")
     .trim()
     .notEmpty()
@@ -70,31 +68,45 @@ const validatePassword: Array<any> = [
   validate,
 ];
 
-router.post("/signup", validateSignup, authController.signup);
+export default function authRouter(
+  authValidator: AuthValidateHandler,
+  authController: AuthDataHandler,
+  oauthController: GithubOauth,
+  tokenController: TokenHandler
+): express.IRouter {
+  const router = express.Router();
 
-router.post("/login", validateCredential, authController.login);
+  router.post("/signup", validateSignup, authController.signup);
 
-router.get("/github/start", oauthController.githubStart);
+  router.post("/login", validateCredential, authController.login);
 
-router.get("/github/finish", oauthController.githubFinish);
+  router.get("/github/start", oauthController.githubStart);
 
-router.post("/logout", isAuth, authController.logout);
+  router.get("/github/finish", oauthController.githubFinish);
 
-router.get("/csrf-token", tokenController.csrfToken);
+  router.post("/logout", authValidator.isAuth, authController.logout);
 
-router.get("/me", isAuth, authController.me);
+  router.get("/csrf-token", tokenController.csrfToken);
 
-router.get("/profile", isAuth, authController.getUser);
+  router.get("/me", authValidator.isAuth, authController.me);
 
-router.put("/profile", isAuth, validateProfile, authController.updateUser);
+  router.get("/profile", authValidator.isAuth, authController.getUser);
 
-router.post(
-  "/change-password",
-  isAuth,
-  validatePassword,
-  authController.password
-);
+  router.put(
+    "/profile",
+    authValidator.isAuth,
+    validateProfile,
+    authController.updateUser
+  );
 
-router.post("/withdrawal", isAuth, authController.withdrawal);
+  router.post(
+    "/change-password",
+    authValidator.isAuth,
+    validatePassword,
+    authController.password
+  );
 
-export default router;
+  router.post("/withdrawal", authValidator.isAuth, authController.withdrawal);
+
+  return router;
+}

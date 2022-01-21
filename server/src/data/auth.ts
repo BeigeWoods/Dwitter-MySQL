@@ -1,63 +1,78 @@
-import { Tweet, User, UserModel } from "../db/database";
+import SQ from "sequelize";
+import { TweetModel, UserModel } from "../db/database.js";
 
-interface UserInfo {
+type UserInfo = {
   username: string;
-  password?: string;
   name: string;
   email: string;
   url?: string;
-}
+};
 
-interface AllUserInfo extends UserInfo {
+type AllUserInfo = UserInfo & {
+  password: string;
   socialLogin: boolean;
+};
+
+export interface UserDataHandler {
+  findById(id: number): Promise<UserModel | null>;
+  findByUsername(username: string): Promise<UserModel | null>;
+  findByUserEmail(email: string): Promise<UserModel | null>;
+  updateUser(id: number, user: UserInfo): Promise<UserModel>;
+  updatePassword(id: number, password: string): Promise<UserModel>;
+  createUser(user: AllUserInfo): Promise<number>;
+  deleteUser(id: number): Promise<void>;
 }
 
-export async function findById(id: number): Promise<UserModel> {
-  return await User.findByPk(id);
-}
+export default class UserRepository implements UserDataHandler {
+  constructor(
+    private tweet: SQ.ModelCtor<TweetModel>,
+    private user: SQ.ModelCtor<UserModel>
+  ) {}
 
-export async function findByUsername(username: string): Promise<UserModel> {
-  return await User.findOne({ where: { username } });
-}
+  findById = async (id: number) => {
+    return await this.user.findByPk(id);
+  };
 
-export async function findByUserEmail(email: string): Promise<UserModel> {
-  return await User.findOne({ where: { email } });
-}
+  findByUsername = async (username: string) => {
+    return await this.user.findOne({ where: { username } });
+  };
 
-export async function updateUser(
-  id: number,
-  user: UserInfo
-): Promise<UserModel> {
-  const { username, name, email, url } = user;
-  return await User.findByPk(id).then((data) => {
-    data.set({ username, name, email, url });
-    return data.save();
-  });
-}
+  findByUserEmail = async (email: string) => {
+    return await this.user.findOne({ where: { email } });
+  };
 
-export async function updatePassword(id: number, password: string) {
-  return await User.findByPk(id).then((pw) => {
-    pw.password = password;
-    return pw.save();
-  });
-}
+  updateUser = async (id: number, user: UserInfo) => {
+    const { username, name, email, url } = user;
+    return await this.user.findByPk(id).then((data) => {
+      data!.set({ username, name, email, url });
+      return data!.save();
+    });
+  };
 
-export async function createUser(user: AllUserInfo): Promise<number> {
-  const { username, password, name, email, url, socialLogin } = user;
-  const userData = await User.create({
-    username,
-    password,
-    name,
-    email,
-    url,
-    socialLogin,
-  });
-  return userData.dataValues.id;
-}
+  updatePassword = async (id: number, password: string) => {
+    return await this.user.findByPk(id).then((pw) => {
+      pw!.password = password;
+      return pw!.save();
+    });
+  };
 
-export async function deleteUser(id: number) {
-  return await User.findByPk(id).then((user) => {
-    user.destroy();
-    Tweet.destroy({ where: { userId: id } });
-  });
+  createUser = async (user: AllUserInfo) => {
+    const { username, password, name, email, url, socialLogin } = user;
+    const userData = await this.user.create({
+      username,
+      password,
+      name,
+      email,
+      url,
+      socialLogin,
+    });
+    return userData.dataValues.id;
+  };
+
+  deleteUser = async (id: number) => {
+    return await this.user.findByPk(id).then((user) => {
+      user!.destroy();
+      this.tweet.destroy({ where: { userId: id } });
+    });
+  };
 }

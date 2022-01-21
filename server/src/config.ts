@@ -2,15 +2,42 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // .env에서 키 값이 제대로 주어졌는지 확인한 후 키 값을 반환하는 함수
-function required(key: string, defaultValue: any = undefined): any {
+function required(key: string, defaultValue?: number | string): string {
   const value = process.env[key] || defaultValue;
   if (value == null) {
     throw new Error(`Key ${key} is undefined`);
   }
-  return value;
+  return value as string;
 }
 
-export const config = {
+export type Config = {
+  cors: {
+    allowedOrigin: string;
+  };
+  jwt: {
+    secretKey: string;
+    expiresInSec: number;
+  };
+  bcrypt: {
+    saltRounds: number;
+  };
+  port: number;
+  db: {
+    host: string;
+    user: string;
+    database: string;
+    password: string;
+  };
+  csrf: {
+    plainToken: string;
+  };
+  ghOauth: {
+    clientId: string;
+    clientSecret: string;
+  };
+};
+
+export const config: Config = {
   cors: {
     allowedOrigin: required("ALLOWED_ORIGIN"),
   },

@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "DOTENV_CONFIG_PATH=./.env.test jest --watchAll --verbose",
-    "start": "concurrently \"npx tsc -w\" \"nodemon dist/app\""
+    "start": "concurrently \"tsc -w\" \"nodemon dist/app\""
   },
   "author": "BeigeWoods",
   "license": "ISC",
@@ -44,6 +44,7 @@
     "@types/sequelize": "^4.28.10",
     "@types/socket.io": "^3.0.2",
     "@types/validator": "^13.6.3",
+    "babel-jest": "^27.4.6",
     "concurrently": "^6.3.0",
     "faker": "^5.5.3",
     "jest": "^27.4.5",

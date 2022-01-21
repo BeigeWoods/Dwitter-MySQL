@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
-import jwt from "jsonwebtoken";
-import { NextFunction } from "express";
+import jwt, { VerifyErrors } from "jsonwebtoken";
 import { config } from "../config.js";
+import { ExtendedError } from "socket.io/dist/namespace";
 
 interface HttpSocket {
   readonly io: Server;
@@ -16,12 +16,12 @@ class httpSocket implements HttpSocket {
       },
     });
 
-    this.io.use((socket: Socket, next: NextFunction) => {
+    this.io.use((socket: Socket, next: (error?: ExtendedError) => void) => {
       const token: string = socket.handshake.auth.token;
       if (!token) {
         return next(new Error("Authentication error"));
       }
-      jwt.verify(token, config.jwt.secretKey, (error: Error) => {
+      jwt.verify(token, config.jwt.secretKey, (error: VerifyErrors | null) => {
         if (error) {
           return next(new Error("Authentication error"));
         }

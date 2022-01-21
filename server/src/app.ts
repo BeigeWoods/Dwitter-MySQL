@@ -14,15 +14,34 @@ import { getSocketIO } from "./connection/socket.js";
 import { TweetRepository } from "./data/tweet.js";
 import { Tweet, User } from "./db/database.js";
 import { TweetController } from "./controller/tweet.js";
+import OauthController from "./controller/auth/oauth.js";
+import TokenRepository from "./controller/auth/token.js";
+import UserRepository from "./data/auth.js";
+import AuthController from "./controller/auth/auth.js";
+import AuthValidator from "./middleware/auth.js";
 
 const app = express();
+const tweetRepository = new TweetRepository(Tweet, User);
+const tweetController = new TweetController(tweetRepository, getSocketIO);
+const tokenController = new TokenRepository(config);
+const userRepository = new UserRepository(Tweet, User);
+const authValidator = new AuthValidator(config, userRepository);
+const oauthController = new OauthController(
+  config,
+  tokenController,
+  userRepository
+);
+const authController = new AuthController(
+  config,
+  userRepository,
+  tokenController
+);
+
 const corsOption = {
   origin: config.cors.allowedOrigin,
   optionsSuccessStatus: 200,
   credentials: true, // allow the Access-Control-Allow-Credentials
 };
-const tweetRepository = new TweetRepository(Tweet, User);
-const tweetController = new TweetController(tweetRepository, getSocketIO);
 
 app.use(express.json());
 app.use(helmet());
@@ -31,8 +50,11 @@ app.use(morgan("tiny"));
 app.use(cookieParser());
 
 app.use(csrfCheck);
-app.use("/", tweetsRouter(tweetController));
-app.use("/auth", authRouter);
+app.use("/", tweetsRouter(authValidator, tweetController));
+app.use(
+  "/auth",
+  authRouter(authValidator, authController, oauthController, tokenController)
+);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.sendStatus(404);

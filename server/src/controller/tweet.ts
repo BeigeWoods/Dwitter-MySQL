@@ -1,4 +1,4 @@
-import { TweetDataHandler } from "data/tweet";
+import { TweetDataHandler } from "../data/tweet.js";
 import { Request, Response } from "express";
 import { Server } from "socket.io";
 
@@ -13,7 +13,7 @@ export interface TweetHandler {
 export class TweetController implements TweetHandler {
   constructor(
     private tweetRepository: TweetDataHandler,
-    private getSocketIO: Server | any
+    private getSocketIO: () => Server
   ) {}
 
   getTweets = async (req: Request, res: Response) => {
@@ -36,9 +36,9 @@ export class TweetController implements TweetHandler {
 
   createTweet = async (req: Request, res: Response) => {
     const text = req.body.text! as string;
-    const tweet = await this.tweetRepository.create(text, req.userId);
+    const tweet = await this.tweetRepository.create(text, req.userId as number);
     res.status(201).json(tweet);
-    this.getSocketIO.emit("tweets", tweet);
+    this.getSocketIO().emit("tweets", tweet);
   };
 
   updateTweet = async (req: Request, res: Response) => {
