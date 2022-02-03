@@ -52,6 +52,7 @@ export default function tweetsRouter(
     authValidator.isAuth,
     imageUploading,
     validateTweet,
+    tweetFormDataValidate,
     tweetController.updateTweet
   );
 
