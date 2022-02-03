@@ -1,0 +1,45 @@
+import styled from "styled-components";
+
+export const AttachmentButton = styled.button`
+  font-size: 17px;
+  color: var(--color-blue);
+  grid-column: 2;
+  margin-right: ${(props) => (props.current ? "0" : "4px")};
+`;
+
+export const TweetForm = styled.form`
+  display: ${(props) => (props.current ? "grid" : "flex")};
+  width: 100%;
+  padding: 4px 16px;
+  background-color: var(--color-grey);
+  grid-template-columns: 8fr 35px 1fr;
+  grid-template-rows: 30px 30px 30px;
+  row-gap: 5px;
+  align-items: center;
+`;
+
+export const VideoInput = styled.input`
+  grid-row: 2;
+`;
+
+export const ImageInput = styled.input`
+  grid-row: 3;
+`;
+
+export const TweetEditForm = styled.form`
+  display: grid;
+  width: 100%;
+  padding: 4px 16px;
+  background-color: var(--color-grey);
+  grid-template-columns: 5fr 25px 1fr;
+  grid-template-rows: ${(props) =>
+    props.current ? "24px 24px 24px" : "24px 24px"};
+  row-gap: 5px;
+  align-items: center;
+`;
+
+export const EditAttachmentButton = styled.button`
+  font-size: 14px;
+  color: var(--color-blue);
+  grid-column: 2;
+`;

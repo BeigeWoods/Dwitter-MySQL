@@ -5,12 +5,13 @@ export default class HttpClient {
     this.getCsrfToken = getCsrfToken;
   }
 
-  async fetch(url, options) {
+  async fetch(url, options, json = true) {
+    const contentType = json && { "Content-Type": "application/json" };
     const res = await fetch(`${this.baseURL}${url}`, {
       ...options,
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
+        contentType,
         ...options.headers,
         "dwitter_csrf-token": this.getCsrfToken(),
       },

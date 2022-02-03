@@ -11,13 +11,17 @@ export interface TweetHandler {
 }
 
 export class TweetController implements TweetHandler {
+  idRegex: RegExp;
   constructor(
     private tweetRepository: TweetDataHandler,
     private getSocketIO: () => Server
-  ) {}
+  ) {
+    this.idRegex =
+      /(?:(?:youtu\.be\/)|(?:youtube\.com\/(?:(?:watch\?v\=)|(?:embed\/))))([a-zA-Z0-9-_]{11})/;
+  }
 
   getTweets = async (req: Request, res: Response) => {
-    const username = req.query.username! as string;
+    const username = req.query.username! as string | undefined;
     const data = await (username
       ? this.tweetRepository.getAllByUsername(username)
       : this.tweetRepository.getAll());
@@ -35,15 +39,24 @@ export class TweetController implements TweetHandler {
   };
 
   createTweet = async (req: Request, res: Response) => {
-    const text = req.body.text! as string;
-    const tweet = await this.tweetRepository.create(text, req.userId as number);
+    const image = req.file?.path;
+    const { text, video }: { text?: string; video?: string } = req.body;
+    const match = video?.match(this.idRegex);
+    const videoUrl = `https://www.youtube.com/embed/${match && match[1]}`;
+    const tweet = await this.tweetRepository.create(
+      req.userId as number,
+      text,
+      match ? videoUrl : undefined,
+      image
+    );
     res.status(201).json(tweet);
     this.getSocketIO().emit("tweets", tweet);
   };
 
   updateTweet = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const text = req.body.text! as string;
+    const image = req.file?.path;
+    const { text, video }: { text?: string; video?: string } = req.body;
     const tweet = await this.tweetRepository.getById(id);
     if (!tweet) {
       return res.status(404).json({ message: `Tweet not found: ${id}` });
@@ -51,7 +64,14 @@ export class TweetController implements TweetHandler {
     if (tweet.userId !== req.userId) {
       return res.sendStatus(403);
     }
-    const updated = await this.tweetRepository.update(id, text);
+    const match = video?.match(this.idRegex);
+    const videoUrl = `https://www.youtube.com/embed/${match && match[1]}`;
+    const updated = await this.tweetRepository.update(
+      id,
+      text,
+      match ? videoUrl : undefined,
+      image
+    );
     res.status(200).json(updated);
   };
 

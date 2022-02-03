@@ -2,15 +2,26 @@ import express from "express";
 import "express-async-errors";
 import { TweetHandler } from "../controller/tweet.js";
 import { body, ValidationChain } from "express-validator";
-import { Validate, validate } from "../middleware/validator.js";
+import {
+  Validate,
+  expressValidate,
+  tweetFormDataValidate,
+} from "../middleware/validator.js";
 import { AuthValidateHandler } from "../middleware/auth.js";
+import { imageUploading } from "../middleware/multer.js";
 
 const validateTweet: Array<ValidationChain | Validate> = [
   body("text")
+    .optional({ checkFalsy: true })
     .trim()
-    .isLength({ min: 3 })
-    .withMessage("text should be at least 3 characters"),
-  validate,
+    .isLength({ min: 1 })
+    .withMessage("text should be at least 1 characters"),
+  body("video")
+    .optional({ checkFalsy: true })
+    .trim()
+    .isURL()
+    .withMessage("invalid url"),
+  expressValidate,
 ];
 
 export default function tweetsRouter(
@@ -29,7 +40,9 @@ export default function tweetsRouter(
   router.post(
     "/",
     authValidator.isAuth,
+    imageUploading,
     validateTweet,
+    tweetFormDataValidate,
     tweetController.createTweet
   );
 
@@ -37,6 +50,7 @@ export default function tweetsRouter(
   router.put(
     "/:id",
     authValidator.isAuth,
+    imageUploading,
     validateTweet,
     tweetController.updateTweet
   );

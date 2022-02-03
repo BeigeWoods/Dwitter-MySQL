@@ -5,8 +5,18 @@ export interface TweetDataHandler {
   getAll(): Promise<TweetModel[]>;
   getAllByUsername(username: string): Promise<TweetModel[]>;
   getById(id: string): Promise<TweetModel | null>;
-  create(text: string, userId: number): Promise<TweetModel | null>;
-  update(id: string, text: string): Promise<TweetModel>;
+  create(
+    userId: number,
+    text?: string,
+    video?: string,
+    image?: string
+  ): Promise<TweetModel | null>;
+  update(
+    id: string,
+    text?: string,
+    video?: string,
+    image?: string
+  ): Promise<TweetModel>;
   remove(id: string): Promise<void>;
 }
 
@@ -15,6 +25,8 @@ export class TweetRepository implements TweetDataHandler {
     attributes: [
       "id",
       "text",
+      "video",
+      "image",
       "createdAt",
       "userId",
       [SQ.Sequelize.col("user.name"), "name"],
@@ -57,15 +69,27 @@ export class TweetRepository implements TweetDataHandler {
     });
   };
 
-  create = async (text: string, userId: number) => {
+  create = async (
+    userId: number,
+    text?: string,
+    video?: string,
+    image?: string
+  ) => {
     return this.tweet
-      .create({ text, userId })
+      .create({ text, video, image, userId })
       .then((data) => this.getById(data.dataValues.id!));
   };
 
-  update = async (id: string, text: string) => {
+  update = async (
+    id: string,
+    text?: string,
+    video?: string,
+    image?: string
+  ) => {
     return this.tweet.findByPk(id, this.INCLUDE_USER).then((tweet) => {
       tweet!.text = text;
+      tweet!.video = video;
+      tweet!.image = image;
       return tweet!.save();
     });
   };

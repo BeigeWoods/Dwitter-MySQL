@@ -11,23 +11,39 @@ export default class TweetService {
     });
   }
 
-  async postTweet(text) {
-    return this.http.fetch(`/`, {
-      method: "POST",
-      body: JSON.stringify({ text }),
-    });
+  async postTweet(text, video, image) {
+    const data = new FormData();
+    data.append("text", text);
+    data.append("video", video);
+    data.append("image", image);
+    return this.http.fetch(
+      `/`,
+      {
+        method: "POST",
+        body: data,
+      },
+      false
+    );
+  }
+
+  async updateTweet(tweetId, text, video, image) {
+    const data = new FormData();
+    data.append("text", text);
+    data.append("video", video);
+    data.append("image", image);
+    return this.http.fetch(
+      `/${tweetId}`,
+      {
+        method: "PUT",
+        body: data,
+      },
+      false
+    );
   }
 
   async deleteTweet(tweetId) {
     return this.http.fetch(`/${tweetId}`, {
       method: "DELETE",
-    });
-  }
-
-  async updateTweet(tweetId, text) {
-    return this.http.fetch(`/${tweetId}`, {
-      method: "PUT",
-      body: JSON.stringify({ text }),
     });
   }
 

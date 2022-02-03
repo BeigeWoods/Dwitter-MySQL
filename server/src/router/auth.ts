@@ -1,7 +1,7 @@
 import express from "express";
 import {} from "express-async-errors";
 import { body, ValidationChain } from "express-validator";
-import { Validate, validate } from "../middleware/validator.js";
+import { Validate, expressValidate } from "../middleware/validator.js";
 import { AuthValidateHandler } from "../middleware/auth.js";
 import { AuthDataHandler } from "../controller/auth/auth.js";
 import { GithubOauth } from "../controller/auth/oauth.js";
@@ -18,7 +18,7 @@ const validateCredential: Array<ValidationChain | Validate> = [
     .notEmpty()
     .isLength({ min: 8 })
     .withMessage("password should be at least 8 characters"),
-  validate,
+  expressValidate,
 ];
 
 const validateInformation: Array<ValidationChain | Validate> = [
@@ -32,7 +32,7 @@ const validateInformation: Array<ValidationChain | Validate> = [
     .isURL()
     .withMessage("invalid URL")
     .optional({ nullable: true, checkFalsy: true }),
-  validate,
+  expressValidate,
 ];
 
 const validateSignup: Array<ValidationChain | Validate> = [
@@ -65,7 +65,7 @@ const validatePassword: Array<ValidationChain | Validate> = [
     .notEmpty()
     .isLength({ min: 8 })
     .withMessage("password should be at least 8 characters"),
-  validate,
+  expressValidate,
 ];
 
 export default function authRouter(

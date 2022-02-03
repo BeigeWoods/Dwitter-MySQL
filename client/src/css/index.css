@@ -119,7 +119,7 @@ button {
 
 .tweet-body {
   margin: 0px 8px;
-  width: 100%;
+  width: 95%;
 }
 
 .tweet-name {
@@ -148,15 +148,9 @@ button {
   color: var(--color-darkGrey);
 }
 
-.tweet-form {
-  display: flex;
-  width: 100%;
-  padding: 4px 16px;
-  background-color: var(--color-grey);
-}
-
 .tweet-input {
   width: 100%;
+  height: 100%;
   margin-right: 4px;
 }
 
@@ -190,8 +184,9 @@ button {
   padding: 4px;
 }
 .form-btn-cancel {
-  margin-left: 8px;
   background: var(--color-red);
+  grid-column: 3;
+  grid-row: 2;
 }
 
 .github-icon {

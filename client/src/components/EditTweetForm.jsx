@@ -1,38 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
+import {
+  EditAttachmentButton,
+  ImageInput,
+  TweetEditForm,
+  VideoInput,
+} from "../css/tweetForm";
 
 const EditTweetForm = ({ tweet, onUpdate, onClose }) => {
   const [text, setText] = useState(tweet.text);
+  const [video, setVideo] = useState(tweet.video);
+  const [image, setImage] = useState(tweet.image);
+  const [show, setShow] = useState(false);
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    onUpdate(tweet.id, text);
+    onUpdate(tweet.id, text, video, image);
     onClose();
   };
 
   const onChange = (event) => {
-    setText(event.target.value);
+    const {
+      target: { name, value, files },
+    } = event;
+    switch (name) {
+      case "text":
+        return setText(value);
+      case "video":
+        return setVideo(value);
+      case "image":
+        return setImage(files[0]);
+      default:
+    }
   };
 
+  const showMediaInput = () => (show ? setShow(false) : setShow(true));
+
   return (
-    <form className='edit-tweet-form' onSubmit={onSubmit}>
+    <TweetEditForm
+      className="edit-tweet-form"
+      current={show}
+      onSubmit={onSubmit}
+    >
       <input
-        type='text'
-        placeholder='Edit your tweet'
+        type="text"
+        name="text"
+        placeholder="Edit your tweet"
         value={text}
-        required
         autoFocus
         onChange={onChange}
-        className='form-input tweet-input'
+        className="form-input tweet-input"
       />
-      <div className='edit-tweet-form-action'>
-        <button type='submit' className='form-btn-update'>
-          Update
-        </button>
-        <button type='button' className='form-btn-cancel' onClick={onClose}>
-          Cancel
-        </button>
-      </div>
-    </form>
+      {show && (
+        <>
+          <VideoInput
+            type="text"
+            placeholder="Write Youtube Video Url"
+            name="video"
+            value={video}
+            autoFocus
+            onChange={onChange}
+            className="tweet-input"
+          />
+          <ImageInput
+            type="file"
+            id="image"
+            name="image"
+            accept="image/*"
+            onChange={onChange}
+          />
+        </>
+      )}
+      <EditAttachmentButton type="button" onClick={showMediaInput}>
+        <FontAwesomeIcon icon={faPaperclip} />
+      </EditAttachmentButton>
+      <button type="submit" className="form-btn-update">
+        Update
+      </button>
+      <button type="button" className="form-btn-cancel" onClick={onClose}>
+        Cancel
+      </button>
+    </TweetEditForm>
   );
 };
 

@@ -33,9 +33,9 @@ const Tweets = memo(({ tweetService, username, addable }) => {
       )
       .catch((error) => setError(error.toString()));
 
-  const onUpdate = (tweetId, text) =>
+  const onUpdate = (tweetId, text, video, image) =>
     tweetService
-      .updateTweet(tweetId, text)
+      .updateTweet(tweetId, text, video, image)
       .then((updated) =>
         setTweets((tweets) =>
           tweets.map((item) => (item.id === updated.id ? updated : item))

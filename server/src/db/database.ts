@@ -25,7 +25,9 @@ export interface UserModel extends Model {
 export interface TweetModel extends Model {
   readonly userId?: number;
   readonly id: number;
-  text: string;
+  text?: string;
+  video?: string;
+  image?: string;
   readonly dataValues?: any;
 }
 
@@ -78,7 +80,15 @@ export const Tweet = sequelize.define<TweetModel>(
     },
     text: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
+    },
+    video: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    image: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
   },
   {

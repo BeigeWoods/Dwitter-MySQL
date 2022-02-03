@@ -2,10 +2,22 @@ import React, { memo, useState } from "react";
 import parseDate from "../util/date";
 import Avatar from "./Avatar";
 import EditTweetForm from "./EditTweetForm";
+import styled from "styled-components";
+
+const Youtube = styled.iframe`
+  width: 369px;
+  height: 224px;
+  margin-top: 10px;
+`;
+
+const Image = styled.div`
+  margin: 10px 0 10px 0;
+  max-width: 360px;
+`;
 
 const TweetCard = memo(
   ({ tweet, owner, onDelete, onUpdate, onUsernameClick }) => {
-    const { id, username, name, url, text, createdAt } = tweet;
+    const { id, username, name, url, text, video, image, createdAt } = tweet;
     const [editing, setEditing] = useState(false);
     const onClose = () => setEditing(false);
 
@@ -22,7 +34,17 @@ const TweetCard = memo(
               @{username}
             </span>
             <span className="tweet-date"> · {parseDate(createdAt)}</span>
-            <p>{text}</p>
+            {text && <p>{text}</p>}
+            {image && (
+              <Image>
+                <img src={`http://localhost:8080/${image}`} alt="tweet" />
+              </Image>
+            )}
+            {video && (
+              <div>
+                <Youtube src={video}></Youtube>
+              </div>
+            )}
             {editing && (
               <EditTweetForm
                 tweet={tweet}
