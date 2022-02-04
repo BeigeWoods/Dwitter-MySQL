@@ -11,7 +11,7 @@ export default class HttpClient {
       ...options,
       headers: {
         Accept: "application/json",
-        contentType,
+        ...contentType,
         ...options.headers,
         "dwitter_csrf-token": this.getCsrfToken(),
       },

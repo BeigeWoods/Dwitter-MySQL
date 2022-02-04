@@ -3,7 +3,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import {
   EditAttachmentButton,
+  ImageDesc,
   ImageInput,
+  RemoveImage,
   TweetEditForm,
   VideoInput,
 } from "../css/tweetForm";
@@ -37,6 +39,8 @@ const EditTweetForm = ({ tweet, onUpdate, onClose }) => {
 
   const showMediaInput = () => (show ? setShow(false) : setShow(true));
 
+  const removeImage = () => setImage("No Image");
+
   return (
     <TweetEditForm
       className="edit-tweet-form"
@@ -63,6 +67,12 @@ const EditTweetForm = ({ tweet, onUpdate, onClose }) => {
             onChange={onChange}
             className="tweet-input"
           />
+          <ImageDesc>
+            {image ? image.substring(0, 32) : "No Image"}...
+          </ImageDesc>
+          <RemoveImage type="button" onClick={removeImage}>
+            X
+          </RemoveImage>
           <ImageInput
             type="file"
             id="image"

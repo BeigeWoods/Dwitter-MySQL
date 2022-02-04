@@ -41,7 +41,7 @@ const Tweets = memo(({ tweetService, username, addable }) => {
           tweets.map((item) => (item.id === updated.id ? updated : item))
         )
       )
-      .catch((error) => error.toString());
+      .catch((error) => setError(error.toString()));
 
   const onUsernameClick = (tweet) => history.push(`/${tweet.username}`);
 

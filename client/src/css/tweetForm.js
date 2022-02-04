@@ -23,7 +23,7 @@ export const VideoInput = styled.input`
 `;
 
 export const ImageInput = styled.input`
-  grid-row: 3;
+  grid-row: 4;
 `;
 
 export const TweetEditForm = styled.form`
@@ -33,7 +33,7 @@ export const TweetEditForm = styled.form`
   background-color: var(--color-grey);
   grid-template-columns: 5fr 25px 1fr;
   grid-template-rows: ${(props) =>
-    props.current ? "24px 24px 24px" : "24px 24px"};
+    props.current ? "24px 24px 24px 24px" : "24px 24px"};
   row-gap: 5px;
   align-items: center;
 `;
@@ -42,4 +42,16 @@ export const EditAttachmentButton = styled.button`
   font-size: 14px;
   color: var(--color-blue);
   grid-column: 2;
+`;
+
+export const ImageDesc = styled.p`
+  margin-left: 3px;
+  grid-row: 3;
+  font-size: 14px;
+`;
+
+export const RemoveImage = styled.button`
+  grid-column: 2;
+  grid-row: 3;
+  color: var(--color-blue);
 `;
