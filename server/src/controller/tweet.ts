@@ -70,7 +70,6 @@ export class TweetController implements TweetHandler {
     }
     const match = video?.match(this.idRegex);
     const videoUrl = `https://www.youtube.com/embed/${match && match[1]}`;
-    console.log(tweet.image);
     const updated = await this.tweetRepository.update(
       id,
       text,
