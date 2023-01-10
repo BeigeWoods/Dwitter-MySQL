@@ -37,7 +37,10 @@ const TweetCard = memo(
             {text && <p>{text}</p>}
             {image && (
               <Image>
-                <img src={`http://localhost:8080/${image}`} alt="tweet" />
+                <img
+                  src={`${process.env.REACT_APP_BASE_URL}/${image}`}
+                  alt="tweet"
+                />
               </Image>
             )}
             {video && (
