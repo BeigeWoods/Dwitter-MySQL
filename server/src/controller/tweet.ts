@@ -11,7 +11,7 @@ export interface TweetHandler {
 }
 
 export class TweetController implements TweetHandler {
-  idRegex: RegExp;
+  readonly idRegex: RegExp;
   constructor(
     private tweetRepository: TweetDataHandler,
     private getSocketIO: () => Server
