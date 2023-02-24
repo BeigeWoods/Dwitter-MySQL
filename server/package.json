@@ -1,7 +1,7 @@
 {
   "name": "dwitter",
-  "version": "1.0.0",
-  "description": "twitter; simple version",
+  "version": "1.1.1",
+  "description": "dwitter; chatting application",
   "main": "app.js",
   "type": "module",
   "scripts": {
@@ -30,7 +30,6 @@
     "socket.io": "^4.1.2"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.16.5",
     "@types/aws-sdk": "^2.7.0",
     "@types/bcrypt": "^5.0.0",
     "@types/cookie-parser": "^1.4.2",
@@ -40,7 +39,6 @@
     "@types/express-validator": "^3.0.0",
     "@types/faker": "^5.5.9",
     "@types/helmet": "^4.0.0",
-    "@types/jest": "^27.0.3",
     "@types/jsonwebtoken": "^8.5.5",
     "@types/morgan": "^1.9.3",
     "@types/multer": "^1.4.7",
@@ -50,7 +48,6 @@
     "@types/sequelize": "^4.28.10",
     "@types/socket.io": "^3.0.2",
     "@types/validator": "^13.6.3",
-    "babel-jest": "^27.4.6",
     "concurrently": "^6.3.0",
     "faker": "^5.5.3",
     "jest": "^27.4.5",

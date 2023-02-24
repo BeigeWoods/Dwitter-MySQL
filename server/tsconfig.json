@@ -10,9 +10,11 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "removeComments": true,
-    "typeRoots": ["./node_modules/@types", "src/custom_.d.ts"]
+    "typeRoots": ["./node_modules/@types", "src/__custom__.d.ts"],
     // "composite": true,
     // "incremental": true
+    "types": ["node", "jest"]
   },
-  "exclude": ["**/tests/*.test.ts"]
+  "include": ["src/**/*", "**/*.test.ts"],
+  "exclude": ["node_modules"]
 }
