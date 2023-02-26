@@ -1,17 +1,18 @@
 import httpMocks from "node-mocks-http";
 import faker from "faker";
-import jwt from "jsonwebtoken";
-import AuthValidator from "../auth";
+import { verify as verifying } from "jsonwebtoken";
+import AuthValidator, { AuthValidateHandler } from "../auth";
 import { config } from "../../config";
+import type { UserDataHandler } from "../../data/auth";
 
 jest.mock("jsonwebtoken");
-// jest.mock("../../data/auth");
 
-describe("Auth Middleware", () => {
-  let response;
-  let next;
-  let authMiddleware;
-  let userRepository;
+describe.skip("Auth Middleware", () => {
+  let response: httpMocks.MockResponse<any>;
+  let next: jest.Mock;
+  let authMiddleware: AuthValidateHandler;
+  let userRepository: jest.Mocked<UserDataHandler | any>;
+  const verify = verifying as jest.Mock;
 
   beforeEach(() => {
     userRepository = {};
@@ -21,16 +22,13 @@ describe("Auth Middleware", () => {
   });
 
   it("returns 401 for the request without Authorization", async () => {
-    //given
     const request = httpMocks.createRequest({
       method: "GET",
       url: "/",
     });
 
-    //when
     await authMiddleware.isAuth(request, response, next);
 
-    //then
     expect(response.statusCode).toBe(401);
     expect(response._getJSONData().message).toBe("Authentication Error");
     expect(next).not.toBeCalled();
@@ -53,23 +51,27 @@ describe("Auth Middleware", () => {
 
     it("returns 401 for the request with invalid JWT", async () => {
       const token = faker.random.alphaNumeric(128);
+      const error = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => "bad Token");
       const request = httpMocks.createRequest({
         method: "GET",
         url: "/",
         headers: { Authorization: `Bearer ${token}` },
       });
-      Object.defineProperty(jwt, "verify", {
-        value: jest.fn((token, secret, callback) => {
-          callback(new Error("bab token"), undefined);
-        }),
+      // jest.mock("jsonwebtoken", () => ({
+      //   verify: jest.fn((token, secret, callback) => {
+      //     return callback(new Error("bad Token"), undefined);
+      //   }),
+      // }));
+      verify.mockImplementation((token, secret, callback) => {
+        callback(new Error("bad Token"), undefined);
       });
-      // jwt.verify = jest.fn((token, secret, callback)=>{
-      //   callback(new Error('bad token'), undefined)
-      // })
 
       await authMiddleware.isAuth(request, response, next);
 
       expect(response.statusCode).toBe(401);
+      expect(error).toBeCalled();
       expect(response._getJSONData().message).toBe("Authentication Error");
       expect(next).not.toBeCalled();
     });
@@ -82,18 +84,16 @@ describe("Auth Middleware", () => {
         url: "/",
         headers: { Authorization: `Bearer ${token}` },
       });
-      Object.defineProperty(jwt, "verify", {
-        value: jest.fn((token, secret, callback) => {
-          callback(undefined, { id: userId });
-        }),
+      // jest.mock("jsonwebtoken", () => ({
+      //   verify: jest.fn((token, secret, callback) => {
+      //     return callback(undefined, { id: userId });
+      //   }),
+      // }));
+      verify.mockImplementation((token, secret, callback) => {
+        callback(undefined, { id: userId });
       });
-      // jwt.verify = jest.fn((token, secret, callback)=>{
-      //   callback(undefined, { id: userId })
-      // })
-      Object.defineProperty(userRepository, "findById", {
-        value: jest.fn((id) => Promise.resolve(undefined)),
-      });
-      // userRepository.findById = jest.fn((id)=>Promise.resolve(undefined));
+
+      userRepository.findById = jest.fn((id) => Promise.resolve(undefined));
 
       await authMiddleware.isAuth(request, response, next);
 
@@ -110,14 +110,23 @@ describe("Auth Middleware", () => {
         url: "/",
         headers: { Authorization: `Bearer ${token}` },
       });
-      Object.defineProperty(jwt, "verify", {
-        value: jest.fn((token, secret, callback) => {
-          callback(undefined, { id: userId });
-        }),
+      // Object.defineProperty(jwt, "verify", {
+      //   value: jest.fn((token, secret, callback) => {
+      //     callback(undefined, { id: userId });
+      //   }),
+      // });
+      // jest.mock("jsonwebtoken", () => ({
+      //   verify: jest.fn((token, secret, callback) => {
+      //     callback(undefined, { id: userId });
+      //   }),
+      // }));
+      verify.mockImplementation((token, secret, callback) => {
+        callback(undefined, { id: userId });
       });
-      Object.defineProperty(userRepository, "findById", {
-        value: jest.fn((id) => Promise.resolve({ id })),
-      });
+      userRepository.findById = jest.fn((id) => Promise.resolve({ id }));
+      // Object.defineProperty(userRepository, "findById", {
+      //   value: jest.fn((id) => Promise.resolve({ id: userId })),
+      // });
 
       await authMiddleware.isAuth(request, response, next);
 

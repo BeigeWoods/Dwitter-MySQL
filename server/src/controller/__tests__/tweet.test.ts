@@ -1,22 +1,25 @@
 import httpMocks from "node-mocks-http";
 import faker from "faker";
-import { TweetController } from "../tweet";
+import { TweetController, TweetHandler } from "../tweet";
+import { TweetDataHandler } from "../../data/tweet";
 
 describe("Tweet Controller", () => {
-  let tweetController;
-  let tweetRepository;
-  let mockedSocket;
+  let tweetController: TweetHandler;
+  let tweetRepository: jest.Mocked<TweetDataHandler | any>;
+  let mockedSocket: jest.Mocked<any>;
+  let response: httpMocks.MockResponse<any>;
+  let request: httpMocks.MockRequest<any>;
 
   beforeEach(() => {
     tweetRepository = {};
     mockedSocket = { emit: jest.fn() };
     tweetController = new TweetController(tweetRepository, () => mockedSocket);
+    response = httpMocks.createResponse();
   });
 
   describe("getTweets", () => {
     it("returns all tweets when username is not provided", async () => {
-      const request = httpMocks.createRequest();
-      const response = httpMocks.createResponse();
+      request = httpMocks.createRequest();
       const allTweets = [
         { text: faker.random.words(3) },
         { text: faker.random.words(3) },
@@ -31,15 +34,13 @@ describe("Tweet Controller", () => {
 
     it("returns tweets for the given user when username is provided", async () => {
       const username = faker.internet.userName();
-      const reqeust = httpMocks.createRequest({
+      request = httpMocks.createRequest({
         query: { username },
       });
-      const response = httpMocks.createResponse();
       const userTweet = [{ text: faker.random.words(3) }];
-      //tweetRepository.getAllByUsername = () => userTweet;
       tweetRepository.getAllByUsername = jest.fn(() => userTweet);
 
-      await tweetController.getTweets(reqeust, response);
+      await tweetController.getTweets(request, response);
 
       expect(response.statusCode).toBe(200);
       expect(response._getJSONData()).toEqual(userTweet);
@@ -48,7 +49,7 @@ describe("Tweet Controller", () => {
   });
 
   describe("getTweet", () => {
-    let tweets, id, request, response;
+    let tweets: { text: string }[], id: string;
 
     beforeEach(() => {
       id = faker.random.alphaNumeric(16);
@@ -59,7 +60,6 @@ describe("Tweet Controller", () => {
       request = httpMocks.createRequest({
         params: { id },
       });
-      response = httpMocks.createResponse();
     });
 
     it("response 404 when given id doesn't exist", async () => {
@@ -85,16 +85,19 @@ describe("Tweet Controller", () => {
   });
 
   describe("createTweet", () => {
-    let text, video, matchVideo, image, userId, request, response;
+    let content: string,
+      videoUrl: string,
+      match: string,
+      image: string,
+      userId: string;
 
     beforeEach(() => {
-      text = faker.random.words(3);
-      video = "https://youtu.be/q_VsCxx3jpo";
-      matchVideo = "https://www.youtube.com/embed/q_VsCxx3jpo";
+      content = faker.random.words(3);
+      videoUrl = "https://youtu.be/q_VsCxx3jpo";
+      match = "https://www.youtube.com/embed/q_VsCxx3jpo";
       image = faker.internet.url();
       userId = faker.random.alphaNumeric(16);
-      response = httpMocks.createResponse();
-      tweetRepository.create = jest.fn((userId, text, video) => ({
+      tweetRepository.create = jest.fn((userId, text, video, image) => ({
         userId,
         text,
         video,
@@ -105,7 +108,7 @@ describe("Tweet Controller", () => {
     it("returns tweet when all data is provided", async () => {
       request = httpMocks.createRequest({
         method: "POST",
-        body: { text, video },
+        body: { text: content, video: videoUrl },
         file: { path: image },
         userId: userId,
       });
@@ -115,14 +118,14 @@ describe("Tweet Controller", () => {
       expect(response.statusCode).toBe(201);
       expect(response._getJSONData()).toMatchObject({
         userId,
-        text,
-        video: matchVideo,
+        text: content,
+        video: match,
         image,
       });
       expect(tweetRepository.create).toHaveBeenCalledWith(
         userId,
-        text,
-        matchVideo,
+        content,
+        match,
         image
       );
     });
@@ -130,7 +133,7 @@ describe("Tweet Controller", () => {
     it("returns tweet when only video is provided", async () => {
       request = httpMocks.createRequest({
         method: "POST",
-        body: { video },
+        body: { video: videoUrl },
         userId: userId,
       });
 
@@ -139,12 +142,12 @@ describe("Tweet Controller", () => {
       expect(response.statusCode).toBe(201);
       expect(response._getJSONData()).toMatchObject({
         userId,
-        video: matchVideo,
+        video: match,
       });
       expect(tweetRepository.create).toHaveBeenCalledWith(
         userId,
         undefined,
-        matchVideo,
+        match,
         undefined
       );
     });
@@ -152,7 +155,7 @@ describe("Tweet Controller", () => {
     it("send text, userId to websocket", async () => {
       request = httpMocks.createRequest({
         method: "POST",
-        body: { text, video },
+        body: { text: content, video: videoUrl },
         file: { path: image },
         userId,
       });
@@ -161,39 +164,39 @@ describe("Tweet Controller", () => {
 
       expect(mockedSocket.emit).toHaveBeenLastCalledWith("tweets", {
         image,
-        text,
+        text: content,
         userId,
-        video: matchVideo,
+        video: match,
       });
     });
   });
 
   describe("updateTweet", () => {
-    let paramsId, reqUserId, content, mediaUrl, matchVideo, imageFile, response;
+    let paramsId: string,
+      reqUserId: number,
+      content: string,
+      videoUrl: string,
+      match: string,
+      imageFile: string;
 
     beforeEach(() => {
       paramsId = faker.random.alphaNumeric(16);
       reqUserId = faker.datatype.number(3);
       content = faker.random.words(3);
-      mediaUrl = "https://youtu.be/q_VsCxx3jpo";
-      matchVideo = "https://www.youtube.com/embed/q_VsCxx3jpo";
+      videoUrl = "https://youtu.be/q_VsCxx3jpo";
+      match = "https://www.youtube.com/embed/q_VsCxx3jpo";
       imageFile = faker.internet.url();
-      response = httpMocks.createResponse();
       tweetRepository.update = jest.fn((id, text, video, image) => ({
+        id,
         text,
         video,
         image,
       }));
-      tweetRepository.getById = jest.fn(() => ({
-        text: faker.random.words(3),
-        video: faker.internet.url(),
-        image: faker.internet.url(),
-        userId: reqUserId,
-      }));
+      response = httpMocks.createResponse();
     });
 
     it("response 404 when tweet by given id doesn't exist", async () => {
-      const request = httpMocks.createRequest({
+      request = httpMocks.createRequest({
         params: { id: paramsId },
         body: { text: content },
         userId: reqUserId,
@@ -209,9 +212,9 @@ describe("Tweet Controller", () => {
     });
 
     it("response 403 when tweet userId doesn't match with request userId", async () => {
-      const request = httpMocks.createRequest({
+      request = httpMocks.createRequest({
         params: { id: paramsId },
-        body: { text: content, video: mediaUrl },
+        body: { text: content, video: videoUrl },
         userId: reqUserId,
       });
       tweetRepository.getById = jest.fn(() => ({
@@ -224,52 +227,114 @@ describe("Tweet Controller", () => {
       expect(response.statusCode).toBe(403);
     });
 
-    it("return updated tweet when id and video are provided", async () => {
-      const request = httpMocks.createRequest({
+    it("return updated tweet when id and uploading image is provided", async () => {
+      request = httpMocks.createRequest({
         params: { id: paramsId },
-        body: { video: mediaUrl },
-        userId: reqUserId,
-      });
-
-      await tweetController.updateTweet(request, response);
-
-      expect(response.statusCode).toBe(200);
-      expect(response._getJSONData()).toMatchObject({ video: matchVideo });
-      expect(tweetRepository.update).toHaveBeenCalledWith(
-        paramsId,
-        undefined,
-        matchVideo,
-        undefined
-      );
-    });
-
-    it("return updated tweet when all data are provided", async () => {
-      const request = httpMocks.createRequest({
-        params: { id: paramsId },
-        body: { text: content, video: mediaUrl },
         file: { path: imageFile },
         userId: reqUserId,
       });
+      tweetRepository.getById = jest.fn(() => ({
+        text: "",
+        video: "",
+        image: "",
+        userId: reqUserId,
+      }));
 
       await tweetController.updateTweet(request, response);
 
+      expect(tweetRepository.update).toHaveBeenCalledWith(
+        paramsId,
+        undefined,
+        "",
+        imageFile
+      );
       expect(response.statusCode).toBe(200);
-      expect(response._getJSONData()).toMatchObject({
-        text: content,
-        video: matchVideo,
-        image: imageFile,
+      expect(response._getJSONData()).toMatchObject({ image: imageFile });
+    });
+
+    it("return existing image when only id is provided", async () => {
+      const existingImage = faker.internet.url();
+      request = httpMocks.createRequest({
+        params: { id: paramsId },
+        userId: reqUserId,
       });
+      tweetRepository.getById = jest.fn(() => ({
+        text: "",
+        video: "",
+        image: existingImage,
+        userId: reqUserId,
+      }));
+
+      await tweetController.updateTweet(request, response);
+
+      expect(tweetRepository.update).toHaveBeenCalledWith(
+        paramsId,
+        undefined,
+        "",
+        existingImage
+      );
+      expect(response.statusCode).toBe(200);
+      expect(response._getJSONData()).toMatchObject({ image: existingImage });
+    });
+
+    it("return updated tweet when id and video are provided", async () => {
+      request = httpMocks.createRequest({
+        params: { id: paramsId },
+        body: { video: videoUrl },
+        userId: reqUserId,
+      });
+      tweetRepository.getById = jest.fn(() => ({
+        text: "",
+        video: "",
+        image: "",
+        userId: reqUserId,
+      }));
+
+      await tweetController.updateTweet(request, response);
+
+      expect(tweetRepository.update).toHaveBeenCalledWith(
+        paramsId,
+        undefined,
+        match,
+        ""
+      );
+      expect(response.statusCode).toBe(200);
+      expect(response._getJSONData()).toMatchObject({ video: match });
+    });
+
+    it("return updated tweet when all data are provided", async () => {
+      request = httpMocks.createRequest({
+        params: { id: paramsId },
+        body: { text: content, video: videoUrl },
+        file: { path: imageFile },
+        userId: reqUserId,
+      });
+      tweetRepository.getById = jest.fn(() => ({
+        text: "",
+        video: "",
+        image: "",
+        userId: reqUserId,
+      }));
+
+      await tweetController.updateTweet(request, response);
+
       expect(tweetRepository.update).toHaveBeenCalledWith(
         paramsId,
         content,
-        matchVideo,
+        match,
         imageFile
       );
+      expect(response.statusCode).toBe(200);
+      expect(response._getJSONData()).toMatchObject({
+        text: content,
+        video: match,
+        image: imageFile,
+      });
     });
   });
 
   describe("deleteTweet", () => {
-    let paramsId, reqUserId, text, request, response;
+    let paramsId: string, reqUserId: number, text: string;
 
     beforeEach(() => {
       paramsId = faker.random.alphaNumeric(16);
