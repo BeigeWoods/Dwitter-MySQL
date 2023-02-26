@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { Config } from "../config.js";
 import { UserDataHandler } from "../data/auth.js";
-// import * as userRepository from "../data/auth.js";
 
 const AUTH_ERROR = { message: "Authentication Error" };
 
@@ -38,21 +37,18 @@ export default class AuthValidator implements AuthValidateHandler {
     }
 
     // token 유효성 검사
-    jwt.verify(
-      token,
-      this.config.jwt.secretKey,
-      async (error: any, decoded: any) => {
-        if (error) {
-          return res.status(401).json(AUTH_ERROR);
-        }
-        const user = await this.userRepository.findById(decoded.id);
-        if (!user) {
-          return res.status(401).json(AUTH_ERROR);
-        }
-        req.userId = user.id; // req.customData
-        req.token = token;
-        next();
+    jwt.verify(token, this.config.jwt.secretKey, async (error, decoded) => {
+      if (error) {
+        console.error(error);
+        return res.status(401).json(AUTH_ERROR);
       }
-    );
+      const user = await this.userRepository.findById(decoded!.id);
+      if (!user) {
+        return res.status(401).json(AUTH_ERROR);
+      }
+      req.userId = user.id;
+      req.token = token;
+      next();
+    });
   };
 }
