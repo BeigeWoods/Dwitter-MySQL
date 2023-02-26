@@ -11,7 +11,7 @@ export interface TweetHandler {
 }
 
 export class TweetController implements TweetHandler {
-  readonly idRegex: RegExp;
+  private readonly idRegex: RegExp;
   constructor(
     private tweetRepository: TweetDataHandler,
     private getSocketIO: () => Server
@@ -38,29 +38,30 @@ export class TweetController implements TweetHandler {
     }
   };
 
+  private readonly handleUrl = (video?: string) => {
+    const match = video?.match(this.idRegex);
+    return video ? `https://www.youtube.com/embed/${match && match[1]}` : "";
+  };
+
   createTweet = async (req: Request, res: Response) => {
     const image = req.file?.path;
     const { text, video }: { text?: string; video?: string } = req.body;
-    const match = video?.match(this.idRegex);
-    const videoUrl = `https://www.youtube.com/embed/${match && match[1]}`;
+    const videoUrl = this.handleUrl(video);
     const tweet = await this.tweetRepository.create(
       req.userId as number,
       text,
-      match ? videoUrl : undefined,
+      videoUrl,
       image
     );
     res.status(201).json(tweet);
     this.getSocketIO().emit("tweets", tweet);
   };
 
+  // AWS S3를 적용하면 이미지에 대한 부분은 다시 수정해야 한다.
   updateTweet = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const imageFile = req.file?.path;
-    const {
-      text,
-      video,
-      image,
-    }: { text?: string; video?: string; image?: string } = req.body;
+    const image = req.file?.path;
+    const { text, video }: { text?: string; video?: string } = req.body;
     const tweet = await this.tweetRepository.getById(id);
     if (!tweet) {
       return res.status(404).json({ message: `Tweet not found: ${id}` });
@@ -68,13 +69,12 @@ export class TweetController implements TweetHandler {
     if (tweet.userId !== req.userId) {
       return res.sendStatus(403);
     }
-    const match = video?.match(this.idRegex);
-    const videoUrl = `https://www.youtube.com/embed/${match && match[1]}`;
+    const videoUrl = this.handleUrl(video);
     const updated = await this.tweetRepository.update(
       id,
       text,
-      match ? videoUrl : "",
-      image === "No Image" ? "" : imageFile ? imageFile : tweet.image
+      videoUrl,
+      image ? image : tweet.image ? tweet.image : ""
     );
     res.status(200).json(updated);
   };
