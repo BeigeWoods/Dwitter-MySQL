@@ -38,7 +38,7 @@ function required<V extends string | number>(
   key: string,
   defaultValue?: number
 ): V {
-  const value = process.env[key] || defaultValue;
+  const value = defaultValue ? Number(process.env[key]) : process.env[key];
   if (!value) {
     throw new Error(`Key ${key} is undefined`);
   }
