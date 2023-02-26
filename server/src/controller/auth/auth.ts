@@ -35,6 +35,7 @@ export interface AuthDataHandler {
 }
 
 export default class AuthController implements AuthDataHandler {
+  private hashed?: string;
   constructor(
     private config: Config,
     private userRepository: UserDataHandler,
@@ -42,7 +43,19 @@ export default class AuthController implements AuthDataHandler {
   ) {}
 
   signup = async (req: Request, res: Response) => {
-    const { username, password, name, email, url } = req.body;
+    const {
+      username,
+      password,
+      name,
+      email,
+      url,
+    }: {
+      username: string;
+      password: string;
+      name: string;
+      email: string;
+      url: string;
+    } = req.body;
     const foundEmail = await this.userRepository.findByUserEmail(email);
     const foundUsername = await this.userRepository.findByUsername(username);
     if (foundEmail) {
@@ -51,10 +64,21 @@ export default class AuthController implements AuthDataHandler {
     if (foundUsername) {
       return res.status(409).json({ message: `${username} already exists` });
     }
-    const hashed = await bcrypt.hash(password, this.config.bcrypt.saltRounds);
+    try {
+      this.hashed = bcrypt.hashSync(password, this.config.bcrypt.saltRounds);
+    } catch (error) {
+      console.log("비밀번호 암호화 실패");
+      console.log("password is hashed? : ", this.hashed);
+      console.log(
+        "what is type of saltRounds? : ",
+        typeof this.config.bcrypt.saltRounds
+      );
+      console.error(error);
+      return res.status(500).json({ message: "Something went wrong!" });
+    }
     const userId = await this.userRepository.createUser({
       username,
-      password: hashed,
+      password: this.hashed,
       name,
       email,
       url,
