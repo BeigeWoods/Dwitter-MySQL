@@ -30,7 +30,6 @@ export default class HttpClient {
       const error = new Error(message);
       if (res.status === 401) {
         this.authErrorEventBus.notify(error);
-        return;
       }
       throw error;
     }
