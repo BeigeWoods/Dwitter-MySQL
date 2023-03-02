@@ -2,14 +2,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import {} from "express-async-errors";
 import { CookieOptions, Request, Response } from "express";
-import { Config } from "../../config";
-
-export interface TokenHandler {
-  createJwtToken(id: number): string;
-  setToken(res: Response, token: string): void;
-  csrfToken(req: Request, res: Response): Promise<void>;
-  generateCSRFToken(): Promise<string>;
-}
+import { Config } from "../../__dwitter__.d.ts/config";
+import { TokenHandler } from "../../__dwitter__.d.ts/controller/auth/token";
 
 export default class TokenRepository implements TokenHandler {
   constructor(private config: Config) {}

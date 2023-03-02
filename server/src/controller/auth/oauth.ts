@@ -1,14 +1,10 @@
 import {} from "express-async-errors";
 import { Request, Response } from "express";
 import fetch from "node-fetch";
-import { Config } from "../../config.js";
-import { TokenHandler } from "./token.js";
-import { UserDataHandler } from "../../data/auth.js";
-
-export interface GithubOauth {
-  githubStart(req: Request, res: Response): Promise<void>;
-  githubFinish(req: Request, res: Response): Promise<void>;
-}
+import { Config } from "../../__dwitter__.d.ts/config";
+import { TokenHandler } from "../../__dwitter__.d.ts/controller/auth/token";
+import { UserDataHandler } from "../../__dwitter__.d.ts/data/auth";
+import { GithubOauth } from "../../__dwitter__.d.ts/controller/auth/oauth";
 
 export default class OauthController implements GithubOauth {
   constructor(

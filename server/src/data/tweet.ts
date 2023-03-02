@@ -1,24 +1,6 @@
 import SQ from "sequelize";
-import { TweetModel, UserModel } from "../db/database.js";
-
-export interface TweetDataHandler {
-  getAll(): Promise<TweetModel[]>;
-  getAllByUsername(username: string): Promise<TweetModel[]>;
-  getById(id: string): Promise<TweetModel | null>;
-  create(
-    userId: number,
-    text?: string,
-    video?: string,
-    image?: string
-  ): Promise<TweetModel | null>;
-  update(
-    id: string,
-    text?: string,
-    video?: string,
-    image?: string
-  ): Promise<TweetModel>;
-  remove(id: string): Promise<void>;
-}
+import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
+import { TweetModel, UserModel } from "../__dwitter__.d.ts/db/database";
 
 export class TweetRepository implements TweetDataHandler {
   private readonly INCLUDE_USER: SQ.FindOptions = {

@@ -1,7 +1,8 @@
 import httpMocks from "node-mocks-http";
 import faker from "faker";
-import { TweetController, TweetHandler } from "../tweet";
-import { TweetDataHandler } from "../../data/tweet";
+import { TweetController } from "../tweet";
+import { TweetHandler } from "../../__dwitter__.d.ts/controller/tweet";
+import { TweetDataHandler } from "../../__dwitter__.d.ts/data/tweet";
 
 describe("Tweet Controller", () => {
   let tweetController: TweetHandler;

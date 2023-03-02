@@ -2,13 +2,10 @@ import { Server, Socket } from "socket.io";
 import jwt, { VerifyErrors } from "jsonwebtoken";
 import { config } from "../config.js";
 import { ExtendedError } from "socket.io/dist/namespace";
-
-interface HttpSocket {
-  readonly io: Server;
-}
+import { HttpSocket } from "../__dwitter__.d.ts/connection/socket.js";
 
 class httpSocket implements HttpSocket {
-  io: Server;
+  readonly io: Server;
   constructor(server: Express.Application) {
     this.io = new Server(server, {
       cors: {
@@ -42,7 +39,7 @@ export function initSocket(server: Express.Application) {
   }
 }
 
-export function getSocketIO(): Server {
+export function getSocketIO() {
   if (!socket) {
     throw new Error("Please call init first");
   }

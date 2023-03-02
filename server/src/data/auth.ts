@@ -1,27 +1,10 @@
 import SQ from "sequelize";
-import { TweetModel, UserModel } from "../db/database.js";
-
-type UserInfo = {
-  username: string;
-  name: string;
-  email: string;
-  url?: string;
-};
-
-type AllUserInfo = UserInfo & {
-  password: string;
-  socialLogin: boolean;
-};
-
-export interface UserDataHandler {
-  findById(id: number): Promise<UserModel | null>;
-  findByUsername(username: string): Promise<UserModel | null>;
-  findByUserEmail(email: string): Promise<UserModel | null>;
-  updateUser(id: number, user: UserInfo): Promise<UserModel>;
-  updatePassword(id: number, password: string): Promise<UserModel>;
-  createUser(user: AllUserInfo): Promise<number>;
-  deleteUser(id: number): Promise<void>;
-}
+import {
+  AllUserInfo,
+  UserDataHandler,
+  UserInfo,
+} from "../__dwitter__.d.ts/data/auth";
+import { TweetModel, UserModel } from "../__dwitter__.d.ts/db/database";
 
 export default class UserRepository implements UserDataHandler {
   constructor(

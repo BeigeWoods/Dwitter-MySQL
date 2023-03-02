@@ -1,14 +1,7 @@
-import { TweetDataHandler } from "../data/tweet.js";
 import { Request, Response } from "express";
 import { Server } from "socket.io";
-
-export interface TweetHandler {
-  getTweets(req: Request, res: Response): void;
-  getTweet(req: Request, res: Response): void;
-  createTweet(req: Request, res: Response): void;
-  updateTweet(req: Request, res: Response): void;
-  deleteTweet(req: Request, res: Response): void;
-}
+import { TweetHandler } from "../__dwitter__.d.ts/controller/tweet";
+import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 
 export class TweetController implements TweetHandler {
   private readonly idRegex: RegExp;

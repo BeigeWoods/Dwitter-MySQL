@@ -33,9 +33,10 @@ export const imageUploading = (
   next: NextFunction
 ) => {
   const upload = multerUpload.single("image");
-  upload(req, res, function (err) {
+  upload(req, res, (err) => {
     if (err instanceof multer.MulterError) {
-      return res.status(409).json({ message: err });
+      console.warn(err);
+      return res.status(409).json({ message: "failed to upload image" });
     } else {
       next();
     }

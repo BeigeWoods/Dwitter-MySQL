@@ -35,8 +35,9 @@ export const csrfCheck = (req: Request, res: Response, next: NextFunction) => {
       }
       next();
     })
+    // 다음은 수정하기
     .catch((err) => {
-      console.log(err);
+      console.error('The problem of validating "dwitter_csrf-token"\n', err);
       return res.status(500).json({ message: "Something went wrong" });
     });
 };

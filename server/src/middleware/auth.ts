@@ -1,17 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { Config } from "../config.js";
-import { UserDataHandler } from "../data/auth.js";
+import { Config } from "../__dwitter__.d.ts/config.js";
+import { UserDataHandler } from "../__dwitter__.d.ts/data/auth.js";
+import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth.js";
 
 const AUTH_ERROR = { message: "Authentication Error" };
-
-export interface AuthValidateHandler {
-  isAuth(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | void>;
-}
 
 export default class AuthValidator implements AuthValidateHandler {
   constructor(
@@ -39,7 +32,7 @@ export default class AuthValidator implements AuthValidateHandler {
     // token 유효성 검사
     jwt.verify(token, this.config.jwt.secretKey, async (error, decoded) => {
       if (error) {
-        console.error(error);
+        console.error("The problem of verifying jwt token\n", error);
         return res.status(401).json(AUTH_ERROR);
       }
       const user = await this.userRepository.findById(decoded!.id);

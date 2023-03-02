@@ -1,11 +1,12 @@
 import express from "express";
 import {} from "express-async-errors";
 import { body, ValidationChain } from "express-validator";
-import { Validate, expressValidate } from "../middleware/validator.js";
-import { AuthValidateHandler } from "../middleware/auth.js";
-import { AuthDataHandler } from "../controller/auth/auth.js";
-import { GithubOauth } from "../controller/auth/oauth.js";
-import { TokenHandler } from "../controller/auth/token.js";
+import { expressValidate } from "../middleware/validator.js";
+import { Validate } from "../__dwitter__.d.ts/middleware/validator.js";
+import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth.js";
+import { TokenHandler } from "../__dwitter__.d.ts/controller/auth/token.js";
+import { AuthDataHandler } from "../__dwitter__.d.ts/controller/auth/auth.js";
+import { GithubOauth } from "../__dwitter__.d.ts/controller/auth/oauth.js";
 
 const validateCredential: Array<ValidationChain | Validate> = [
   body("username")

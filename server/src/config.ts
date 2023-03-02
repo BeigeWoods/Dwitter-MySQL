@@ -1,37 +1,6 @@
 import dotenv from "dotenv";
+import { Config } from "./__dwitter__.d.ts/config";
 dotenv.config();
-
-export type Config = {
-  cors: {
-    allowedOrigin: string;
-  };
-  jwt: {
-    secretKey: string;
-    expiresInSec: number;
-  };
-  bcrypt: {
-    saltRounds: number;
-  };
-  port: number;
-  db: {
-    host: string;
-    user: string;
-    database: string;
-    password: string;
-  };
-  csrf: {
-    plainToken: string;
-  };
-  ghOauth: {
-    clientId: string;
-    clientSecret: string;
-  };
-  awsS3: {
-    id: string;
-    secret: string;
-    region: string;
-  };
-};
 
 // .env에서 키 값이 제대로 주어졌는지 확인한 후 키 값을 반환하는 함수
 function required<V extends string | number>(

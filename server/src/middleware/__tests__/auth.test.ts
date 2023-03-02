@@ -1,9 +1,10 @@
 import httpMocks from "node-mocks-http";
 import faker from "faker";
 import { verify as verifying } from "jsonwebtoken";
-import AuthValidator, { AuthValidateHandler } from "../auth";
+import AuthValidator from "../auth";
 import { config } from "../../config";
-import type { UserDataHandler } from "../../data/auth";
+import { AuthValidateHandler } from "../../__dwitter__.d.ts/middleware/auth";
+import { UserDataHandler } from "../../__dwitter__.d.ts/data/auth";
 
 jest.mock("jsonwebtoken");
 
@@ -59,11 +60,6 @@ describe.skip("Auth Middleware", () => {
         url: "/",
         headers: { Authorization: `Bearer ${token}` },
       });
-      // jest.mock("jsonwebtoken", () => ({
-      //   verify: jest.fn((token, secret, callback) => {
-      //     return callback(new Error("bad Token"), undefined);
-      //   }),
-      // }));
       verify.mockImplementation((token, secret, callback) => {
         callback(new Error("bad Token"), undefined);
       });
@@ -84,15 +80,9 @@ describe.skip("Auth Middleware", () => {
         url: "/",
         headers: { Authorization: `Bearer ${token}` },
       });
-      // jest.mock("jsonwebtoken", () => ({
-      //   verify: jest.fn((token, secret, callback) => {
-      //     return callback(undefined, { id: userId });
-      //   }),
-      // }));
       verify.mockImplementation((token, secret, callback) => {
         callback(undefined, { id: userId });
       });
-
       userRepository.findById = jest.fn((id) => Promise.resolve(undefined));
 
       await authMiddleware.isAuth(request, response, next);
@@ -110,23 +100,10 @@ describe.skip("Auth Middleware", () => {
         url: "/",
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Object.defineProperty(jwt, "verify", {
-      //   value: jest.fn((token, secret, callback) => {
-      //     callback(undefined, { id: userId });
-      //   }),
-      // });
-      // jest.mock("jsonwebtoken", () => ({
-      //   verify: jest.fn((token, secret, callback) => {
-      //     callback(undefined, { id: userId });
-      //   }),
-      // }));
       verify.mockImplementation((token, secret, callback) => {
         callback(undefined, { id: userId });
       });
       userRepository.findById = jest.fn((id) => Promise.resolve({ id }));
-      // Object.defineProperty(userRepository, "findById", {
-      //   value: jest.fn((id) => Promise.resolve({ id: userId })),
-      // });
 
       await authMiddleware.isAuth(request, response, next);
 

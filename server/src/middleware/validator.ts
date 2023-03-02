@@ -1,12 +1,6 @@
 import { NextFunction, Response, Request } from "express";
 import { validationResult } from "express-validator";
-
-export type Validate = {
-  (req: Request, res: Response, next: NextFunction): void | Response<
-    any,
-    Record<string, any>
-  >;
-};
+import { Validate } from "../__dwitter__.d.ts/middleware/validator";
 
 export const expressValidate: Validate = (
   req: Request,

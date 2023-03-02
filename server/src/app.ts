@@ -61,22 +61,17 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   res.sendStatus(404);
 });
 
-app.use(
-  (
-    req: Request,
-    error: Express.Application,
-    res: Response,
-    next: NextFunction
-  ) => {
-    console.error(error);
-    res.sendStatus(500);
-  }
-);
+app.use((req: Request, error: any, res: Response, next: NextFunction) => {
+  console.error("Something wrong with app\n", error);
+  res.sendStatus(500);
+});
 
 sequelize
   .sync()
   .then(() => {
-    const server: Express.Application = app.listen(config.port);
+    const server = app.listen(config.port);
     initSocket(server);
   })
-  .catch((err: Error) => console.error(err));
+  .catch((err) => {
+    console.error("The problem of connecting DB\n", err);
+  });

@@ -1,41 +1,12 @@
 import bcrypt from "bcrypt";
 import {} from "express-async-errors";
 import { NextFunction, Request, Response } from "express";
-import { Config } from "../../config.js";
-import { UserDataHandler } from "../../data/auth.js";
-import { TokenHandler } from "./token.js";
-
-export interface AuthDataHandler {
-  signup(
-    req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>> | void>;
-  login(
-    req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>> | void>;
-  logout(req: Request, res: Response, next: NextFunction): Promise<void>;
-  me(
-    req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>> | void>;
-  getUser(
-    req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>> | void>;
-  updateUser(
-    req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>> | void>;
-  password(
-    req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>> | void>;
-  withdrawal(req: Request, res: Response): Promise<void>;
-}
+import { AuthDataHandler } from "../../__dwitter__.d.ts/controller/auth/auth.js";
+import { Config } from "../../__dwitter__.d.ts/config.js";
+import { UserDataHandler } from "../../__dwitter__.d.ts/data/auth.js";
+import { TokenHandler } from "../../__dwitter__.d.ts/controller/auth/token.js";
 
 export default class AuthController implements AuthDataHandler {
-  private hashed?: string;
   constructor(
     private config: Config,
     private userRepository: UserDataHandler,
@@ -64,21 +35,10 @@ export default class AuthController implements AuthDataHandler {
     if (foundUsername) {
       return res.status(409).json({ message: `${username} already exists` });
     }
-    try {
-      this.hashed = bcrypt.hashSync(password, this.config.bcrypt.saltRounds);
-    } catch (error) {
-      console.log("비밀번호 암호화 실패");
-      console.log("password is hashed? : ", this.hashed);
-      console.log(
-        "what is type of saltRounds? : ",
-        typeof this.config.bcrypt.saltRounds
-      );
-      console.error(error);
-      return res.status(500).json({ message: "Something went wrong!" });
-    }
+    const hashed = await bcrypt.hash(password, this.config.bcrypt.saltRounds);
     const userId = await this.userRepository.createUser({
       username,
-      password: this.hashed,
+      password: hashed,
       name,
       email,
       url,
