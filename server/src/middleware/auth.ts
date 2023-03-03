@@ -13,23 +13,19 @@ export default class AuthValidator implements AuthValidateHandler {
   ) {}
   isAuth = async (req: Request, res: Response, next: NextFunction) => {
     let token: string | undefined;
-    // check the header(for Non-Browser Client) first
     const authHeader = req.get("Authorization");
     if (authHeader && authHeader.startsWith("Bearer ")) {
       token = authHeader.split(" ")[1];
     }
 
-    // if no token in the header, check the cookie(for Browser Client)
     if (!token) {
       token = req.cookies["token"];
     }
 
-    // 그래도 token이 없으면, error 보내기
     if (!token) {
       return res.status(401).json(AUTH_ERROR);
     }
 
-    // token 유효성 검사
     jwt.verify(token, this.config.jwt.secretKey, async (error, decoded) => {
       if (error) {
         console.error("The problem of verifying jwt token\n", error);
