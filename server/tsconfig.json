@@ -10,7 +10,11 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "removeComments": true,
-    "typeRoots": ["./node_modules/@types", "src/__custom__.d.ts"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "src/__custom__.d.ts",
+      "src/__dwitter__.d.ts"
+    ],
     "types": ["node", "jest", "express"]
     // "composite": true,
     // "incremental": true
