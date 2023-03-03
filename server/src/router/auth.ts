@@ -104,7 +104,7 @@ export default function authRouter(
     "/change-password",
     authValidator.isAuth,
     validatePassword,
-    authController.password
+    authController.updatePassword
   );
 
   router.post("/withdrawal", authValidator.isAuth, authController.withdrawal);

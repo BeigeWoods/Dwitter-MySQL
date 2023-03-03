@@ -15,8 +15,13 @@ const ChangePassword = ({ authService }) => {
     event.preventDefault();
     authService
       .password(oldPassword, newPassword, checkPassword)
+      .then(() => history.push("/auth/profile"))
       .catch(setError);
-    history.push("/auth/profile");
+  };
+
+  const setError = (error) => {
+    setText(error.toString());
+    setIsAlert(true);
   };
 
   const onChange = (event) => {
@@ -32,11 +37,6 @@ const ChangePassword = ({ authService }) => {
         return setCheckPassword(value);
       default:
     }
-  };
-
-  const setError = (error) => {
-    setText(error.toString());
-    setIsAlert(true);
   };
 
   return (

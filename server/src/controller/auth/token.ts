@@ -30,6 +30,6 @@ export default class TokenRepository implements TokenHandler {
   };
 
   generateCSRFToken = async () => {
-    return bcrypt.hash(this.config.csrf.plainToken, 1);
+    return await bcrypt.hash(this.config.csrf.plainToken, 1);
   };
 }

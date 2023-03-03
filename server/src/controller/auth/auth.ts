@@ -35,7 +35,10 @@ export default class AuthController implements AuthDataHandler {
     if (foundUsername) {
       return res.status(409).json({ message: `${username} already exists` });
     }
-    const hashed = await bcrypt.hash(password, this.config.bcrypt.saltRounds);
+    const hashed = await bcrypt.hash(
+      password + this.config.bcrypt.randomWords,
+      this.config.bcrypt.saltRounds
+    );
     const userId = await this.userRepository.createUser({
       username,
       password: hashed,
@@ -55,7 +58,10 @@ export default class AuthController implements AuthDataHandler {
     if (!user) {
       return res.status(401).json({ message: "Invalid user or password" });
     }
-    const isValidPassword = bcrypt.compare(password, user.password!);
+    const isValidPassword = await bcrypt.compare(
+      password + this.config.bcrypt.randomWords,
+      user.password!
+    );
     if (!isValidPassword) {
       return res.status(401).json({ message: "Invalid user or password" });
     }
@@ -109,16 +115,21 @@ export default class AuthController implements AuthDataHandler {
     return res.status(201).json({ username, name, email, url });
   };
 
-  password = async (req: Request, res: Response) => {
+  updatePassword = async (req: Request, res: Response) => {
     const { oldPassword, newPassword, checkPassword } = req.body;
     const user = await this.userRepository.findById(req.userId! as number);
-    const isValidPassword = bcrypt.compare(
-      oldPassword,
-      user!.password as string
-    );
     if (user!.socialLogin) {
       return res.sendStatus(404);
     }
+    if (oldPassword === newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Do not use the old password again" });
+    }
+    const isValidPassword = await bcrypt.compare(
+      oldPassword + this.config.bcrypt.randomWords,
+      user!.password as string
+    );
     if (!isValidPassword) {
       return res.status(400).json({ message: "Incorrect password" });
     }
@@ -126,7 +137,7 @@ export default class AuthController implements AuthDataHandler {
       return res.status(400).json({ message: "Incorrect password" });
     } else {
       const hashedNew = await bcrypt.hash(
-        newPassword,
+        newPassword + this.config.bcrypt.randomWords,
         this.config.bcrypt.saltRounds
       );
       await this.userRepository.updatePassword(req.userId as number, hashedNew);

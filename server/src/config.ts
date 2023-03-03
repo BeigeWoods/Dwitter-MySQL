@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 import { Config } from "./__dwitter__.d.ts/config";
 dotenv.config();
 
-// .env에서 키 값이 제대로 주어졌는지 확인한 후 키 값을 반환하는 함수
 function required<V extends string | number>(
   key: string,
   defaultValue?: number
@@ -24,6 +23,7 @@ export const config: Config = {
   },
   bcrypt: {
     saltRounds: required("BCRYPT_SALT_ROUNDS", 12),
+    randomWords: required("BCRYPT_RANDOM_WORDS"),
   },
   port: required("HOST_PORT", 8080),
   db: {
