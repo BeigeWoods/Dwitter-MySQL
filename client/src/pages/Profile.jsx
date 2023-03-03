@@ -124,7 +124,7 @@ const Profile = memo(({ onWithdrawal, authService }) => {
               required
             />
             <Title>
-              Url:
+              Image Url:
               <Span>
                 {user.url.length > 50
                   ? `${user.url.substring(0, 50)}...`
