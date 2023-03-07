@@ -20,15 +20,13 @@ function App({ tweetService, authService }) {
 
   const onLogout = () => {
     if (window.confirm("Do you want to log out?")) {
-      logout();
-      history.push("/");
+      logout().then(() => history.push("/"));
     }
   };
 
   const onWithdrawal = () => {
     if (window.confirm("Do you want to leave us?")) {
-      withdrawal();
-      history.push("/");
+      withdrawal().then(() => history.push("/"));
     }
   };
 
