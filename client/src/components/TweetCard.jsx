@@ -12,7 +12,6 @@ const Youtube = styled.iframe`
 
 const Image = styled.div`
   margin: 10px 0 10px 0;
-  max-width: 360px;
 `;
 
 const TweetCard = memo(
@@ -40,6 +39,8 @@ const TweetCard = memo(
                 <img
                   src={`${process.env.REACT_APP_BASE_URL}/${image}`}
                   alt="tweet"
+                  width="100%"
+                  height="100%"
                 />
               </Image>
             )}
