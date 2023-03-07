@@ -147,6 +147,7 @@ export default class AuthController implements AuthDataHandler {
 
   withdrawal = async (req: Request, res: Response) => {
     await this.userRepository.deleteUser(req.userId as number);
+    this.tokenController.setToken(res, "");
     res.sendStatus(204);
   };
 }

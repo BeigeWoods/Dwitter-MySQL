@@ -28,7 +28,7 @@ export const User = sequelize.define<UserModel>(
     },
     password: {
       type: DataTypes.STRING(128),
-      // allowNull: false,
+      allowNull: true,
     },
     name: {
       type: DataTypes.STRING(128),
@@ -43,9 +43,13 @@ export const User = sequelize.define<UserModel>(
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
-    url: DataTypes.TEXT,
+    url: { type: DataTypes.TEXT },
   },
-  { timestamps: false, charset: "utf8mb4", collate: "utf8mb4_general_ci" }
+  {
+    timestamps: false,
+    charset: "utf8mb4",
+    collate: "utf8mb4_general_ci",
+  }
 );
 
 export const Tweet = sequelize.define<TweetModel>(
@@ -77,4 +81,6 @@ export const Tweet = sequelize.define<TweetModel>(
   }
 );
 
-Tweet.belongsTo(User);
+Tweet.belongsTo(User, {
+  onDelete: "cascade",
+});
