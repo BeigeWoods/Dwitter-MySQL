@@ -9,9 +9,13 @@ export default class TokenRepository implements TokenHandler {
   constructor(private config: Config) {}
 
   createJwtToken = (id: number) => {
-    return jwt.sign({ id }, this.config.jwt.secretKey, {
-      expiresIn: this.config.jwt.expiresInSec,
-    });
+    try {
+      return jwt.sign({ id }, this.config.jwt.secretKey, {
+        expiresIn: this.config.jwt.expiresInSec,
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   setToken = (res: Response, token: string) => {
@@ -30,6 +34,8 @@ export default class TokenRepository implements TokenHandler {
   };
 
   generateCSRFToken = async () => {
-    return await bcrypt.hash(this.config.csrf.plainToken, 1);
+    return await bcrypt
+      .hash(this.config.csrf.plainToken, 1)
+      .catch((err) => console.error(err));
   };
 }

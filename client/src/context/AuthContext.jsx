@@ -19,7 +19,6 @@ const csrfRef = createRef();
 export function AuthProvider({ authService, authErrorEventBus, children }) {
   const [user, setUser] = useState(undefined);
   const [csrfToken, setCsrfToken] = useState(undefined);
-  // const [userInfo, setUserInfo] = useState(undefined);
 
   // 2. Ref에 다음 토큰 저장하기
   useImperativeHandle(tokenRef, () => (user ? user.token : undefined));
@@ -53,19 +52,6 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
       authService.login(username, password).then((user) => setUser(user)),
     [authService]
   );
-
-  // const getUser = useCallback(
-  //   async () => authService.getUser().then((user) => setUserInfo(user)),
-  //   [authService]
-  // );
-
-  // const updateUser = useCallback(
-  //   async (username, name, email, url) =>
-  //     authService
-  //       .updateUser(username, name, email, url)
-  //       .then((user) => setUserInfo(user)),
-  //   [authService]
-  // );
 
   const logout = useCallback(
     async () => authService.logout().then(() => setUser(undefined)),

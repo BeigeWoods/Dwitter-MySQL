@@ -30,25 +30,31 @@ export class TweetRepository implements TweetDataHandler {
   ) {}
 
   getAll = async () => {
-    return this.tweet.findAll({ ...this.INCLUDE_USER, ...this.ORDER_DESC });
+    return await this.tweet
+      .findAll({ ...this.INCLUDE_USER, ...this.ORDER_DESC })
+      .catch((err) => console.error(err));
   };
 
   getAllByUsername = async (username: string) => {
-    return this.tweet.findAll({
-      ...this.INCLUDE_USER,
-      ...this.ORDER_DESC,
-      include: {
-        ...(this.INCLUDE_USER.include! as SQ.IncludeOptions),
-        where: { username },
-      },
-    });
+    return await this.tweet
+      .findAll({
+        ...this.INCLUDE_USER,
+        ...this.ORDER_DESC,
+        include: {
+          ...(this.INCLUDE_USER.include! as SQ.IncludeOptions),
+          where: { username },
+        },
+      })
+      .catch((err) => console.error(err));
   };
 
   getById = async (id: string) => {
-    return this.tweet.findOne({
-      where: { id },
-      ...this.INCLUDE_USER,
-    });
+    return await this.tweet
+      .findOne({
+        where: { id },
+        ...this.INCLUDE_USER,
+      })
+      .catch((err) => console.error(err));
   };
 
   create = async (
@@ -57,9 +63,10 @@ export class TweetRepository implements TweetDataHandler {
     video?: string,
     image?: string
   ) => {
-    return this.tweet
+    return await this.tweet
       .create({ text, video, image, userId })
-      .then((data) => this.getById(data.dataValues.id!));
+      .then((data) => this.getById(data.dataValues.id!))
+      .catch((err) => console.error(err));
   };
 
   update = async (
@@ -68,17 +75,23 @@ export class TweetRepository implements TweetDataHandler {
     video?: string,
     image?: string
   ) => {
-    return this.tweet.findByPk(id, this.INCLUDE_USER).then((tweet) => {
-      tweet!.text = text;
-      tweet!.video = video;
-      tweet!.image = image;
-      return tweet!.save();
-    });
+    return await this.tweet
+      .findByPk(id, this.INCLUDE_USER)
+      .then(async (tweet) => {
+        tweet!.text = text;
+        tweet!.video = video;
+        tweet!.image = image;
+        return await tweet!.save();
+      })
+      .catch((err) => console.error(err));
   };
 
   remove = async (id: string) => {
-    return this.tweet.findByPk(id).then((tweet) => {
-      tweet!.destroy();
-    });
+    return await this.tweet
+      .findByPk(id)
+      .then(async (tweet) => {
+        await tweet!.destroy();
+      })
+      .catch((err) => console.error(err));
   };
 }

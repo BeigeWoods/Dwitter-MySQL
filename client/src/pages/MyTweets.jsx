@@ -6,17 +6,6 @@ const MyTweets = ({ tweetService }) => {
   const { username } = useParams();
   return (
     <Tweets tweetService={tweetService} username={username} addable={false} />
-    // <Switch>
-    //     (
-    //     <>
-    //       <Route exact path='/:username/tweets'>
-    //         <Tweets tweetService={tweetService} username={username} addable={false} />
-    //       </Route>
-    //       <Route exact path='/:username/profile'>
-    //       </Route>
-    //     </>
-    //     )
-    //   </Switch>
   );
 };
 

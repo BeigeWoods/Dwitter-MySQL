@@ -24,7 +24,7 @@ const app = express();
 const tweetRepository = new TweetRepository(Tweet, User);
 const tweetController = new TweetController(tweetRepository, getSocketIO);
 const tokenController = new TokenRepository(config);
-const userRepository = new UserRepository(Tweet, User);
+const userRepository = new UserRepository(User);
 const authValidator = new AuthValidator(config, userRepository);
 const oauthController = new OauthController(
   config,
@@ -63,7 +63,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.use((req: Request, error: any, res: Response, next: NextFunction) => {
   console.error("Something wrong with app\n", error);
-  res.sendStatus(500);
+  res.sendStatus(500).json({ message: "something went wrong!" });
 });
 
 sequelize
