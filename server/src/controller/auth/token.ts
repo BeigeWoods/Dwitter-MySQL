@@ -13,8 +13,8 @@ export default class TokenRepository implements TokenHandler {
       return jwt.sign({ id }, this.config.jwt.secretKey, {
         expiresIn: this.config.jwt.expiresInSec,
       });
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      throw Error(err);
     }
   };
 
@@ -34,8 +34,8 @@ export default class TokenRepository implements TokenHandler {
   };
 
   generateCSRFToken = async () => {
-    return await bcrypt
-      .hash(this.config.csrf.plainToken, 1)
-      .catch((err) => console.error(err));
+    return await bcrypt.hash(this.config.csrf.plainToken, 1).catch((err) => {
+      throw Error(err);
+    });
   };
 }

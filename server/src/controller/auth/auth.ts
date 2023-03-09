@@ -117,7 +117,7 @@ export default class AuthController implements AuthDataHandler {
 
   updatePassword = async (req: Request, res: Response) => {
     const { oldPassword, newPassword, checkPassword } = req.body;
-    const user = await this.userRepository.findById(req.userId! as number);
+    const user = await this.userRepository.findById(req.userId as number);
     if (user!.socialLogin) {
       return res.sendStatus(404);
     }

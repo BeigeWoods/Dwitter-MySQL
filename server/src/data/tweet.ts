@@ -32,7 +32,9 @@ export class TweetRepository implements TweetDataHandler {
   getAll = async () => {
     return await this.tweet
       .findAll({ ...this.INCLUDE_USER, ...this.ORDER_DESC })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        throw Error(err);
+      });
   };
 
   getAllByUsername = async (username: string) => {
@@ -45,7 +47,9 @@ export class TweetRepository implements TweetDataHandler {
           where: { username },
         },
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        throw Error(err);
+      });
   };
 
   getById = async (id: string) => {
@@ -54,7 +58,9 @@ export class TweetRepository implements TweetDataHandler {
         where: { id },
         ...this.INCLUDE_USER,
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        throw Error(err);
+      });
   };
 
   create = async (
@@ -66,7 +72,9 @@ export class TweetRepository implements TweetDataHandler {
     return await this.tweet
       .create({ text, video, image, userId })
       .then((data) => this.getById(data.dataValues.id!))
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        throw Error(err);
+      });
   };
 
   update = async (
@@ -83,7 +91,9 @@ export class TweetRepository implements TweetDataHandler {
         tweet!.image = image;
         return await tweet!.save();
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        throw Error(err);
+      });
   };
 
   remove = async (id: string) => {
@@ -92,6 +102,8 @@ export class TweetRepository implements TweetDataHandler {
       .then(async (tweet) => {
         await tweet!.destroy();
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        throw Error(err);
+      });
   };
 }

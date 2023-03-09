@@ -13,24 +13,24 @@ export declare type AllUserInfo = UserInfo & {
 };
 
 export interface UserDataHandler {
-  findById(id: number): Promise<UserModel | void | null>;
-  findByUsername(username: string): Promise<UserModel | void | null>;
-  findByUserEmail(email: string): Promise<UserModel | void | null>;
-  updateUser(id: number, user: UserInfo): Promise<UserModel | void>;
-  updatePassword(id: number, password: string): Promise<UserModel | void>;
-  createUser(user: AllUserInfo): Promise<number | void>;
+  findById(id: number): Promise<UserModel | null>;
+  findByUsername(username: string): Promise<UserModel | null>;
+  findByUserEmail(email: string): Promise<UserModel | null>;
+  updateUser(id: number, user: UserInfo): Promise<UserModel>;
+  updatePassword(id: number, password: string): Promise<UserModel>;
+  createUser(user: AllUserInfo): Promise<number>;
   deleteUser(id: number): void;
 }
 
 export default class UserRepository implements UserDataHandler {
   private user;
   constructor(user: SQ.ModelCtor<UserModel>);
-  findById: (id: number) => Promise<UserModel | void | null>;
-  findByUsername: (username: string) => Promise<UserModel | void | null>;
-  findByUserEmail: (email: string) => Promise<UserModel | void | null>;
-  updateUser: (id: number, user: UserInfo) => Promise<UserModel | void>;
-  updatePassword: (id: number, password: string) => Promise<UserModel | void>;
-  createUser: (user: AllUserInfo) => Promise<number | void>;
+  findById: (id: number) => Promise<UserModel | null>;
+  findByUsername: (username: string) => Promise<UserModel | null>;
+  findByUserEmail: (email: string) => Promise<UserModel | null>;
+  updateUser: (id: number, user: UserInfo) => Promise<UserModel>;
+  updatePassword: (id: number, password: string) => Promise<UserModel>;
+  createUser: (user: AllUserInfo) => Promise<number>;
   deleteUser: (id: number) => void;
 }
 export {};

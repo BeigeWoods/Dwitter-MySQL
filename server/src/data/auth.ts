@@ -10,19 +10,21 @@ export default class UserRepository implements UserDataHandler {
   constructor(private user: SQ.ModelCtor<UserModel>) {}
 
   findById = async (id: number) => {
-    return await this.user.findByPk(id).catch((err) => console.error(err));
+    return await this.user.findByPk(id).catch((err) => {
+      throw Error(err);
+    });
   };
 
   findByUsername = async (username: string) => {
-    return await this.user
-      .findOne({ where: { username } })
-      .catch((err) => console.error(err));
+    return await this.user.findOne({ where: { username } }).catch((err) => {
+      throw Error(err);
+    });
   };
 
   findByUserEmail = async (email: string) => {
-    return await this.user
-      .findOne({ where: { email } })
-      .catch((err) => console.error(err));
+    return await this.user.findOne({ where: { email } }).catch((err) => {
+      throw Error(err);
+    });
   };
 
   updateUser = async (id: number, user: UserInfo) => {
@@ -33,7 +35,9 @@ export default class UserRepository implements UserDataHandler {
         data!.set({ username, name, email, url });
         return await data!.save();
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        throw Error(err);
+      });
   };
 
   updatePassword = async (id: number, password: string) => {
@@ -43,7 +47,9 @@ export default class UserRepository implements UserDataHandler {
         pw!.password = password;
         return await pw!.save();
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        throw Error(err);
+      });
   };
 
   createUser = async (user: AllUserInfo) => {
@@ -57,15 +63,17 @@ export default class UserRepository implements UserDataHandler {
         url,
         socialLogin,
       })
-      .catch((err) => console.error(err));
-    if (userData) {
-      return userData.dataValues.id;
-    }
+      .catch((err) => {
+        throw Error(err);
+      });
+    return userData.dataValues.id;
   };
 
   deleteUser = async (id: number) => {
     return await this.user.destroy({ where: { id } }).catch((err) => {
-      console.error(err);
+      {
+        throw Error(err);
+      }
     });
   };
 }

@@ -1,4 +1,9 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, {
+  ErrorRequestHandler,
+  NextFunction,
+  Request,
+  Response,
+} from "express";
 import "express-async-errors";
 import cors from "cors";
 import morgan from "morgan";
@@ -43,6 +48,11 @@ const corsOption = {
   credentials: true, // allow the Access-Control-Allow-Credentials
 };
 
+const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+  console.error("Something wrong with app\n", err);
+  res.sendStatus(500);
+};
+
 app.use(express.json());
 app.use(helmet());
 app.use(cors(corsOption));
@@ -57,14 +67,10 @@ app.use(
   authRouter(authValidator, authController, oauthController, tokenController)
 );
 
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req, res, next) => {
   res.sendStatus(404);
 });
-
-app.use((req: Request, error: any, res: Response, next: NextFunction) => {
-  console.error("Something wrong with app\n", error);
-  res.sendStatus(500).json({ message: "something went wrong!" });
-});
+app.use(errorHandler);
 
 sequelize
   .sync()
