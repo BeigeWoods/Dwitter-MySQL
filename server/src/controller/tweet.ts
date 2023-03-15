@@ -27,7 +27,7 @@ export class TweetController implements TweetHandler {
     if (tweet) {
       res.status(200).json(tweet);
     } else {
-      res.status(404).json({ message: `Tweet id(${id}) not found` });
+      res.status(404).json({ message: `Tweet not found` });
     }
   };
 
@@ -37,15 +37,18 @@ export class TweetController implements TweetHandler {
   };
 
   createTweet = async (req: Request, res: Response) => {
-    const image = req.file?.path;
+    const image = req.file ? req.file.path : "";
     const { text, video }: { text?: string; video?: string } = req.body;
     const videoUrl = this.handleUrl(video);
     const tweet = await this.tweetRepository.create(
-      req.userId as number,
-      text,
+      req.userId!,
+      text ? text : "",
       videoUrl,
       image
     );
+    if (!tweet) {
+      res.status(404).json({ message: `Can't ceate Tweet` });
+    }
     res.status(201).json(tweet);
     this.getSocketIO().emit("tweets", tweet);
   };
@@ -57,7 +60,7 @@ export class TweetController implements TweetHandler {
     const { text, video }: { text?: string; video?: string } = req.body;
     const tweet = await this.tweetRepository.getById(id);
     if (!tweet) {
-      return res.status(404).json({ message: `Tweet not found: ${id}` });
+      return res.status(404).json({ message: `Tweet not found` });
     }
     if (tweet.userId !== req.userId) {
       return res.sendStatus(403);
@@ -69,14 +72,14 @@ export class TweetController implements TweetHandler {
       videoUrl,
       image ? image : tweet.image ? tweet.image : ""
     );
-    res.status(200).json(updated);
+    return res.status(200).json(updated);
   };
 
   deleteTweet = async (req: Request, res: Response) => {
     const { id } = req.params;
     const tweet = await this.tweetRepository.getById(id);
     if (!tweet) {
-      return res.status(404).json({ message: `Tweet not found: ${id}` });
+      return res.status(404).json({ message: `Tweet not found` });
     }
     if (tweet.userId !== req.userId) {
       return res.sendStatus(403);

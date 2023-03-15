@@ -1,36 +1,44 @@
-import SQ from "sequelize";
-import { UserModel } from "../db/database.js";
-export declare type UserInfo = {
+export declare type UserId = {
+  id: number;
+};
+
+export declare type UserEmail = {
+  email: string;
+};
+
+export declare type UserProfile = {
   username: string;
   name: string;
-  email: string;
   url?: string;
 };
 
-export declare type AllUserInfo = UserInfo & {
-  password: string;
-  socialLogin: boolean;
-};
+export declare type InputUserInfo = UserProfile &
+  UserEmail & {
+    password: string;
+    socialLogin: boolean;
+  };
+
+export declare type OutputUserInfo = InputUserInfo & UserId;
 
 export interface UserDataHandler {
-  findById(id: number): Promise<UserModel | null>;
-  findByUsername(username: string): Promise<UserModel | null>;
-  findByUserEmail(email: string): Promise<UserModel | null>;
-  updateUser(id: number, user: UserInfo): Promise<UserModel>;
-  updatePassword(id: number, password: string): Promise<UserModel>;
-  createUser(user: AllUserInfo): Promise<number>;
+  findById(id: number): Promise<OutputUserInfo | void>;
+  findByUsername(username: string): Promise<OutputUserInfo | void>;
+  findByUserEmail(email: string): Promise<OutputUserInfo | void>;
+  updateUser(id: number, user: UserProfile & UserEmail): Promise<void>;
+  updatePassword(id: number, password: string): Promise<void>;
+  createUser(user: InputUserInfo): Promise<number | void>;
   deleteUser(id: number): void;
 }
 
 export default class UserRepository implements UserDataHandler {
   private user;
-  constructor(user: SQ.ModelCtor<UserModel>);
-  findById: (id: number) => Promise<UserModel | null>;
-  findByUsername: (username: string) => Promise<UserModel | null>;
-  findByUserEmail: (email: string) => Promise<UserModel | null>;
-  updateUser: (id: number, user: UserInfo) => Promise<UserModel>;
-  updatePassword: (id: number, password: string) => Promise<UserModel>;
-  createUser: (user: AllUserInfo) => Promise<number>;
+  constructor();
+  findById: (id: number) => Promise<OutputUserInfo | void>;
+  findByUsername: (username: string) => Promise<OutputUserInfo | void>;
+  findByUserEmail: (email: string) => Promise<OutputUserInfo | void>;
+  updateUser: (id: number, user: UserProfile & UserEmail) => Promise<void>;
+  updatePassword: (id: number, password: string) => Promise<void>;
+  createUser: (user: InputUserInfo) => Promise<number | void>;
   deleteUser: (id: number) => void;
 }
 export {};

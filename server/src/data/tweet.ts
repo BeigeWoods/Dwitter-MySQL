@@ -1,64 +1,57 @@
-import SQ from "sequelize";
+import { db } from "../db/database.js";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
-import { TweetModel, UserModel } from "../__dwitter__.d.ts/db/database";
 
 export class TweetRepository implements TweetDataHandler {
-  private readonly INCLUDE_USER: SQ.FindOptions = {
-    attributes: [
-      "id",
-      "text",
-      "video",
-      "image",
-      "createdAt",
-      "userId",
-      [SQ.Sequelize.col("user.name"), "name"],
-      [SQ.Sequelize.col("user.username"), "username"],
-      [SQ.Sequelize.col("user.url"), "url"],
-    ],
-    include: {
-      model: this.user,
-      attributes: [],
-    },
-  };
-  private readonly ORDER_DESC: SQ.FindOptions = {
-    order: [["createdAt", "DESC"]],
-  };
+  private readonly All_Tweet =
+    "SELECT T.id, text, video, image, createdAt, userId, name, username, url \
+    FROM tweets T \
+    JOIN users U \
+    ON U.id = T.userId";
 
-  constructor(
-    private tweet: SQ.ModelCtor<TweetModel>,
-    private user: SQ.ModelCtor<UserModel>
-  ) {}
+  private readonly Order_By = "ORDER BY createdAt DESC";
+
+  constructor() {}
 
   getAll = async () => {
-    return await this.tweet
-      .findAll({ ...this.INCLUDE_USER, ...this.ORDER_DESC })
+    return await db
+      .execute(`${this.All_Tweet} ${this.Order_By}`)
+      .then((result: any) => {
+        return result[0];
+      })
       .catch((err) => {
         throw Error(err);
       });
   };
 
   getAllByUsername = async (username: string) => {
-    return await this.tweet
-      .findAll({
-        ...this.INCLUDE_USER,
-        ...this.ORDER_DESC,
-        include: {
-          ...(this.INCLUDE_USER.include! as SQ.IncludeOptions),
-          where: { username },
-        },
+    if (!username) {
+      return [];
+    }
+    return await db
+      .execute(`${this.All_Tweet} WHERE username = ? ${this.Order_By}`, [
+        username,
+      ])
+      .then((result: any) => {
+        return result[0];
       })
       .catch((err) => {
         throw Error(err);
       });
   };
 
-  getById = async (id: string) => {
-    return await this.tweet
-      .findOne({
-        where: { id },
-        ...this.INCLUDE_USER,
+  getById = async (id: string | number) => {
+    if (!id) {
+      return;
+    }
+    return await db
+      .execute(`${this.All_Tweet} WHERE T.id = ?`, [id])
+      .then((result: any) => {
+        return result[0][0];
       })
       .catch((err) => {
+        if (err.message === "Column 'id' in where clause is ambiguous") {
+          return;
+        }
         throw Error(err);
       });
   };
@@ -69,9 +62,16 @@ export class TweetRepository implements TweetDataHandler {
     video?: string,
     image?: string
   ) => {
-    return await this.tweet
-      .create({ text, video, image, userId })
-      .then((data) => this.getById(data.dataValues.id!))
+    if (!userId) {
+      return;
+    }
+    return await db
+      .execute(
+        "INSERT INTO tweets(text, video, image, userId, createdAt, updatedAt) \
+        VALUES(?, ?, ?, ?, ?, ?)",
+        [text, video, image, userId, new Date(), new Date()]
+      )
+      .then((result: any) => this.getById(result[0].insertId))
       .catch((err) => {
         throw Error(err);
       });
@@ -83,13 +83,18 @@ export class TweetRepository implements TweetDataHandler {
     video?: string,
     image?: string
   ) => {
-    return await this.tweet
-      .findByPk(id, this.INCLUDE_USER)
-      .then(async (tweet) => {
-        tweet!.text = text;
-        tweet!.video = video;
-        tweet!.image = image;
-        return await tweet!.save();
+    if (!id) {
+      return;
+    }
+    return await db
+      .execute(
+        "UPDATE tweets \
+        SET text = ? , video = ?, image = ?, updatedAt = ? \
+        WHERE id = ?",
+        [text, video, image, new Date(), id]
+      )
+      .then(() => {
+        return this.getById(id);
       })
       .catch((err) => {
         throw Error(err);
@@ -97,13 +102,11 @@ export class TweetRepository implements TweetDataHandler {
   };
 
   remove = async (id: string) => {
-    return await this.tweet
-      .findByPk(id)
-      .then(async (tweet) => {
-        await tweet!.destroy();
-      })
-      .catch((err) => {
-        throw Error(err);
-      });
+    if (!id) {
+      return;
+    }
+    await db.execute("DELETE FROM tweets WHERE id = ?", [id]).catch((err) => {
+      throw Error(err);
+    });
   };
 }

@@ -11,7 +11,11 @@ export interface AuthDataHandler {
     req: Request,
     res: Response
   ): Promise<Response<any, Record<string, any>> | void>;
-  logout(req: Request, res: Response, next: NextFunction): Promise<void>;
+  logout(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<any, Record<string, any>>>;
   me(
     req: Request,
     res: Response
@@ -28,7 +32,10 @@ export interface AuthDataHandler {
     req: Request,
     res: Response
   ): Promise<Response<any, Record<string, any>> | void>;
-  withdrawal(req: Request, res: Response): Promise<void>;
+  withdrawal(
+    req: Request,
+    res: Response
+  ): Promise<Response<any, Record<string, any>>>;
 }
 export default class AuthController implements AuthDataHandler {
   private config;
@@ -47,7 +54,11 @@ export default class AuthController implements AuthDataHandler {
     req: Request,
     res: Response
   ) => Promise<Response<any, Record<string, any>>>;
-  logout: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  logout: (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => Promise<Response<any, Record<string, any>>>;
   me: (
     req: Request,
     res: Response
@@ -64,5 +75,8 @@ export default class AuthController implements AuthDataHandler {
     req: Request,
     res: Response
   ) => Promise<Response<any, Record<string, any>>>;
-  withdrawal: (req: Request, res: Response) => Promise<void>;
+  withdrawal: (
+    req: Request,
+    res: Response
+  ) => Promise<Response<any, Record<string, any>>>;
 }
