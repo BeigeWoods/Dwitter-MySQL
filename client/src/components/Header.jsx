@@ -1,11 +1,6 @@
 import React, { memo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faComments,
-  faBookReader,
-  faUser,
-  faSignOutAlt,
-} from "@fortawesome/free-solid-svg-icons";
+import { faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { useHistory } from "react-router";
 import styled from "styled-components";
 
@@ -37,7 +32,7 @@ const Title = styled.h1`
 `;
 
 const Username = styled.span`
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   color: var(--color-blue);
   padding-top: 8px;
 `;
@@ -46,7 +41,7 @@ const Menu = styled.nav`
   color: var(--color-white);
   display: flex;
   justify-content: space-between;
-  width: 125px;
+  width: 60px;
 `;
 
 const Button = styled.button`
@@ -63,17 +58,11 @@ const Header = memo(({ username, onLogout, onMyTweets, onAllTweets }) => {
     <PageHeader>
       <Logo>
         <Image src="./img/logo.png" alt="Dwitter Logo" />
-        <Title>Dwitter</Title>
-        {username && <Username>@{username}</Username>}
+        <Title onClick={onAllTweets}>Dwitter</Title>
+        {username && <Username onClick={onMyTweets}>@{username}</Username>}
       </Logo>
       {username && (
         <Menu>
-          <Button onClick={onAllTweets}>
-            <FontAwesomeIcon icon={faComments} />
-          </Button>
-          <Button onClick={onMyTweets}>
-            <FontAwesomeIcon icon={faBookReader} />
-          </Button>
           <Button onClick={onProfile}>
             <FontAwesomeIcon icon={faUser} />
           </Button>
