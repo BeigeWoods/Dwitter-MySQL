@@ -2,11 +2,11 @@ import httpMocks from "node-mocks-http";
 import faker from "faker";
 import { TweetController } from "../tweet";
 import { TweetHandler } from "../../__dwitter__.d.ts/controller/tweet";
-import { TweetDataHandler } from "../../__dwitter__.d.ts/data/tweet";
+import { TweetData, TweetDataHandler } from "../../__dwitter__.d.ts/data/tweet";
 
 describe("Tweet Controller", () => {
   let tweetController: TweetHandler;
-  let tweetRepository: jest.Mocked<TweetDataHandler | any>;
+  let tweetRepository: jest.Mocked<TweetDataHandler<TweetData> | any>;
   let mockedSocket: jest.Mocked<any>;
   let response: httpMocks.MockResponse<any>;
   let request: httpMocks.MockRequest<any>;

@@ -70,7 +70,7 @@ export default class OauthController implements GithubOauth {
           url: userData.avatar_url,
           socialLogin: true,
         });
-        const token = this.tokenController.createJwtToken(userId);
+        const token = this.tokenController.createJwtToken(userId!);
         this.tokenController.setToken(res, token);
       } else {
         const token = this.tokenController.createJwtToken(user.id);

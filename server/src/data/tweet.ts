@@ -1,8 +1,8 @@
 import SQ from "sequelize";
-import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
-import { TweetModel, UserModel } from "../__dwitter__.d.ts/db/database";
+import { TweetData, TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
+import { UserModel } from "../__dwitter__.d.ts/db/database";
 
-export class TweetRepository implements TweetDataHandler {
+export class TweetRepository implements TweetDataHandler<TweetData> {
   private readonly INCLUDE_USER: SQ.FindOptions = {
     attributes: [
       "id",
@@ -25,7 +25,7 @@ export class TweetRepository implements TweetDataHandler {
   };
 
   constructor(
-    private tweet: SQ.ModelCtor<TweetModel>,
+    private tweet: SQ.ModelCtor<TweetData>,
     private user: SQ.ModelCtor<UserModel>
   ) {}
 

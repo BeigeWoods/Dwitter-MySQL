@@ -6,29 +6,33 @@ export interface AuthDataHandler {
   signup(
     req: Request,
     res: Response
-  ): Promise<Response<any, Record<string, any>> | void>;
+  ): Promise<Response<any, Record<string, any>>>;
   login(
     req: Request,
     res: Response
-  ): Promise<Response<any, Record<string, any>> | void>;
-  logout(req: Request, res: Response, next: NextFunction): Promise<void>;
-  me(
+  ): Promise<Response<any, Record<string, any>>>;
+  logout(
     req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>> | void>;
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<any, Record<string, any>>>;
+  me(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
   getUser(
     req: Request,
     res: Response
-  ): Promise<Response<any, Record<string, any>> | void>;
+  ): Promise<Response<any, Record<string, any>>>;
   updateUser(
     req: Request,
     res: Response
-  ): Promise<Response<any, Record<string, any>> | void>;
+  ): Promise<Response<any, Record<string, any>>>;
   updatePassword(
     req: Request,
     res: Response
-  ): Promise<Response<any, Record<string, any>> | void>;
-  withdrawal(req: Request, res: Response): Promise<void>;
+  ): Promise<Response<any, Record<string, any>>>;
+  withdrawal(
+    req: Request,
+    res: Response
+  ): Promise<Response<any, Record<string, any>>>;
 }
 export default class AuthController implements AuthDataHandler {
   private config;
@@ -47,7 +51,11 @@ export default class AuthController implements AuthDataHandler {
     req: Request,
     res: Response
   ) => Promise<Response<any, Record<string, any>>>;
-  logout: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  logout: (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => Promise<Response<any, Record<string, any>>>;
   me: (
     req: Request,
     res: Response
@@ -64,5 +72,8 @@ export default class AuthController implements AuthDataHandler {
     req: Request,
     res: Response
   ) => Promise<Response<any, Record<string, any>>>;
-  withdrawal: (req: Request, res: Response) => Promise<void>;
+  withdrawal: (
+    req: Request,
+    res: Response
+  ) => Promise<Response<any, Record<string, any>>>;
 }

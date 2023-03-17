@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { Server } from "socket.io";
 import { TweetHandler } from "../__dwitter__.d.ts/controller/tweet";
-import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
+import { TweetData, TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 
 export class TweetController implements TweetHandler {
   private readonly idRegex: RegExp;
   constructor(
-    private tweetRepository: TweetDataHandler,
+    private tweetRepository: TweetDataHandler<TweetData>,
     private getSocketIO: () => Server
   ) {
     this.idRegex =
@@ -14,21 +14,20 @@ export class TweetController implements TweetHandler {
   }
 
   getTweets = async (req: Request, res: Response) => {
-    const username = req.query.username! as string | undefined;
+    const username = req.query.username! as string;
     const data = await (username
       ? this.tweetRepository.getAllByUsername(username)
       : this.tweetRepository.getAll());
-    res.status(200).json(data);
+    return res.status(200).json(data);
   };
 
   getTweet = async (req: Request, res: Response) => {
     const { id } = req.params;
     const tweet = await this.tweetRepository.getById(id);
-    if (tweet) {
-      res.status(200).json(tweet);
-    } else {
-      res.status(404).json({ message: `Tweet id(${id}) not found` });
+    if (!tweet) {
+      return res.status(404).json({ message: `Tweet not found` });
     }
+    return res.status(200).json(tweet);
   };
 
   private readonly handleUrl = (video?: string) => {
@@ -41,13 +40,13 @@ export class TweetController implements TweetHandler {
     const { text, video }: { text?: string; video?: string } = req.body;
     const videoUrl = this.handleUrl(video);
     const tweet = await this.tweetRepository.create(
-      req.userId as number,
+      req.userId!,
       text,
       videoUrl,
       image
     );
-    res.status(201).json(tweet);
     this.getSocketIO().emit("tweets", tweet);
+    return res.status(201).json(tweet);
   };
 
   // AWS S3를 적용하면 이미지에 대한 부분은 다시 수정해야 한다.
@@ -57,7 +56,7 @@ export class TweetController implements TweetHandler {
     const { text, video }: { text?: string; video?: string } = req.body;
     const tweet = await this.tweetRepository.getById(id);
     if (!tweet) {
-      return res.status(404).json({ message: `Tweet not found: ${id}` });
+      return res.status(404).json({ message: `Tweet not found` });
     }
     if (tweet.userId !== req.userId) {
       return res.sendStatus(403);
@@ -69,19 +68,19 @@ export class TweetController implements TweetHandler {
       videoUrl,
       image ? image : tweet.image ? tweet.image : ""
     );
-    res.status(200).json(updated);
+    return res.status(200).json(updated);
   };
 
   deleteTweet = async (req: Request, res: Response) => {
     const { id } = req.params;
     const tweet = await this.tweetRepository.getById(id);
     if (!tweet) {
-      return res.status(404).json({ message: `Tweet not found: ${id}` });
+      return res.status(404).json({ message: `Tweet not found` });
     }
     if (tweet.userId !== req.userId) {
       return res.sendStatus(403);
     }
     await this.tweetRepository.remove(id);
-    res.sendStatus(204);
+    return res.sendStatus(204);
   };
 }

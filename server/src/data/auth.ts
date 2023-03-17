@@ -1,8 +1,9 @@
 import SQ from "sequelize";
 import {
-  AllUserInfo,
-  UserDataHandler,
   UserInfo,
+  UserDataHandler,
+  UserProfile,
+  UserEmail,
 } from "../__dwitter__.d.ts/data/auth";
 import { UserModel } from "../__dwitter__.d.ts/db/database";
 
@@ -27,13 +28,13 @@ export default class UserRepository implements UserDataHandler {
     });
   };
 
-  updateUser = async (id: number, user: UserInfo) => {
+  updateUser = async (id: number, user: UserProfile & UserEmail) => {
     const { username, name, email, url } = user;
     return await this.user
       .findByPk(id)
       .then(async (data) => {
         data!.set({ username, name, email, url });
-        return await data!.save();
+        await data!.save();
       })
       .catch((err) => {
         throw Error(err);
@@ -45,14 +46,14 @@ export default class UserRepository implements UserDataHandler {
       .findByPk(id)
       .then(async (pw) => {
         pw!.password = password;
-        return await pw!.save();
+        await pw!.save();
       })
       .catch((err) => {
         throw Error(err);
       });
   };
 
-  createUser = async (user: AllUserInfo) => {
+  createUser = async (user: UserInfo) => {
     const { username, password, name, email, url, socialLogin } = user;
     const userData = await this.user
       .create({

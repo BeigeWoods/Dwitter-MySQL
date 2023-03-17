@@ -1,43 +1,47 @@
 import SQ from "sequelize";
 import { TweetModel, UserModel } from "../db/database.js";
-export interface TweetDataHandler {
-  getAll(): Promise<TweetModel[]>;
-  getAllByUsername(username: string): Promise<TweetModel[]>;
-  getById(id: string): Promise<TweetModel | null>;
+import { UserInfo } from "./auth.js";
+
+export declare type TweetData = TweetModel & any;
+
+export interface TweetDataHandler<T extends TweetModel> {
+  getAll(): Promise<T[] | void>;
+  getAllByUsername(username: string): Promise<T[] | void>;
+  getById(id: string): Promise<T | null | void>;
   create(
     userId: number,
     text?: string,
     video?: string,
     image?: string
-  ): Promise<TweetModel | null>;
+  ): Promise<T | null | void>;
   update(
     id: string,
     text?: string,
     video?: string,
     image?: string
-  ): Promise<TweetModel>;
+  ): Promise<T | void>;
   remove(id: string): Promise<void>;
 }
-export declare class TweetRepository implements TweetDataHandler {
+export declare class TweetRepository implements TweetDataHandler<TweetData> {
   private tweet;
   private user;
   private readonly INCLUDE_USER;
   private readonly ORDER_DESC;
   constructor(tweet: SQ.ModelCtor<TweetModel>, user: SQ.ModelCtor<UserModel>);
-  getAll: () => Promise<TweetModel[]>;
-  getAllByUsername: (username: string) => Promise<TweetModel[]>;
-  getById: (id: string) => Promise<TweetModel | null>;
+  getAll: () => Promise<TweetData[] | void>;
+  getAllByUsername: (username: string) => Promise<TweetData[] | void>;
+  getById: (id: string) => Promise<TweetData | null | void>;
   create: (
     userId: number,
     text?: string,
     video?: string,
     image?: string
-  ) => Promise<TweetModel | null>;
+  ) => Promise<TweetData | null | void>;
   update: (
     id: string,
     text?: string,
     video?: string,
     image?: string
-  ) => Promise<TweetModel>;
+  ) => Promise<TweetData | void>;
   remove: (id: string) => Promise<void>;
 }

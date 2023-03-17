@@ -47,9 +47,9 @@ export default class AuthController implements AuthDataHandler {
       url,
       socialLogin: false,
     });
-    const token = this.tokenController.createJwtToken(userId);
+    const token = this.tokenController.createJwtToken(userId!);
     this.tokenController.setToken(res, token);
-    res.status(201).json({ token, username });
+    return res.status(201).json({ token, username });
   };
 
   login = async (req: Request, res: Response) => {
@@ -67,33 +67,32 @@ export default class AuthController implements AuthDataHandler {
     }
     const token = this.tokenController.createJwtToken(user.id);
     this.tokenController.setToken(res, token);
-    res.status(200).json({ token, username });
+    return res.status(200).json({ token, username });
   };
 
   logout = async (req: Request, res: Response, next: NextFunction) => {
     this.tokenController.setToken(res, "");
-    res.sendStatus(204);
+    return res.sendStatus(204);
   };
 
   me = async (req: Request, res: Response) => {
-    const user = await this.userRepository.findById(req.userId as number);
+    const user = await this.userRepository.findById(req.userId!);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.status(200).json({ token: req.token, username: user.username });
+    return res.status(200).json({ token: req.token, username: user.username });
   };
 
   getUser = async (req: Request, res: Response) => {
-    const user = await this.userRepository.findById(req.userId as number);
+    const user = await this.userRepository.findById(req.userId!);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    if (user.socialLogin) {
-      res.sendStatus(204);
-    } else {
+    if (!user.socialLogin) {
       const { username, name, email, url } = user;
       return res.status(200).json({ username, name, email, url });
     }
+    return res.sendStatus(204);
   };
 
   updateUser = async (req: Request, res: Response) => {
@@ -106,7 +105,7 @@ export default class AuthController implements AuthDataHandler {
     if (foundEmail && foundEmail.id !== req.userId) {
       return res.status(409).json({ message: `${email} already exists` });
     }
-    await this.userRepository.updateUser(req.userId as number, {
+    await this.userRepository.updateUser(req.userId!, {
       username,
       name,
       email,
@@ -117,7 +116,7 @@ export default class AuthController implements AuthDataHandler {
 
   updatePassword = async (req: Request, res: Response) => {
     const { oldPassword, newPassword, checkPassword } = req.body;
-    const user = await this.userRepository.findById(req.userId as number);
+    const user = await this.userRepository.findById(req.userId!);
     if (user!.socialLogin) {
       return res.sendStatus(404);
     }
@@ -135,19 +134,18 @@ export default class AuthController implements AuthDataHandler {
     }
     if (newPassword !== checkPassword) {
       return res.status(400).json({ message: "Incorrect password" });
-    } else {
-      const hashedNew = await bcrypt.hash(
-        newPassword + this.config.bcrypt.randomWords,
-        this.config.bcrypt.saltRounds
-      );
-      await this.userRepository.updatePassword(req.userId as number, hashedNew);
-      return res.sendStatus(204);
     }
+    const hashedNew = await bcrypt.hash(
+      newPassword + this.config.bcrypt.randomWords,
+      this.config.bcrypt.saltRounds
+    );
+    await this.userRepository.updatePassword(req.userId!, hashedNew);
+    return res.sendStatus(204);
   };
 
   withdrawal = async (req: Request, res: Response) => {
-    await this.userRepository.deleteUser(req.userId as number);
+    await this.userRepository.deleteUser(req.userId!);
     this.tokenController.setToken(res, "");
-    res.sendStatus(204);
+    return res.sendStatus(204);
   };
 }
