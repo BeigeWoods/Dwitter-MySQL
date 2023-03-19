@@ -88,11 +88,8 @@ export default class AuthController implements AuthDataHandler {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    if (!user.socialLogin) {
-      const { username, name, email, url } = user;
-      return res.status(200).json({ username, name, email, url });
-    }
-    return res.sendStatus(204);
+    const { username, name, email, url, socialLogin } = user;
+    return res.status(200).json({ username, name, email, url, socialLogin });
   };
 
   updateUser = async (req: Request, res: Response) => {

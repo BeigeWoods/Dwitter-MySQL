@@ -33,6 +33,7 @@ const Profile = memo(({ onWithdrawal, authService }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [url, setURL] = useState("");
+  const [socialLogin, setSocialLogin] = useState(false);
   const [text, setText] = useState("");
   const [isAlert, setIsAlert] = useState(false);
   const history = useHistory();
@@ -47,6 +48,7 @@ const Profile = memo(({ onWithdrawal, authService }) => {
           setName(user.name);
           setEmail(user.email);
           setURL(user.url);
+          setSocialLogin(user.socialLogin);
         })
         .catch(setError),
     [authService]
@@ -55,7 +57,7 @@ const Profile = memo(({ onWithdrawal, authService }) => {
   const onSubmit = (event) => {
     event.preventDefault();
     authService
-      .updateUser(username, name, email, url)
+      .updateUser(username, name, email, url, socialLogin)
       .then((user) => setUser(user))
       .catch(setError);
   };
@@ -106,23 +108,31 @@ const Profile = memo(({ onWithdrawal, authService }) => {
             <Title>
               Name: <Span>{user.name}</Span>
             </Title>
-            <UserInput
-              name="name"
-              type="name"
-              defaultValue={name}
-              onChange={onChange}
-              required
-            />
+            {socialLogin ? (
+              ""
+            ) : (
+              <UserInput
+                name="name"
+                type="name"
+                defaultValue={name}
+                onChange={onChange}
+                required
+              />
+            )}
             <Title>
               Email: <Span>{user.email}</Span>
             </Title>
-            <UserInput
-              name="email"
-              type="email"
-              defaultValue={email}
-              onChange={onChange}
-              required
-            />
+            {socialLogin ? (
+              ""
+            ) : (
+              <UserInput
+                name="email"
+                type="email"
+                defaultValue={email}
+                onChange={onChange}
+                required
+              />
+            )}
             <Title>
               Image Url:
               <Span>
@@ -139,7 +149,11 @@ const Profile = memo(({ onWithdrawal, authService }) => {
             />
             <Submit type="submit">Submit</Submit>
           </UserForm>
-          <Password onClick={onChangePW}>Change Password →</Password>
+          {socialLogin ? (
+            ""
+          ) : (
+            <Password onClick={onChangePW}>Change Password →</Password>
+          )}
         </>
       )}
       <Withdrawal onClick={onWithdrawal}>Withdrawal</Withdrawal>
