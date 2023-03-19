@@ -24,6 +24,38 @@ export default class OauthController implements GithubOauth {
     return res.redirect(finalUrl);
   };
 
+  private setUser = async (givenToken: any): Promise<string> => {
+    const apiUrl = "https://api.github.com";
+    const userData: any = await (
+      await fetch(`${apiUrl}/user`, {
+        headers: {
+          Authorization: `token ${givenToken}`,
+        },
+      })
+    ).json();
+    const emailData: any = await (
+      await fetch(`${apiUrl}/user/emails`, {
+        headers: {
+          Authorization: `token ${givenToken}`,
+        },
+      })
+    ).json();
+    const user = await this.userRepository.findByUserEmail(emailData[0].email);
+    if (!user) {
+      const userId = await this.userRepository.createUser({
+        username: userData.login,
+        password: "",
+        name: userData.name,
+        email: emailData[0].email,
+        url: userData.avatar_url,
+        socialLogin: true,
+      });
+      return this.tokenController.createJwtToken(userId!);
+    } else {
+      return this.tokenController.createJwtToken(user.id);
+    }
+  };
+
   githubFinish = async (req: Request, res: Response) => {
     const baseUrl = "https://github.com/login/oauth/access_token";
     const option = {
@@ -41,44 +73,12 @@ export default class OauthController implements GithubOauth {
         },
       })
     ).json();
-    if ("access_token" in tokenReq) {
-      const { access_token } = tokenReq;
-      const apiUrl = "https://api.github.com";
-      const userData: any = await (
-        await fetch(`${apiUrl}/user`, {
-          headers: {
-            Authorization: `token ${access_token}`,
-          },
-        })
-      ).json();
-      const emailData: any = await (
-        await fetch(`${apiUrl}/user/emails`, {
-          headers: {
-            Authorization: `token ${access_token}`,
-          },
-        })
-      ).json();
-      const user = await this.userRepository.findByUserEmail(
-        emailData[0].email
-      );
-      if (!user) {
-        const userId = await this.userRepository.createUser({
-          username: userData.login,
-          password: "",
-          name: userData.name,
-          email: emailData[0].email,
-          url: userData.avatar_url,
-          socialLogin: true,
-        });
-        const token = this.tokenController.createJwtToken(userId!);
-        this.tokenController.setToken(res, token);
-      } else {
-        const token = this.tokenController.createJwtToken(user.id);
-        this.tokenController.setToken(res, token);
-      }
-    } else {
+    if (!("access_token" in tokenReq)) {
       res.redirect(this.config.cors.allowedOrigin);
     }
+    const { access_token } = tokenReq;
+    const token = await this.setUser(access_token);
+    this.tokenController.setToken(res, token);
     res.redirect(this.config.cors.allowedOrigin);
   };
 }
