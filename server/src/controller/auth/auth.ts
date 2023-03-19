@@ -88,12 +88,8 @@ export default class AuthController implements AuthDataHandler {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    if (user.socialLogin) {
-      res.sendStatus(204);
-    } else {
-      const { username, name, email, url } = user;
-      return res.status(200).json({ username, name, email, url });
-    }
+    const { username, name, email, url, socialLogin } = user;
+    return res.status(200).json({ username, name, email, url, socialLogin });
   };
 
   updateUser = async (req: Request, res: Response) => {
@@ -135,14 +131,13 @@ export default class AuthController implements AuthDataHandler {
     }
     if (newPassword !== checkPassword) {
       return res.status(400).json({ message: "Incorrect password" });
-    } else {
-      const hashedNew = await bcrypt.hash(
-        newPassword + this.config.bcrypt.randomWords,
-        this.config.bcrypt.saltRounds
-      );
-      await this.userRepository.updatePassword(req.userId!, hashedNew);
-      return res.sendStatus(204);
     }
+    const hashedNew = await bcrypt.hash(
+      newPassword + this.config.bcrypt.randomWords,
+      this.config.bcrypt.saltRounds
+    );
+    await this.userRepository.updatePassword(req.userId!, hashedNew);
+    return res.sendStatus(204);
   };
 
   withdrawal = async (req: Request, res: Response) => {

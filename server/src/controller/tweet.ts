@@ -14,21 +14,20 @@ export class TweetController implements TweetHandler {
   }
 
   getTweets = async (req: Request, res: Response) => {
-    const username = req.query.username! as string | undefined;
+    const username = req.query.username! as string;
     const data = await (username
       ? this.tweetRepository.getAllByUsername(username)
       : this.tweetRepository.getAll());
-    res.status(200).json(data);
+    return res.status(200).json(data);
   };
 
   getTweet = async (req: Request, res: Response) => {
     const { id } = req.params;
     const tweet = await this.tweetRepository.getById(id);
-    if (tweet) {
-      res.status(200).json(tweet);
-    } else {
+    if (!tweet) {
       res.status(404).json({ message: `Tweet not found` });
     }
+    return res.status(200).json(tweet);
   };
 
   private readonly handleUrl = (video?: string) => {
@@ -49,8 +48,8 @@ export class TweetController implements TweetHandler {
     if (!tweet) {
       res.status(404).json({ message: `Can't ceate Tweet` });
     }
-    res.status(201).json(tweet);
     this.getSocketIO().emit("tweets", tweet);
+    return res.status(201).json(tweet);
   };
 
   // AWS S3를 적용하면 이미지에 대한 부분은 다시 수정해야 한다.
@@ -85,6 +84,6 @@ export class TweetController implements TweetHandler {
       return res.sendStatus(403);
     }
     await this.tweetRepository.remove(id);
-    res.sendStatus(204);
+    return res.sendStatus(204);
   };
 }
