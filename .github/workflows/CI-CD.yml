@@ -7,7 +7,7 @@ on:
 
 env:
   DIRECTORY: ./server
-  ALLOWED_ORIGIN: localhost:80
+  ALLOWED_ORIGIN: localhost:3000
   JWT_SECRET: secret
   JWT_EXPIRES_SEC: 86400
   BCRYPT_SALT_ROUNDS: 12
