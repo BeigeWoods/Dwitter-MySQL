@@ -50,7 +50,7 @@ jobs:
         working-directory: ${{ env.DIRECTORY }}
 
       # Test
-      - name: create .env.test file
+      - name: Create .env.test file
         working-directory: ${{ env.DIRECTORY }}
         run: touch .env.test
           cat << EOF >> .env.test
@@ -70,7 +70,7 @@ jobs:
           EOF
 
       - name: Run jest test
-        run: npm DOTENV_CONFIG_PATH=${{ env.DIRECTORY }}/.env.test jest
+        run: DOTENV_CONFIG_PATH=${{ env.DIRECTORY }}/.env.test jest
 
       # AWS
       - name: Make zip file
