@@ -70,6 +70,7 @@ jobs:
           EOF
 
       - name: Run jest test
+        working-directory: ${{ env.DIRECTORY }}
         run: DOTENV_CONFIG_PATH=${{ env.DIRECTORY }}/.env.test jest
 
       # AWS
