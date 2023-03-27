@@ -42,12 +42,12 @@ jobs:
           cache-dependency-path: ./server/package-lock.json
 
       - name: Install Dependencies
-        run: npm i
         working-directory: ${{ env.DIRECTORY }}
+        run: npm i
 
       - name: Compile Typescript
-        run: npx tsc
         working-directory: ${{ env.DIRECTORY }}
+        run: npx tsc
 
       # Test
       - name: Create .env.test file
@@ -71,7 +71,7 @@ jobs:
 
       - name: Run jest test
         working-directory: ${{ env.DIRECTORY }}
-        run: DOTENV_CONFIG_PATH=${{ env.DIRECTORY }}/.env.test jest
+        run: jest --env=${{ env.DIRECTORY }}/.env.test
 
       # AWS
       - name: Make zip file
