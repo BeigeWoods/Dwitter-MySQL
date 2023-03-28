@@ -7,10 +7,10 @@ function required<V extends string | number>(
   defaultValue?: number
 ): V {
   const value = defaultValue ? Number(process.env[key]) : process.env[key];
+  console.log(key + " : " + value);
   if (!value) {
     throw new Error(`Key ${key} is undefined`);
   }
-  console.log(key + " : " + value);
   return value as V;
 }
 
