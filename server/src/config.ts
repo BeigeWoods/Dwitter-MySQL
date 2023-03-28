@@ -10,6 +10,7 @@ function required<V extends string | number>(
   if (!value) {
     throw new Error(`Key ${key} is undefined`);
   }
+  console.log(key + " : " + value);
   return value as V;
 }
 
