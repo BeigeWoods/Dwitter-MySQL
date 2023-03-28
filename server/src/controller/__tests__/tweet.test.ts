@@ -70,7 +70,7 @@ describe("Tweet Controller", () => {
 
       expect(response.statusCode).toBe(404);
       expect(response._getJSONData()).toEqual({
-        message: `Tweet id(${id}) not found`,
+        message: `Tweet not found`,
       });
     });
 
@@ -208,7 +208,7 @@ describe("Tweet Controller", () => {
 
       expect(response.statusCode).toBe(404);
       expect(response._getJSONData()).toEqual({
-        message: `Tweet not found: ${paramsId}`,
+        message: `Tweet not found`,
       });
     });
 
@@ -355,7 +355,7 @@ describe("Tweet Controller", () => {
 
       expect(response.statusCode).toBe(404);
       expect(response._getJSONData()).toEqual({
-        message: `Tweet not found: ${paramsId}`,
+        message: `Tweet not found`,
       });
     });
 
