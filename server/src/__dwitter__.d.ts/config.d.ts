@@ -24,10 +24,10 @@ export declare type Config = {
     clientId: string;
     clientSecret: string;
   };
-  // awsS3: {
-  //   id: string;
-  //   secret: string;
-  //   region: string;
-  // };
+  awsS3: {
+    id: string;
+    secret: string;
+    region: string;
+  };
 };
 export declare const config: Config;
