@@ -67,9 +67,9 @@ jobs:
           CSRF_SECRET_KEY = ${{ env.CSRF_SECRET_KEY }}
           GH_CLIENT_ID = ${{ env.GH_CLIENT_ID }}
           GH_CLIENT_SECRETS = ${{ env.GH_CLIENT_SECRETS }}
-          AWS_S3_REGION = seoul
           AWS_S3_ID = ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_S3_SECRET = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_REGION = ${{ env.REGION }}
           EOF
 
       - name: Run jest test
