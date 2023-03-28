@@ -49,6 +49,10 @@ jobs:
         working-directory: ${{ env.DIRECTORY }}
         run: npx tsc
 
+      - name: Remove .env.test file
+        working-directory: ${{ env.DIRECTORY }}
+        run: rm -f .env.test
+
       # Test
       - name: Create .env.test file
         working-directory: ${{ env.DIRECTORY }}
