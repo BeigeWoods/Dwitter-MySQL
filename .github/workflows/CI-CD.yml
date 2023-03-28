@@ -68,9 +68,6 @@ jobs:
           GH_CLIENT_ID = ${{ env.GH_CLIENT_ID }}
           GH_CLIENT_SECRETS = ${{ env.GH_CLIENT_SECRETS }}
           EOF
-
-      - name: Run jest test
-        working-directory: ${{ env.DIRECTORY }}
         run: DOTENV_CONFIG_PATH=./.env.test jest --verbose
 
       # AWS
