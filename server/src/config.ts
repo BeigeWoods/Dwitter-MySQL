@@ -2,10 +2,6 @@ import dotenv from "dotenv";
 import { Config } from "./__dwitter__.d.ts/config";
 dotenv.config();
 
-console.log("AWS_S3_ID :" + process.env.AWS_S3_ID);
-console.log("AWS_S3_SECRET :" + process.env.AWS_S3_SECRET);
-console.log("AWS_S3_REGION :" + process.env.AWS_S3_REGION);
-
 function required<V extends string | number>(
   key: string,
   defaultValue?: number
