@@ -39,9 +39,9 @@ export const config: Config = {
     clientId: required("GH_CLIENT_ID"),
     clientSecret: required("GH_CLIENT_SECRETS"),
   },
-  awsS3: {
-    region: required("AWS_S3_REGION"),
-    id: required("AWS_S3_ID"),
-    secret: required("AWS_S3_SECRET"),
-  },
+  // awsS3: {
+  //   region: required("AWS_S3_REGION"),
+  //   id: required("AWS_S3_ID"),
+  //   secret: required("AWS_S3_SECRET"),
+  // },
 };
