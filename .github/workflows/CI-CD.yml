@@ -85,7 +85,7 @@ jobs:
 
       - name: Run jest test
         working-directory: ${{ env.DIRECTORY }}
-        run: DOTENV_CONFIG_PATH=./.env.test jest --verbose
+        run: npm test
 
       # AWS
       - name: Make zip file
