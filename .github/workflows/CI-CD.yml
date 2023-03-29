@@ -22,8 +22,7 @@ env:
   GH_CLIENT_SECRETS: githubSecret
   AWS_S3_ID: awsS3Id
   AWS_S3_SECRET: awsS3Secret
-  AWS_S3_REGION: seoul
-  REGION: ap-northeast-2
+  AWS_S3_REGION: ap-northeast-2
   S3_BUCKET_NAME: dwitter-codes/codes
   # CODE_DEPLOY_APPLICATION_NAME:
   # CODE_DEPLOY_DEPLOYMENT_GROUP_NAME:
@@ -36,6 +35,15 @@ jobs:
       # Set
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Cache Action
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-cache-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            npm-cache-
+            npm-
 
       - name: Set up Node
         uses: actions/setup-node@v3
@@ -77,21 +85,21 @@ jobs:
 
       - name: Run jest test
         working-directory: ${{ env.DIRECTORY }}
-        run: npm test
+        run: npx DOTENV_CONFIG_PATH=./.env.test jest --verbose
 
       # AWS
       - name: Make zip file
         run: zip -r $GITHUB_SHA.zip ./server/dist -x **/__tests__/**
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.REGION }}
+          aws-region: ${{ env.AWS_S3_REGION }}
 
       - name: Upload to S3
-        run: aws s3 cp --region $REGION ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
+        run: aws s3 cp --region $AWS_S3_REGION ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
 
       # - name: Code Deploy
       #   run: |
