@@ -45,12 +45,12 @@ jobs:
             npm-cache-
             npm-
 
-      - name: Set up Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: v17.4.0
-          cache: "npm"
-          cache-dependency-path: ./server/package-lock.json
+      # - name: Set up Node
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: v17.4.0
+      #     cache: "npm"
+      #     cache-dependency-path: ./server/package-lock.json
 
       - name: Install Dependencies
         working-directory: ${{ env.DIRECTORY }}
@@ -85,7 +85,7 @@ jobs:
 
       - name: Run jest test
         working-directory: ${{ env.DIRECTORY }}
-        run: npx DOTENV_CONFIG_PATH=./.env.test jest --verbose
+        run: DOTENV_CONFIG_PATH=./.env.test jest --verbose
 
       # AWS
       - name: Make zip file
