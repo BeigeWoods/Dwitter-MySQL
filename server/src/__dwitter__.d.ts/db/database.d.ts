@@ -8,7 +8,7 @@ export interface UserModel extends Model {
   email: string;
   url?: string;
   socialLogin: boolean;
-  readonly dataValues?: any;
+  readonly dataValues: any;
 }
 export interface TweetModel extends Model {
   readonly userId?: number;
@@ -16,7 +16,7 @@ export interface TweetModel extends Model {
   text?: string;
   video?: string;
   image?: string;
-  readonly dataValues?: any;
+  readonly dataValues: any;
 }
 export declare const User: any;
 export declare const Tweet: any;

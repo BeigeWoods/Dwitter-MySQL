@@ -36,7 +36,8 @@ export class TweetController implements TweetHandler {
   };
 
   createTweet = async (req: Request, res: Response) => {
-    const image = req.file?.path;
+    const image = req.file?.location;
+    // const image = req.file?.path;
     const { text, video }: { text?: string; video?: string } = req.body;
     const videoUrl = this.handleUrl(video);
     const tweet = await this.tweetRepository.create(
@@ -49,10 +50,11 @@ export class TweetController implements TweetHandler {
     return res.status(201).json(tweet);
   };
 
-  // AWS S3를 적용하면 이미지에 대한 부분은 다시 수정해야 한다.
+  // 로컬은 path, AWS S3는 location
   updateTweet = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const image = req.file?.path;
+    const image = req.file?.location;
+    // const image = req.file?.path;
     const { text, video }: { text?: string; video?: string } = req.body;
     const tweet = await this.tweetRepository.getById(id);
     if (!tweet) {

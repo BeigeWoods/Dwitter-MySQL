@@ -110,7 +110,7 @@ describe("Tweet Controller", () => {
       request = httpMocks.createRequest({
         method: "POST",
         body: { text: content, video: videoUrl },
-        file: { path: image },
+        file: { location: image },
         userId: userId,
       });
 
@@ -157,7 +157,7 @@ describe("Tweet Controller", () => {
       request = httpMocks.createRequest({
         method: "POST",
         body: { text: content, video: videoUrl },
-        file: { path: image },
+        file: { location: image },
         userId,
       });
 
@@ -231,7 +231,7 @@ describe("Tweet Controller", () => {
     it("return updated tweet when id and uploading image is provided", async () => {
       request = httpMocks.createRequest({
         params: { id: paramsId },
-        file: { path: imageFile },
+        file: { location: imageFile },
         userId: reqUserId,
       });
       tweetRepository.getById = jest.fn(() => ({
@@ -307,7 +307,7 @@ describe("Tweet Controller", () => {
       request = httpMocks.createRequest({
         params: { id: paramsId },
         body: { text: content, video: videoUrl },
-        file: { path: imageFile },
+        file: { location: imageFile },
         userId: reqUserId,
       });
       tweetRepository.getById = jest.fn(() => ({
