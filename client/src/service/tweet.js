@@ -26,11 +26,12 @@ export default class TweetService {
     );
   }
 
-  async updateTweet(tweetId, text, video, image) {
+  async updateTweet(tweetId, text, video, image, oldImg) {
     const data = new FormData();
     data.append("text", text);
     data.append("video", video);
     data.append("image", image);
+    data.append("oldImg", oldImg);
     return this.http.fetch(
       `/${tweetId}`,
       {

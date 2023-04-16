@@ -36,14 +36,15 @@ export class TweetController implements TweetHandler {
   };
 
   createTweet = async (req: Request, res: Response) => {
-    const image = req.file ? req.file.path : "";
+    // const image = req.file ? req.file.path : "";
+    const image = req.file?.location;
     const { text, video }: { text?: string; video?: string } = req.body;
     const videoUrl = this.handleUrl(video);
     const tweet = await this.tweetRepository.create(
       req.userId!,
       text ? text : "",
       videoUrl,
-      image
+      image ? image : ""
     );
     if (!tweet) {
       res.status(404).json({ message: `Can't ceate Tweet` });
@@ -52,24 +53,21 @@ export class TweetController implements TweetHandler {
     return res.status(201).json(tweet);
   };
 
-  // AWS S3를 적용하면 이미지에 대한 부분은 다시 수정해야 한다.
   updateTweet = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const image = req.file?.path;
-    const { text, video }: { text?: string; video?: string } = req.body;
-    const tweet = await this.tweetRepository.getById(id);
-    if (!tweet) {
-      return res.status(404).json({ message: `Tweet not found` });
-    }
-    if (tweet.userId !== req.userId) {
-      return res.sendStatus(403);
-    }
+    const image = req.file?.location;
+    // const image = req.file?.path;
+    const {
+      text,
+      video,
+      oldImg,
+    }: { text?: string; video?: string; oldImg: string } = req.body;
     const videoUrl = this.handleUrl(video);
     const updated = await this.tweetRepository.update(
       id,
       text,
       videoUrl,
-      image ? image : tweet.image ? tweet.image : ""
+      image ? image : oldImg ? oldImg : ""
     );
     return res.status(200).json(updated);
   };

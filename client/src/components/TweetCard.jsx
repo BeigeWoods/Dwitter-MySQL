@@ -37,7 +37,8 @@ const TweetCard = memo(
             {image && (
               <Image>
                 <img
-                  src={`${process.env.REACT_APP_BASE_URL}/${image}`}
+                  // src={`${process.env.REACT_APP_BASE_URL}/${image}`} // 로컬
+                  src={`${image}`} // aws s3
                   alt="tweet"
                   width="100%"
                   height="100%"

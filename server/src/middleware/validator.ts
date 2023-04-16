@@ -21,7 +21,8 @@ export const tweetFormDataValidate = (
 ) => {
   const urlRegex =
     /((?:\bhttp(?:s)?\b\:\/\/)?(?:\bwww\b\.)?(?:\byoutube\b\.\bcom\b\/(?:\bwatch\b\?v\=|\bembed\b\/))\b[a-zA-Z0-9-_]{11}\b)|((?:\bhttp(?:s)?\b\:\/\/)?(?:\bwww\b\.)?(?:\byoutu\b\.\bbe\b\/\b)\b[a-zA-Z0-9-_]{11}\b)/;
-  const image = req.file?.path;
+  // const image = req.file?.path;
+  const image = req.file?.location;
   const { text, video }: { text?: string; video?: string } = req.body;
   if (!text && !image && !video) {
     return res.status(400).json({ message: "Invalid value(s)" });

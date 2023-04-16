@@ -18,7 +18,7 @@ const EditTweetForm = ({ tweet, onUpdate, onClose }) => {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    onUpdate(tweet.id, text, video, image);
+    onUpdate(tweet.id, text, video, image, tweet.image);
     onClose();
   };
 
@@ -68,7 +68,7 @@ const EditTweetForm = ({ tweet, onUpdate, onClose }) => {
             className="tweet-input"
           />
           <ImageDesc>
-            {image ? image.substring(0, 32) : "No Image"}...
+            {tweet.image ? tweet.image.substring(0, 32) : "No Image"}...
           </ImageDesc>
           <RemoveImage type="button" onClick={removeImage}>
             X
