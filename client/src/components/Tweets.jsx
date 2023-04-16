@@ -52,6 +52,15 @@ const Tweets = memo(({ tweetService, username, addable }) => {
     }, 3000);
   };
 
+  const onClickGoodTweet = (tweetId, good, clicked) =>
+    tweetService
+      .clickGood(tweetId, good, clicked)
+      .then(() =>
+        setTweets((tweets) =>
+          tweets.map((item) => (item.id === updated.id ? updated : item))
+        )
+      );
+
   return (
     <>
       {addable && (
@@ -68,6 +77,7 @@ const Tweets = memo(({ tweetService, username, addable }) => {
             onDelete={onDelete}
             onUpdate={onUpdate}
             onUsernameClick={onUsernameClick}
+            onClickGoodTweet={onClickGoodTweet}
           />
         ))}
       </ul>

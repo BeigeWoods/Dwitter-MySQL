@@ -126,10 +126,7 @@ export default class AuthController implements AuthDataHandler {
       oldPassword + this.config.bcrypt.randomWords,
       user!.password as string
     );
-    if (!isValidPassword) {
-      return res.status(400).json({ message: "Incorrect password" });
-    }
-    if (newPassword !== checkPassword) {
+    if (!isValidPassword || newPassword !== checkPassword) {
       return res.status(400).json({ message: "Incorrect password" });
     }
     const hashedNew = await bcrypt.hash(

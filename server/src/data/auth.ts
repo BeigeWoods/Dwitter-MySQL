@@ -8,7 +8,7 @@ import {
 import { UserModel } from "../__dwitter__.d.ts/db/database";
 
 export default class UserRepository implements UserDataHandler {
-  constructor(private user: SQ.ModelCtor<UserModel>) {}
+  constructor(private user: SQ.ModelStatic<UserModel>) {}
 
   findById = async (id: number) => {
     return await this.user.findByPk(id).catch((err) => {

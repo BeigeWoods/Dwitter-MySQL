@@ -1,9 +1,4 @@
-import express, {
-  ErrorRequestHandler,
-  NextFunction,
-  Request,
-  Response,
-} from "express";
+import express, { ErrorRequestHandler } from "express";
 import "express-async-errors";
 import cors from "cors";
 import morgan from "morgan";
@@ -13,7 +8,7 @@ import tweetsRouter from "./router/tweets.js";
 import authRouter from "./router/auth.js";
 import { config } from "./config.js";
 import { initSocket } from "./connection/socket.js";
-import { sequelize } from "./db/database.js";
+import { GoodTweet, sequelize } from "./db/database.js";
 import { csrfCheck } from "./middleware/csrf.js";
 import { getSocketIO } from "./connection/socket.js";
 import { TweetRepository } from "./data/tweet.js";
@@ -26,7 +21,7 @@ import AuthController from "./controller/auth/auth.js";
 import AuthValidator from "./middleware/auth.js";
 
 const app = express();
-const tweetRepository = new TweetRepository(Tweet, User);
+const tweetRepository = new TweetRepository(Tweet, User, GoodTweet);
 const tweetController = new TweetController(tweetRepository, getSocketIO);
 const tokenController = new TokenRepository(config);
 const userRepository = new UserRepository(User);

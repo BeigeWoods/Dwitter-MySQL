@@ -1,6 +1,10 @@
 import SQ from "sequelize";
 import { config } from "../config.js";
-import { TweetModel, UserModel } from "../__dwitter__.d.ts/db/database.js";
+import {
+  GoodModel,
+  TweetModel,
+  UserModel,
+} from "../__dwitter__.d.ts/db/database.js";
 
 const { database, user, password, host } = config.db;
 const { DataTypes } = SQ;
@@ -78,6 +82,10 @@ export const Tweet = sequelize.define<TweetModel>(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    good: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     charset: "utf8mb4",
@@ -87,4 +95,20 @@ export const Tweet = sequelize.define<TweetModel>(
 
 Tweet.belongsTo(User, {
   onDelete: "cascade",
+});
+
+export const GoodTweet = sequelize.define<GoodModel>(
+  "goodTweet",
+  {},
+  { timestamps: false }
+);
+
+User.belongsToMany(Tweet, {
+  through: "goodTweet",
+  foreignKey: "user_fk_id",
+});
+
+Tweet.belongsToMany(User, {
+  through: "goodTweet",
+  foreignKey: "tweet_fk_id",
 });

@@ -1,4 +1,6 @@
 import React, { memo, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart, faComment } from "@fortawesome/free-solid-svg-icons";
 import parseDate from "../util/date";
 import Avatar from "./Avatar";
 import EditTweetForm from "./EditTweetForm";
@@ -14,9 +16,28 @@ const Image = styled.div`
   margin: 10px 0 10px 0;
 `;
 
+const Button = styled.button`
+  color: var(--color-blue);
+`;
+
+const Sub = styled.div`
+  margin: 10px 0 10px 0;
+`;
+
 const TweetCard = memo(
-  ({ tweet, owner, onDelete, onUpdate, onUsernameClick }) => {
-    const { id, username, name, url, text, video, image, createdAt } = tweet;
+  ({ tweet, owner, onDelete, onUpdate, onUsernameClick, onClickGoodTweet }) => {
+    const {
+      id,
+      username,
+      name,
+      url,
+      text,
+      video,
+      image,
+      createdAt,
+      good,
+      clicked,
+    } = tweet;
     const [editing, setEditing] = useState(false);
     const onClose = () => setEditing(false);
 
@@ -37,7 +58,7 @@ const TweetCard = memo(
             {image && (
               <Image>
                 <img
-                  // src={`${process.env.REACT_APP_BASE_URL}/${image}`} // - 로컬 용
+                  // src={`${process.env.REACT_APP_BASE_URL}/${image}`} // - 로컬
                   src={`${image}`} // - aws s3
                   alt="tweet"
                   width="100%"
@@ -72,6 +93,18 @@ const TweetCard = memo(
             </button>
           </div>
         )}
+        <Sub>
+          <Button
+            onClick={() => {
+              onClickGoodTweet(id, good, clicked);
+            }}
+          >
+            {clicked ? "♥︎" : "♡"} {good}
+          </Button>
+          <Button>
+            <FontAwesomeIcon icon={faComment} />
+          </Button>
+        </Sub>
       </li>
     );
   }

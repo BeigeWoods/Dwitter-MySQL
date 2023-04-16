@@ -21,13 +21,17 @@ export interface TweetDataHandler<T extends TweetModel> {
     image?: string
   ): Promise<T | void>;
   remove(id: string): Promise<void>;
+  updateGood(id: string, count: number): Promise<T | void>;
 }
 export declare class TweetRepository implements TweetDataHandler<TweetData> {
   private tweet;
   private user;
   private readonly INCLUDE_USER;
   private readonly ORDER_DESC;
-  constructor(tweet: SQ.ModelCtor<TweetModel>, user: SQ.ModelCtor<UserModel>);
+  constructor(
+    tweet: SQ.ModelStatic<TweetModel>,
+    user: SQ.ModelStatic<UserModel>
+  );
   getAll: () => Promise<TweetData[] | void>;
   getAllByUsername: (username: string) => Promise<TweetData[] | void>;
   getById: (id: string) => Promise<TweetData | null | void>;
@@ -44,4 +48,5 @@ export declare class TweetRepository implements TweetDataHandler<TweetData> {
     image?: string
   ) => Promise<TweetData | void>;
   remove: (id: string) => Promise<void>;
+  updateGood(id: string, count: number): Promise<TweetData | void>;
 }

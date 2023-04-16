@@ -1,5 +1,5 @@
-import { Model } from "sequelize";
-export declare const sequelize: any;
+import { Model, Sequelize } from "sequelize";
+export declare const sequelize: Sequelize;
 export interface UserModel extends Model {
   readonly id: number;
   username: string;
@@ -18,5 +18,7 @@ export interface TweetModel extends Model {
   image?: string;
   readonly dataValues: any;
 }
-export declare const User: any;
-export declare const Tweet: any;
+export interface GoodModel extends Model {}
+export declare const User: UserModel;
+export declare const Tweet: TweetModel;
+export declare const GoodTweet: GoodModel;

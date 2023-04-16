@@ -29,7 +29,7 @@ export interface UserDataHandler {
 
 export default class UserRepository implements UserDataHandler {
   private user;
-  constructor(user: SQ.ModelCtor<UserModel>);
+  constructor(user: SQ.ModelStatic<UserModel>);
   findById: (id: number) => Promise<UserModel | null | void>;
   findByUsername: (username: string) => Promise<UserModel | null | void>;
   findByUserEmail: (email: string) => Promise<UserModel | null | void>;
