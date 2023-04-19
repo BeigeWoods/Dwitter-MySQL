@@ -9,6 +9,7 @@ import { imageUploading } from "../middleware/multer.js";
 import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth.js";
 import { Validate } from "../__dwitter__.d.ts/middleware/validator.js";
 import { TweetHandler } from "../__dwitter__.d.ts/controller/tweet.js";
+import { GoodHandler } from "../__dwitter__.d.ts/middleware/good.js";
 
 const validateTweet: Array<ValidationChain | Validate> = [
   body("text")
@@ -27,7 +28,8 @@ const validateTweet: Array<ValidationChain | Validate> = [
 
 export default function tweetsRouter(
   authValidator: AuthValidateHandler,
-  tweetController: TweetHandler
+  tweetController: TweetHandler,
+  goodMiddleWare: GoodHandler
 ): express.IRouter {
   const router = express.Router();
   router.get("/", authValidator.isAuth, tweetController.getTweets);
@@ -46,6 +48,7 @@ export default function tweetsRouter(
     "/:id",
     authValidator.isAuth,
     imageUploading,
+    goodMiddleWare.goodTweet,
     validateTweet,
     tweetController.updateTweet
   );

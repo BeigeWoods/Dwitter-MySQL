@@ -31,7 +31,7 @@ const Tweets = memo(({ tweetService, username, addable }) => {
       .then(() =>
         setTweets((tweets) => tweets.filter((tweet) => tweet.id !== tweetId))
       )
-      .catch((error) => setError(error.toString()));
+      .catch((error) => onError(error));
 
   const onUpdate = (tweetId, text, video, image, oldImg) =>
     tweetService
@@ -41,9 +41,27 @@ const Tweets = memo(({ tweetService, username, addable }) => {
           tweets.map((item) => (item.id === updated.id ? updated : item))
         )
       )
-      .catch((error) => setError(error.toString()));
+      .catch((error) => onError(error));
 
   const onUsernameClick = (tweet) => history.push(`/${tweet.username}`);
+
+  const onChangeForGood = (tweet, update) => {
+    tweet.good = update.good;
+    tweet.clicked = update.clicked;
+    return tweet;
+  };
+
+  const onClickGoodTweet = (tweetId, good, clicked) =>
+    tweetService
+      .clickGood(tweetId, good, clicked)
+      .then((updated) =>
+        setTweets((tweets) =>
+          tweets.map((item) =>
+            item.id === updated.id ? onChangeForGood(item, updated) : item
+          )
+        )
+      )
+      .catch((error) => onError(error));
 
   const onError = (error) => {
     setError(error.toString());
@@ -68,6 +86,7 @@ const Tweets = memo(({ tweetService, username, addable }) => {
             onDelete={onDelete}
             onUpdate={onUpdate}
             onUsernameClick={onUsernameClick}
+            onClickGoodTweet={onClickGoodTweet}
           />
         ))}
       </ul>

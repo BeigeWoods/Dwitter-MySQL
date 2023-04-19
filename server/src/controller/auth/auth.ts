@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import {} from "express-async-errors";
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { AuthDataHandler } from "../../__dwitter__.d.ts/controller/auth/auth.js";
 import { Config } from "../../__dwitter__.d.ts/config.js";
 import { UserDataHandler } from "../../__dwitter__.d.ts/data/auth.js";
@@ -56,21 +56,21 @@ export default class AuthController implements AuthDataHandler {
     const { username, password } = req.body;
     const user = await this.userRepository.findByUsername(username);
     if (!user) {
-      return res.status(401).json({ message: "Invalid user or password" });
+      return res.status(400).json({ message: "Invalid user or password" });
     }
     const isValidPassword = await bcrypt.compare(
       password + this.config.bcrypt.randomWords,
       user.password!
     );
     if (!isValidPassword) {
-      return res.status(401).json({ message: "Invalid user or password" });
+      return res.status(400).json({ message: "Invalid user or password" });
     }
     const token = this.tokenController.createJwtToken(user.id);
     this.tokenController.setToken(res, token);
     res.status(200).json({ token, username });
   };
 
-  logout = async (req: Request, res: Response, next: NextFunction) => {
+  logout = async (req: Request, res: Response) => {
     this.tokenController.setToken(res, "");
     return res.sendStatus(204);
   };
@@ -115,7 +115,7 @@ export default class AuthController implements AuthDataHandler {
     const { oldPassword, newPassword, checkPassword } = req.body;
     const user = await this.userRepository.findById(req.userId!);
     if (user!.socialLogin) {
-      return res.sendStatus(404);
+      return res.sendStatus(403);
     }
     if (oldPassword === newPassword) {
       return res

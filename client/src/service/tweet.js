@@ -42,6 +42,20 @@ export default class TweetService {
     );
   }
 
+  async clickGood(tweetId, good, clicked) {
+    const data = new FormData();
+    data.append("good", good);
+    data.append("clicked", clicked);
+    return this.http.fetch(
+      `/${tweetId}`,
+      {
+        method: "PUT",
+        body: data,
+      },
+      false
+    );
+  }
+
   async deleteTweet(tweetId) {
     return this.http.fetch(`/${tweetId}`, {
       method: "DELETE",

@@ -18,12 +18,16 @@ import TokenRepository from "./controller/auth/token.js";
 import UserRepository from "./data/auth.js";
 import AuthController from "./controller/auth/auth.js";
 import AuthValidator from "./middleware/auth.js";
+import { GoodMiddleWare } from "./middleware/good.js";
+import { GoodRepository } from "./data/good.js";
 
 const app = express();
 const tweetRepository = new TweetRepository();
 const tweetController = new TweetController(tweetRepository, getSocketIO);
 const tokenController = new TokenRepository(config);
 const userRepository = new UserRepository();
+const goodRepository = new GoodRepository();
+const goodMiddleWare = new GoodMiddleWare(tweetRepository, goodRepository);
 const authValidator = new AuthValidator(config, userRepository);
 const oauthController = new OauthController(
   config,
@@ -55,7 +59,7 @@ app.use(cookieParser());
 app.use("/uploads", express.static("uploads"));
 
 app.use(csrfCheck);
-app.use("/", tweetsRouter(authValidator, tweetController));
+app.use("/", tweetsRouter(authValidator, tweetController, goodMiddleWare));
 app.use(
   "/auth",
   authRouter(authValidator, authController, oauthController, tokenController)

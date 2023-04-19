@@ -1,4 +1,6 @@
 import React, { memo, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faComment } from "@fortawesome/free-solid-svg-icons";
 import parseDate from "../util/date";
 import Avatar from "./Avatar";
 import EditTweetForm from "./EditTweetForm";
@@ -14,9 +16,31 @@ const Image = styled.div`
   margin: 10px 0 10px 0;
 `;
 
+const Button = styled.button`
+  color: var(--color-blue);
+`;
+
+const Attention = styled.div`
+  grid-column: 1/3;
+  display: grid;
+  grid-template-columns: 40px auto;
+  justify-items: start;
+`;
+
 const TweetCard = memo(
-  ({ tweet, owner, onDelete, onUpdate, onUsernameClick }) => {
-    const { id, username, name, url, text, video, image, createdAt } = tweet;
+  ({ tweet, owner, onDelete, onUpdate, onUsernameClick, onClickGoodTweet }) => {
+    const {
+      id,
+      username,
+      name,
+      url,
+      text,
+      video,
+      image,
+      createdAt,
+      good,
+      clicked,
+    } = tweet;
     const [editing, setEditing] = useState(false);
     const onClose = () => setEditing(false);
 
@@ -58,6 +82,18 @@ const TweetCard = memo(
               />
             )}
           </div>
+          <Attention>
+            <Button
+              onClick={() => {
+                onClickGoodTweet(id, good, clicked ? clicked : 0);
+              }}
+            >
+              {clicked ? "♥︎" : "♡"} {good}
+            </Button>
+            <Button>
+              <FontAwesomeIcon icon={faComment} />
+            </Button>
+          </Attention>
         </section>
         {owner && (
           <div className="tweet-action">

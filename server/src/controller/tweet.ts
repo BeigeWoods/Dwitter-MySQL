@@ -16,16 +16,16 @@ export class TweetController implements TweetHandler {
   getTweets = async (req: Request, res: Response) => {
     const username = req.query.username! as string;
     const data = await (username
-      ? this.tweetRepository.getAllByUsername(username)
-      : this.tweetRepository.getAll());
+      ? this.tweetRepository.getAllByUsername(req.userId!, username)
+      : this.tweetRepository.getAll(req.userId!));
     return res.status(200).json(data);
   };
 
   getTweet = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const tweet = await this.tweetRepository.getById(id);
+    const tweet = await this.tweetRepository.getById(id, req.userId!);
     if (!tweet) {
-      res.status(404).json({ message: `Tweet not found` });
+      return res.status(404).json({ message: `Tweet not found` });
     }
     return res.status(200).json(tweet);
   };
@@ -46,9 +46,6 @@ export class TweetController implements TweetHandler {
       videoUrl,
       image ? image : ""
     );
-    if (!tweet) {
-      res.status(404).json({ message: `Can't ceate Tweet` });
-    }
     this.getSocketIO().emit("tweets", tweet);
     return res.status(201).json(tweet);
   };
@@ -65,6 +62,7 @@ export class TweetController implements TweetHandler {
     const videoUrl = this.handleUrl(video);
     const updated = await this.tweetRepository.update(
       id,
+      req.userId!,
       text,
       videoUrl,
       image ? image : oldImg ? oldImg : ""
@@ -74,13 +72,6 @@ export class TweetController implements TweetHandler {
 
   deleteTweet = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const tweet = await this.tweetRepository.getById(id);
-    if (!tweet) {
-      return res.status(404).json({ message: `Tweet not found` });
-    }
-    if (tweet.userId !== req.userId) {
-      return res.sendStatus(403);
-    }
     await this.tweetRepository.remove(id);
     return res.sendStatus(204);
   };
