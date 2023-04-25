@@ -2,9 +2,10 @@ import React, { memo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComment } from "@fortawesome/free-solid-svg-icons";
 import parseDate from "../util/date";
+import styled from "styled-components";
 import Avatar from "./Avatar";
 import EditTweetForm from "./EditTweetForm";
-import styled from "styled-components";
+import Comments from "./Comments";
 
 const Youtube = styled.iframe`
   width: 369px;
@@ -28,7 +29,16 @@ const Attention = styled.div`
 `;
 
 const TweetCard = memo(
-  ({ tweet, owner, onDelete, onUpdate, onUsernameClick, onClickGoodTweet }) => {
+  ({
+    tweet,
+    owner,
+    onDelete,
+    onUpdate,
+    onUsernameClick,
+    onClickGoodTweet,
+    commentService,
+    onError,
+  }) => {
     const {
       id,
       username,
@@ -43,6 +53,7 @@ const TweetCard = memo(
     } = tweet;
     const [editing, setEditing] = useState(false);
     const onClose = () => setEditing(false);
+    const [commenting, setCommenting] = useState(false);
 
     return (
       <li className="tweet">
@@ -74,13 +85,6 @@ const TweetCard = memo(
                 <Youtube src={video}></Youtube>
               </div>
             )}
-            {editing && (
-              <EditTweetForm
-                tweet={tweet}
-                onUpdate={onUpdate}
-                onClose={onClose}
-              />
-            )}
           </div>
           <Attention>
             <Button
@@ -90,23 +94,33 @@ const TweetCard = memo(
             >
               {clicked ? "♥︎" : "♡"} {good}
             </Button>
-            <Button>
+            <Button onClick={() => setCommenting(commenting ? false : true)}>
               <FontAwesomeIcon icon={faComment} />
             </Button>
           </Attention>
+          {owner && (
+            <div className="tweet-action">
+              <button className="tweet-action-btn" onClick={() => onDelete(id)}>
+                x
+              </button>
+              <button
+                className="tweet-action-btn"
+                onClick={() => setEditing(editing ? false : true)}
+              >
+                ✎
+              </button>
+            </div>
+          )}
         </section>
-        {owner && (
-          <div className="tweet-action">
-            <button className="tweet-action-btn" onClick={() => onDelete(id)}>
-              x
-            </button>
-            <button
-              className="tweet-action-btn"
-              onClick={() => setEditing(true)}
-            >
-              ✎
-            </button>
-          </div>
+        {editing && (
+          <EditTweetForm tweet={tweet} onUpdate={onUpdate} onClose={onClose} />
+        )}
+        {commenting && (
+          <Comments
+            tweetId={id}
+            commentService={commentService}
+            onError={onError}
+          />
         )}
       </li>
     );

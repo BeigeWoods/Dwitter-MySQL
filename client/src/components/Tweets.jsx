@@ -5,7 +5,7 @@ import NewTweetForm from "./NewTweetForm";
 import TweetCard from "./TweetCard";
 import { useAuth } from "../context/AuthContext";
 
-const Tweets = memo(({ tweetService, username, addable }) => {
+const Tweets = memo(({ tweetService, commentService, username, addable }) => {
   const [tweets, setTweets] = useState([]);
   const [error, setError] = useState("");
   const history = useHistory();
@@ -15,7 +15,7 @@ const Tweets = memo(({ tweetService, username, addable }) => {
     tweetService
       .getTweets(username)
       .then((tweets) => setTweets([...tweets]))
-      .catch(onError);
+      .catch((error) => onError(error));
 
     const stopSync = tweetService.onSync((tweet) => onCreated(tweet));
     return () => stopSync();
@@ -87,6 +87,8 @@ const Tweets = memo(({ tweetService, username, addable }) => {
             onUpdate={onUpdate}
             onUsernameClick={onUsernameClick}
             onClickGoodTweet={onClickGoodTweet}
+            commentService={commentService}
+            onError={onError}
           />
         ))}
       </ul>

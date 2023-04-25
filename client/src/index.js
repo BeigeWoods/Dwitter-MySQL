@@ -4,6 +4,7 @@ import "./css/index.css";
 import App from "./App";
 import AuthService from "./service/auth";
 import TweetService from "./service/tweet";
+import CommentService from "./service/comment";
 import { BrowserRouter } from "react-router-dom";
 import {
   AuthProvider,
@@ -22,6 +23,7 @@ const httpClient = new HttpClient(baseURL, authErrorEventBus, () =>
 const authService = new AuthService(httpClient);
 const socketClient = new Socket(baseURL, () => fetchToken());
 const tweetService = new TweetService(httpClient, socketClient);
+const commentService = new CommentService(httpClient, socketClient);
 
 ReactDOM.render(
   <React.StrictMode>
@@ -30,7 +32,11 @@ ReactDOM.render(
         authService={authService}
         authErrorEventBus={authErrorEventBus}
       >
-        <App tweetService={tweetService} authService={authService} />
+        <App
+          tweetService={tweetService}
+          authService={authService}
+          commentService={commentService}
+        />
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>,

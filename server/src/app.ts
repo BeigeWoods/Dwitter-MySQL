@@ -5,39 +5,43 @@ import morgan from "morgan";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import tweetsRouter from "./router/tweets.js";
+import commentsRouter from "./router/comments.js";
 import authRouter from "./router/auth.js";
 import { config } from "./config.js";
-import { initSocket } from "./connection/socket.js";
-import { csrfCheck } from "./middleware/csrf.js";
-import { getSocketIO } from "./connection/socket.js";
-import { TweetRepository } from "./data/tweet.js";
 import { db } from "./db/database.js";
+import { initSocket, getSocketIO } from "./connection/socket.js";
+import { csrfCheck } from "./middleware/csrf.js";
+import { TweetRepository } from "./data/tweet.js";
 import { TweetController } from "./controller/tweet.js";
-import OauthController from "./controller/auth/oauth.js";
-import TokenRepository from "./controller/auth/token.js";
-import UserRepository from "./data/auth.js";
-import AuthController from "./controller/auth/auth.js";
-import AuthValidator from "./middleware/auth.js";
-import { GoodMiddleWare } from "./middleware/good.js";
 import { GoodRepository } from "./data/good.js";
+import { GoodMiddleWare } from "./middleware/good.js";
+import { CommentRepository } from "./data/comments.js";
+import { CommentController } from "./controller/comments.js";
+import UserRepository from "./data/auth.js";
+import TokenRepository from "./controller/auth/token.js";
+import AuthValidator from "./middleware/auth.js";
+import AuthController from "./controller/auth/auth.js";
+import OauthController from "./controller/auth/oauth.js";
 
 const app = express();
 const tweetRepository = new TweetRepository();
 const tweetController = new TweetController(tweetRepository, getSocketIO);
-const tokenController = new TokenRepository(config);
-const userRepository = new UserRepository();
 const goodRepository = new GoodRepository();
 const goodMiddleWare = new GoodMiddleWare(tweetRepository, goodRepository);
+const commentRepository = new CommentRepository();
+const commentController = new CommentController(commentRepository, getSocketIO);
+const userRepository = new UserRepository();
 const authValidator = new AuthValidator(config, userRepository);
-const oauthController = new OauthController(
-  config,
-  tokenController,
-  userRepository
-);
+const tokenController = new TokenRepository(config);
 const authController = new AuthController(
   config,
   userRepository,
   tokenController
+);
+const oauthController = new OauthController(
+  config,
+  tokenController,
+  userRepository
 );
 
 const corsOption = {
@@ -46,7 +50,7 @@ const corsOption = {
   credentials: true, // allow the Access-Control-Allow-Credentials
 };
 
-const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+const errorHandler: ErrorRequestHandler = (err, req, res) => {
   console.error("Something wrong with app\n", err);
   res.sendStatus(500);
 };
@@ -59,13 +63,16 @@ app.use(cookieParser());
 app.use("/uploads", express.static("uploads"));
 
 app.use(csrfCheck);
-app.use("/", tweetsRouter(authValidator, tweetController, goodMiddleWare));
+app.use("/", [
+  tweetsRouter(authValidator, tweetController, goodMiddleWare),
+  commentsRouter(authValidator, commentController),
+]);
 app.use(
   "/auth",
   authRouter(authValidator, authController, oauthController, tokenController)
 );
 
-app.use((req, res, next) => {
+app.use((req, res) => {
   res.sendStatus(404);
 });
 app.use(errorHandler);

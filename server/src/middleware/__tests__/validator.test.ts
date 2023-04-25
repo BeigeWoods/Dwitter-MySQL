@@ -1,7 +1,11 @@
 import faker from "faker";
 import httpMocks from "node-mocks-http";
 import { validationResult as validation } from "express-validator";
-import { expressValidate, tweetFormDataValidate } from "../validator";
+import {
+  expressValidate,
+  tweetFormDataValidate,
+  paramsValidate,
+} from "../validator";
 
 jest.mock("express-validator");
 
@@ -73,6 +77,144 @@ describe.skip("Validator Middleware", () => {
       });
 
       tweetFormDataValidate(request, response, next);
+
+      expect(next).toBeCalled();
+    });
+  });
+
+  describe("paramsValidate", () => {
+    it("return 404 if req.params.id doesn’t exist in operating tweet", () => {
+      request = httpMocks.createRequest({
+        path: "/1",
+        params: { id: undefined },
+      });
+
+      paramsValidate(request, response, next);
+
+      expect(response.statusCode).toBe(404);
+      expect(response._getJSONData().message).toBe("Bad tweet id");
+      expect(next).not.toBeCalled();
+    });
+
+    it("return 404 if req.params.id is 'undefined' in operating tweet", () => {
+      request = httpMocks.createRequest({
+        path: "/",
+        params: { id: "undefined" },
+      });
+
+      paramsValidate(request, response, next);
+
+      expect(response.statusCode).toBe(404);
+      expect(response._getJSONData().message).toBe("Bad tweet id");
+      expect(next).not.toBeCalled();
+    });
+
+    it("calls next if req.params.id is exist in operating tweet", () => {
+      request = httpMocks.createRequest({
+        path: "/1",
+        params: { id: 1 },
+      });
+
+      paramsValidate(request, response, next);
+
+      expect(next).toBeCalled();
+    });
+
+    it("return 404 if req.params.id is doesn’t exist in posting comment", () => {
+      request = httpMocks.createRequest({
+        path: "/undefined/comments",
+        method: "POST",
+        params: { id: "undefined" },
+      });
+
+      paramsValidate(request, response, next);
+
+      expect(response.statusCode).toBe(404);
+      expect(response._getJSONData().message).not.toBe("Bad tweet id");
+      expect(response._getJSONData().message).toBe("Bad comment id");
+      expect(next).not.toBeCalled();
+    });
+
+    it("calls next if only req.params.main is provided in updating comment", () => {
+      request = httpMocks.createRequest({
+        path: "/undefined/comments/1",
+        method: "PUT",
+        params: { id: "undefined", main: "1" },
+      });
+
+      paramsValidate(request, response, next);
+
+      expect(response.statusCode).toBe(404);
+      expect(response._getJSONData().message).not.toBe("Bad tweet id");
+      expect(response._getJSONData().message).toBe("Bad comment id");
+      expect(next).not.toBeCalled();
+    });
+
+    it("return 404 if req.params.main doesn’t exist in updating comment", () => {
+      request = httpMocks.createRequest({
+        path: "/1/comments/undefined",
+        method: "PUT",
+        params: { id: "1", main: undefined },
+      });
+
+      paramsValidate(request, response, next);
+
+      expect(response.statusCode).toBe(404);
+      expect(response._getJSONData().message).not.toBe("Bad tweet id");
+      expect(response._getJSONData().message).toBe("Bad comment id");
+      expect(next).not.toBeCalled();
+    });
+
+    it("calls next if req.params.main and id are provided in updating comment", () => {
+      request = httpMocks.createRequest({
+        path: "/10/comments/1",
+        method: "PUT",
+        params: { id: "10", main: "1" },
+      });
+
+      paramsValidate(request, response, next);
+
+      expect(next).toBeCalled();
+    });
+
+    it("return 404 if only req.params.main is provided in deleting comment", () => {
+      request = httpMocks.createRequest({
+        path: "/undefined/comments/1",
+        method: "DELETE",
+        params: { id: "undefined", main: "1" },
+      });
+
+      paramsValidate(request, response, next);
+
+      expect(response.statusCode).toBe(404);
+      expect(response._getJSONData().message).not.toBe("Bad tweet id");
+      expect(response._getJSONData().message).toBe("Bad comment id");
+      expect(next).not.toBeCalled();
+    });
+
+    it("return 404 if req.params.main doesn’t exist in deleting comment", () => {
+      request = httpMocks.createRequest({
+        path: "/10/comments/undefined",
+        method: "DELETE",
+        params: { id: "10", main: "undefined" },
+      });
+
+      paramsValidate(request, response, next);
+
+      expect(response.statusCode).toBe(404);
+      expect(response._getJSONData().message).not.toBe("Bad tweet id");
+      expect(response._getJSONData().message).toBe("Bad comment id");
+      expect(next).not.toBeCalled();
+    });
+
+    it("calls next if req.params.main and id are provided in deleting comment", () => {
+      request = httpMocks.createRequest({
+        path: "/10/comments/1",
+        method: "DELETE",
+        params: { id: "10", main: "1" },
+      });
+
+      paramsValidate(request, response, next);
 
       expect(next).toBeCalled();
     });

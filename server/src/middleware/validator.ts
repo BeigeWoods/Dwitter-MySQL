@@ -32,3 +32,25 @@ export const tweetFormDataValidate = (
   }
   next();
 };
+
+export const paramsValidate = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id, main } = req.params;
+  const isComment = req.path.includes("comments");
+  if (isComment && (req.method === "PUT" || req.method === "DELETE")) {
+    if (!main || main === "undefined") {
+      return res
+        .status(404)
+        .json({ message: `Bad ${isComment ? "comment" : "tweet"} id` });
+    }
+  }
+  if (!id || id === "undefined") {
+    return res
+      .status(404)
+      .json({ message: `Bad ${isComment ? "comment" : "tweet"} id` });
+  }
+  return next();
+};

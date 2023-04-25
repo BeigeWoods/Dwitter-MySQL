@@ -6,7 +6,7 @@ import { useAuth } from "./context/AuthContext";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
 
-function App({ tweetService, authService }) {
+function App({ tweetService, authService, commentService }) {
   const history = useHistory();
   const { user, logout, withdrawal } = useAuth();
 
@@ -42,10 +42,16 @@ function App({ tweetService, authService }) {
         (
         <>
           <Route exact path="/">
-            <AllTweets tweetService={tweetService} />
+            <AllTweets
+              tweetService={tweetService}
+              commentService={commentService}
+            />
           </Route>
           <Route exact path="/:username">
-            <MyTweets tweetService={tweetService} />
+            <MyTweets
+              tweetService={tweetService}
+              commentService={commentService}
+            />
           </Route>
           <Route exact path="/auth/profile">
             <Profile onWithdrawal={onWithdrawal} authService={authService} />

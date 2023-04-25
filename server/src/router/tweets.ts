@@ -4,6 +4,7 @@ import { body, ValidationChain } from "express-validator";
 import {
   expressValidate,
   tweetFormDataValidate,
+  paramsValidate,
 } from "../middleware/validator.js";
 import { imageUploading } from "../middleware/multer.js";
 import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth.js";
@@ -34,7 +35,12 @@ export default function tweetsRouter(
   const router = express.Router();
   router.get("/", authValidator.isAuth, tweetController.getTweets);
 
-  router.get("/:id", authValidator.isAuth, tweetController.getTweet);
+  router.get(
+    "/:id",
+    authValidator.isAuth,
+    paramsValidate,
+    tweetController.getTweet
+  );
 
   router.post(
     "/",
@@ -48,12 +54,18 @@ export default function tweetsRouter(
     "/:id",
     authValidator.isAuth,
     imageUploading,
+    paramsValidate,
     goodMiddleWare.goodTweet,
     validateTweet,
     tweetController.updateTweet
   );
 
-  router.delete("/:id", authValidator.isAuth, tweetController.deleteTweet);
+  router.delete(
+    "/:id",
+    authValidator.isAuth,
+    paramsValidate,
+    tweetController.deleteTweet
+  );
 
   return router;
 }

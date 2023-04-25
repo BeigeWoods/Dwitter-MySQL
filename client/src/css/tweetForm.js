@@ -27,6 +27,7 @@ export const ImageInput = styled.input`
 `;
 
 export const TweetEditForm = styled.form`
+  grid-row: 2/3;
   display: grid;
   width: 100%;
   padding: 4px 16px;
