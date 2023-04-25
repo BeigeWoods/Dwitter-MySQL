@@ -2,12 +2,14 @@ import { db } from "../db/database.js";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 
 export class TweetRepository implements TweetDataHandler {
-  // private readonly All_Tweet =
-  // "SELECT T.id, text, video, image, createdAt, userId, name, username, url \
-  // FROM tweets T \
-  // JOIN users U \
-  // ON U.id = T.userId";
-
+  private readonly Select_Feild =
+    "SELECT id, text, video, image, good, createdAt, updatedAt, J.userId, name, username, url, G.userId AS clicked";
+  private readonly Sub_Select_From =
+    "SELECT T.id, text, video, image, good, createdAt, updatedAt, userId, name, username, url \
+    FROM tweets T, users U";
+  private readonly Left_Join_On =
+    "LEFT JOIN (SELECT * FROM goodTweets WHERE userId = ?) G \
+    ON G.tweetId = J.id";
   private readonly Order_By = "ORDER BY createdAt DESC";
 
   constructor() {}
@@ -15,13 +17,11 @@ export class TweetRepository implements TweetDataHandler {
   getAll = async (userId: number) => {
     return await db
       .execute(
-        `SELECT id, text, video, image, good, createdAt, updatedAt, J.userId, name, username, url, G.userId AS clicked\
-          FROM (SELECT T.id, text, video, image, good, createdAt, updatedAt, userId, name, username, url\
-                FROM tweets T, users U\
+        `${this.Select_Feild}\
+          FROM (${this.Sub_Select_From}
                 WHERE T.userId = U.id) J\
-          LEFT JOIN (SELECT * FROM goodTweets WHERE userId = ?) G\
-          ON G.tweetId = J.id
-      ${this.Order_By}`,
+        ${this.Left_Join_On}
+        ${this.Order_By}`,
         [userId]
       )
       .then((result: any) => {
@@ -33,18 +33,13 @@ export class TweetRepository implements TweetDataHandler {
   };
 
   getAllByUsername = async (userId: number, username: string) => {
-    if (!username && !userId) {
-      return [];
-    }
     return await db
       .execute(
-        `SELECT id, text, video, image, good, createdAt, updatedAt, J.userId, name, username, url, G.userId AS clicked
-          FROM (SELECT T.id, text, video, image, good, createdAt, updatedAt, userId, name, username, url
-                FROM tweets T, users U
+        `${this.Select_Feild}
+          FROM (${this.Sub_Select_From}
                 WHERE T.userId = U.id AND U.username = ?) J
-          LEFT JOIN (SELECT * FROM goodTweets WHERE userId = ?) G
-          ON G.tweetId = J.id
-      ${this.Order_By}`,
+        ${this.Left_Join_On}
+        ${this.Order_By}`,
         [username, userId]
       )
       .then((result: any) => {
@@ -56,18 +51,13 @@ export class TweetRepository implements TweetDataHandler {
   };
 
   getById = async (id: string | number, userId: number) => {
-    if (!id && !userId) {
-      return;
-    }
     return await db
       .execute(
-        `SELECT id, text, video, image, good, createdAt, updatedAt, J.userId, name, username, url, G.userId AS clicked
-          FROM (SELECT T.id, text, video, image, good, createdAt, updatedAt, userId, name, username, url
-                FROM tweets T, users U
+        `${this.Select_Feild}
+          FROM (${this.Sub_Select_From}
                 WHERE T.userId = U.id AND T.id = ?) J
-          LEFT JOIN (SELECT * FROM goodTweets WHERE userId = ?) G
-          ON G.tweetId = J.id
-      ${this.Order_By}`,
+        ${this.Left_Join_On}
+        ${this.Order_By}`,
         [id, userId]
       )
       .then((result: any) => {
@@ -87,9 +77,6 @@ export class TweetRepository implements TweetDataHandler {
     video?: string,
     image?: string
   ) => {
-    if (!userId) {
-      return;
-    }
     return await db
       .execute(
         "INSERT INTO tweets(text, video, image, good, userId, createdAt, updatedAt) \
@@ -109,9 +96,6 @@ export class TweetRepository implements TweetDataHandler {
     video?: string,
     image?: string
   ) => {
-    if (!id && !userId) {
-      return;
-    }
     return await db
       .execute(
         "UPDATE tweets \
@@ -128,23 +112,14 @@ export class TweetRepository implements TweetDataHandler {
   };
 
   updateGood = async (id: string, userId: number, good: number) => {
-    if (!id && !userId) {
-      return;
-    }
     await db
       .execute("UPDATE tweets SET good = ? WHERE id = ?", [good, id])
-      // .then(() => {
-      //   return this.getById(id, userId);
-      // })
       .catch((err) => {
         throw Error(err);
       });
   };
 
   remove = async (id: string) => {
-    if (!id) {
-      return;
-    }
     await db.execute("DELETE FROM tweets WHERE id = ?", [id]).catch((err) => {
       throw Error(err);
     });

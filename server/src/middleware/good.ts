@@ -29,7 +29,7 @@ export class GoodMiddleWare implements GoodHandler {
     }
     await this.tweetRepository.updateGood(id, req.userId!, this.count);
     return res.status(201).json({
-      id: Number(id),
+      id,
       good: this.count,
       clicked: this.click ? 0 : req.userId,
     });

@@ -18,7 +18,7 @@ const NewTweetForm = ({ tweetService, onError }) => {
     event.preventDefault();
     tweetService
       .postTweet(text, video, image)
-      .then((created) => {
+      .then(() => {
         setText("");
         setVideo("");
         setImage("");

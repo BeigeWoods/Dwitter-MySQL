@@ -34,7 +34,9 @@ export interface TweetDataHandler {
   remove(id: string): Promise<void>;
 }
 export declare class TweetRepository implements TweetDataHandler {
-  private readonly All_Tweet;
+  private readonly Select_Feild;
+  private readonly Sub_Select_From;
+  private readonly Left_Join_On;
   private readonly Order_By;
   constructor();
   getAll: (userId: number) => Promise<TweetData[] | void>;
