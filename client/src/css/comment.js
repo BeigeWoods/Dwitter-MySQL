@@ -33,9 +33,24 @@ export const Card = styled.li`
 `;
 
 export const CommentForm = styled.form`
-  display: flex;
-  padding: 4px 16px;
+  padding: 5px ${(props) => (props.isEdit ? "" : "10px")};
+  grid-column: 1/4;
+  display: grid;
   height: 40px;
+  grid-template-columns: auto 30px ${(props) => (props.cancle ? "30px" : "")};
+  column-gap: 4px;
+`;
+
+export const CommentSubmit = styled.button`
+  font-size: 0.8rem;
+  background: var(--color-blue);
+  font-weight: bold;
+`;
+
+export const CommentCancle = styled.button`
+  font-size: 0.8rem;
+  background: var(--color-red);
+  font-weight: bold;
 `;
 
 export const Username = styled.span`

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TweetEditForm } from "../css/tweetForm";
+import { CommentForm, CommentSubmit, CommentCancle } from "../css/comment";
 
 const EditCommentForm = ({ tweetId, comment, onUpdate, onClose }) => {
   const [text, setText] = useState(comment.text);
@@ -22,11 +22,7 @@ const EditCommentForm = ({ tweetId, comment, onUpdate, onClose }) => {
   };
 
   return (
-    <TweetEditForm
-      className="edit-tweet-form"
-      current={false}
-      onSubmit={onSubmit}
-    >
+    <CommentForm cancle={true} isEdit={true} onSubmit={onSubmit}>
       <input
         type="text"
         name="text"
@@ -34,15 +30,12 @@ const EditCommentForm = ({ tweetId, comment, onUpdate, onClose }) => {
         value={text}
         autoFocus
         onChange={onChange}
-        className="form-input tweet-input"
       />
-      <button type="submit" className="form-btn-update">
-        Update
-      </button>
-      <button type="button" className="form-btn-cancel" onClick={onClose}>
-        Cancel
-      </button>
-    </TweetEditForm>
+      <CommentSubmit type="submit">►</CommentSubmit>
+      <CommentCancle type="button" onClick={onClose}>
+        X
+      </CommentCancle>
+    </CommentForm>
   );
 };
 

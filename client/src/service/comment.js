@@ -10,12 +10,12 @@ export default class CommentService {
     });
   }
 
-  async postComment(tweetId, text) {
+  async postComment(tweetId, text, repliedUser) {
     return this.http.fetch(
       `/${tweetId}/comments`,
       {
         method: "POST",
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, repliedUser }),
       },
       true
     );
@@ -32,6 +32,17 @@ export default class CommentService {
     );
   }
 
+  async clickGood(tweetId, mainId, good, clicked) {
+    return this.http.fetch(
+      `/${tweetId}/comments/${mainId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ good, clicked }),
+      },
+      true
+    );
+  }
+
   async deleteComment(tweetId, mainId) {
     return this.http.fetch(`/${tweetId}/comments/${mainId}`, {
       method: "DELETE",
@@ -39,6 +50,6 @@ export default class CommentService {
   }
 
   onSync(callback) {
-    return this.socket.onSync("main comments", callback);
+    return this.socket.onSync("comments", callback);
   }
 }

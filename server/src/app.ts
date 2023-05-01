@@ -24,12 +24,6 @@ import AuthController from "./controller/auth/auth.js";
 import OauthController from "./controller/auth/oauth.js";
 
 const app = express();
-const tweetRepository = new TweetRepository();
-const tweetController = new TweetController(tweetRepository, getSocketIO);
-const goodRepository = new GoodRepository();
-const goodMiddleWare = new GoodMiddleWare(tweetRepository, goodRepository);
-const commentRepository = new CommentRepository();
-const commentController = new CommentController(commentRepository, getSocketIO);
 const userRepository = new UserRepository();
 const authValidator = new AuthValidator(config, userRepository);
 const tokenController = new TokenRepository(config);
@@ -42,6 +36,20 @@ const oauthController = new OauthController(
   config,
   tokenController,
   userRepository
+);
+const tweetRepository = new TweetRepository();
+const tweetController = new TweetController(tweetRepository, getSocketIO);
+const commentRepository = new CommentRepository();
+const commentController = new CommentController(
+  commentRepository,
+  userRepository,
+  getSocketIO
+);
+const goodRepository = new GoodRepository();
+const goodMiddleWare = new GoodMiddleWare(
+  tweetRepository,
+  commentRepository,
+  goodRepository
 );
 
 const corsOption = {
@@ -65,7 +73,7 @@ app.use("/uploads", express.static("uploads"));
 app.use(csrfCheck);
 app.use("/", [
   tweetsRouter(authValidator, tweetController, goodMiddleWare),
-  commentsRouter(authValidator, commentController),
+  commentsRouter(authValidator, commentController, goodMiddleWare),
 ]);
 app.use(
   "/auth",

@@ -4,6 +4,7 @@ import { ValidationChain, body } from "express-validator";
 import { Validate } from "../__dwitter__.d.ts/middleware/validator";
 import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth";
 import { CommentHandler } from "../__dwitter__.d.ts/controller/comments";
+import { GoodHandler } from "../__dwitter__.d.ts/middleware/good";
 import { expressValidate, paramsValidate } from "../middleware/validator.js";
 
 const validateComment: Array<ValidationChain | Validate> = [
@@ -17,7 +18,8 @@ const validateComment: Array<ValidationChain | Validate> = [
 
 export default function commentsRouter(
   authValidator: AuthValidateHandler,
-  commentController: CommentHandler
+  commentController: CommentHandler,
+  goodMiddleware: GoodHandler
 ): express.IRouter {
   const router = express.Router();
 
@@ -38,6 +40,7 @@ export default function commentsRouter(
     "/:id/comments/:main",
     authValidator.isAuth,
     paramsValidate,
+    goodMiddleware.goodComment,
     validateComment,
     commentController.updateComment
   );

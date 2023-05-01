@@ -30,7 +30,7 @@ export interface TweetDataHandler {
     video?: string,
     image?: string
   ): Promise<TweetData | void>;
-  updateGood(id: string, userId: number, good: number): Promise<void>;
+  updateGood(id: string, good: number): Promise<void>;
   remove(id: string): Promise<void>;
 }
 export declare class TweetRepository implements TweetDataHandler {
@@ -58,6 +58,6 @@ export declare class TweetRepository implements TweetDataHandler {
     video?: string,
     image?: string
   ) => Promise<TweetData | void>;
-  updateGood(id: string, userId: number, good: number): Promise<void>;
+  updateGood(id: string, good: number): Promise<void>;
   remove: (id: string) => Promise<void>;
 }

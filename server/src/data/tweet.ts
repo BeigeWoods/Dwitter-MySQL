@@ -64,9 +64,6 @@ export class TweetRepository implements TweetDataHandler {
         return result[0][0];
       })
       .catch((err) => {
-        if (err.message === "Column 'id' in where clause is ambiguous") {
-          return;
-        }
         throw Error(err);
       });
   };
@@ -111,7 +108,7 @@ export class TweetRepository implements TweetDataHandler {
       });
   };
 
-  updateGood = async (id: string, userId: number, good: number) => {
+  updateGood = async (id: string, good: number) => {
     await db
       .execute("UPDATE tweets SET good = ? WHERE id = ?", [good, id])
       .catch((err) => {

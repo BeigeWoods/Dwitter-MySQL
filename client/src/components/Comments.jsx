@@ -6,6 +6,7 @@ import { EmptyCard, Container, Folder } from "../css/comment";
 
 const Comments = memo(({ tweetId, commentService, onError }) => {
   const [comments, setComments] = useState([]);
+  const [repliedUser, setRepliedUser] = useState("");
   const { user } = useAuth();
 
   useEffect(() => {
@@ -42,12 +43,36 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
       )
       .catch((error) => onError(error));
 
+  const onChangeForGood = (comment, update) => {
+    comment.good = update.good;
+    comment.clicked = update.clicked;
+    return comment;
+  };
+
+  const onClickGoodComment = (mainId, good, clicked) =>
+    commentService
+      .clickGood(tweetId, mainId, good, clicked)
+      .then((updated) => {
+        setComments((comments) =>
+          comments.map((item) =>
+            item.id === updated.id ? onChangeForGood(item, updated) : item
+          )
+        );
+      })
+      .catch((error) => onError(error));
+
+  const onClickReply = (repliedUser) => {
+    setRepliedUser(repliedUser);
+  };
+
   return (
     <>
       <Container>
         <NewCommentForm
           tweetId={tweetId}
           commentService={commentService}
+          repliedUser={repliedUser}
+          onClickReply={onClickReply}
           onError={onError}
         />
         {comments.length === 0 && <EmptyCard>No Comments Yet</EmptyCard>}
@@ -60,6 +85,8 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
               owner={comment.username === user.username}
               onDelete={onDelete}
               onUpdate={onUpdate}
+              onClickGoodComment={onClickGoodComment}
+              onClickReply={onClickReply}
             />
           ))}
         </Folder>

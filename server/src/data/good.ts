@@ -25,4 +25,26 @@ export class GoodRepository implements GoodDataHandler {
         throw Error(err);
       });
   };
+
+  clickComment = async (userId: number, commentId: string) => {
+    await db
+      .execute("INSERT INTO goodComments(userId, commentId) VALUES(?, ?)", [
+        userId,
+        commentId,
+      ])
+      .catch((err) => {
+        throw Error(err);
+      });
+  };
+
+  unClickComment = async (userId: number, commentId: string) => {
+    await db
+      .execute("DELETE FROM goodComments WHERE userId = ? AND commentId = ?", [
+        userId,
+        commentId,
+      ])
+      .catch((err) => {
+        throw Error(err);
+      });
+  };
 }

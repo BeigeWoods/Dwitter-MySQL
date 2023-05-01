@@ -1,15 +1,22 @@
 import React, { useState } from "react";
-import { CommentForm } from "../css/comment";
+import { CommentCancle, CommentForm, CommentSubmit } from "../css/comment";
 
-const NewCommentForm = ({ tweetId, commentService, onError }) => {
+const NewCommentForm = ({
+  tweetId,
+  commentService,
+  repliedUser,
+  onClickReply,
+  onError,
+}) => {
   const [text, setText] = useState("");
 
   const onSubmit = async (event) => {
     event.preventDefault();
     commentService
-      .postComment(tweetId, text)
+      .postComment(tweetId, text, repliedUser)
       .then(() => {
         setText("");
+        onClickReply("");
       })
       .catch(onError);
   };
@@ -27,19 +34,27 @@ const NewCommentForm = ({ tweetId, commentService, onError }) => {
 
   return (
     <>
-      <CommentForm current={false} onSubmit={onSubmit}>
+      <CommentForm
+        cancle={repliedUser ? true : false}
+        isEdit={false}
+        onSubmit={onSubmit}
+      >
         <input
           type="text"
           name="text"
-          placeholder="Edit your comment"
+          placeholder={
+            repliedUser ? `Reply to @${repliedUser}` : "Edit your comment"
+          }
           value={text}
           autoFocus
           onChange={onChange}
-          className="tweet-input"
         />
-        <button type="submit" className="form-btn">
-          ►
-        </button>
+        <CommentSubmit type="submit">►</CommentSubmit>
+        {repliedUser && (
+          <CommentCancle type="button" onClick={() => onClickReply("")}>
+            X
+          </CommentCancle>
+        )}
       </CommentForm>
     </>
   );

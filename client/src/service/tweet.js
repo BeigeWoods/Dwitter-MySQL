@@ -43,16 +43,13 @@ export default class TweetService {
   }
 
   async clickGood(tweetId, good, clicked) {
-    const data = new FormData();
-    data.append("good", good);
-    data.append("clicked", clicked);
     return this.http.fetch(
       `/${tweetId}`,
       {
         method: "PUT",
-        body: data,
+        body: JSON.stringify({ good, clicked }),
       },
-      false
+      true
     );
   }
 

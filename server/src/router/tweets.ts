@@ -53,9 +53,9 @@ export default function tweetsRouter(
   router.put(
     "/:id",
     authValidator.isAuth,
+    goodMiddleWare.goodTweet,
     imageUploading,
     paramsValidate,
-    goodMiddleWare.goodTweet,
     validateTweet,
     tweetController.updateTweet
   );
