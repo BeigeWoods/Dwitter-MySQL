@@ -30,7 +30,7 @@ const validateTweet: Array<ValidationChain | Validate> = [
 export default function tweetsRouter(
   authValidator: AuthValidateHandler,
   tweetController: TweetHandler,
-  goodMiddleWare: GoodHandler
+  goodController: GoodHandler
 ): express.IRouter {
   const router = express.Router();
   router.get("/", authValidator.isAuth, tweetController.getTweets);
@@ -53,7 +53,6 @@ export default function tweetsRouter(
   router.put(
     "/:id",
     authValidator.isAuth,
-    goodMiddleWare.goodTweet,
     imageUploading,
     paramsValidate,
     validateTweet,
@@ -65,6 +64,13 @@ export default function tweetsRouter(
     authValidator.isAuth,
     paramsValidate,
     tweetController.deleteTweet
+  );
+
+  router.put(
+    "/:id/good",
+    authValidator.isAuth,
+    paramsValidate,
+    goodController.goodTweet
   );
 
   return router;

@@ -4,7 +4,7 @@ import { TweetController } from "../tweet";
 import { TweetHandler } from "../../__dwitter__.d.ts/controller/tweet";
 import { TweetDataHandler } from "../../__dwitter__.d.ts/data/tweet";
 
-describe.skip("Tweet Controller", () => {
+describe("Tweet Controller", () => {
   let tweetController: TweetHandler;
   let tweetRepository: jest.Mocked<TweetDataHandler | any>;
   let mockedSocket: jest.Mocked<any>;

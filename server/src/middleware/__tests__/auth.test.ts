@@ -8,7 +8,7 @@ import { UserDataHandler } from "../../__dwitter__.d.ts/data/auth";
 
 jest.mock("jsonwebtoken");
 
-describe.skip("Auth Middleware", () => {
+describe("Auth Middleware", () => {
   let response: httpMocks.MockResponse<any>;
   let next: jest.Mock;
   let authMiddleware: AuthValidateHandler;

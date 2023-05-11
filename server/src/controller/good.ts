@@ -1,28 +1,24 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 import { GoodDataHandler } from "../__dwitter__.d.ts/data/good";
 import { GoodHandler } from "../__dwitter__.d.ts/middleware/good";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
 
-export class GoodMiddleWare implements GoodHandler {
+export class GoodController implements GoodHandler {
   private count?: number;
-  private click?: number;
   constructor(
     private tweetRepository: TweetDataHandler,
     private commentRepository: CommentDataHandler,
     private goodRepository: GoodDataHandler
   ) {}
-  goodTweet = async (req: Request, res: Response, next: NextFunction) => {
+  goodTweet = async (req: Request, res: Response) => {
     const { id } = req.params;
-    this.click = Number(req.body.clicked);
-    this.count = Number(req.body.good);
-    if (Number.isNaN(this.count)) {
-      return next();
+    const { clicked }: { clicked: boolean } = req.body;
+    this.count = req.body.good as number;
+    if (typeof clicked !== "boolean") {
+      return res.sendStatus(409);
     }
-    if (this.click > 0) {
-      if (this.count < 1) {
-        return res.status(409);
-      }
+    if (clicked && this.count > 0) {
       this.count -= 1;
       await this.goodRepository.unClickTweet(req.userId!, id);
     } else {
@@ -33,21 +29,18 @@ export class GoodMiddleWare implements GoodHandler {
     return res.status(201).json({
       id: Number(id),
       good: this.count,
-      clicked: this.click ? 0 : req.userId,
+      clicked: clicked ? null : req.userId,
     });
   };
 
-  goodComment = async (req: Request, res: Response, next: NextFunction) => {
+  goodComment = async (req: Request, res: Response) => {
     const { main } = req.params;
-    this.click = Number(req.body.clicked);
-    this.count = Number(req.body.good);
-    if (Number.isNaN(this.count)) {
-      return next();
+    const { clicked }: { clicked: boolean } = req.body;
+    this.count = req.body.good as number;
+    if (typeof clicked !== "boolean") {
+      return res.sendStatus(409);
     }
-    if (this.click > 0) {
-      if (this.count < 1) {
-        return res.status(409);
-      }
+    if (clicked && this.count > 0) {
       this.count -= 1;
       await this.goodRepository.unClickComment(req.userId!, main);
     } else {
@@ -58,7 +51,7 @@ export class GoodMiddleWare implements GoodHandler {
     return res.status(201).json({
       id: Number(main),
       good: this.count,
-      clicked: this.click ? 0 : req.userId,
+      clicked: clicked ? null : req.userId,
     });
   };
 }

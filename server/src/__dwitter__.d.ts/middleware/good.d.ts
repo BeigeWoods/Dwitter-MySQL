@@ -6,19 +6,16 @@ import { CommentDataHandler } from "../data/comments";
 export interface GoodHandler {
   goodTweet(
     req: Request,
-    res: Response,
-    next: NextFunction
+    res: Response
   ): Promise<Response<any, Record<string, any>> | void>;
   goodComment: (
     req: Request,
-    res: Response,
-    next: NextFunction
+    res: Response
   ) => Promise<Response<any, Record<string, any>> | void>;
 }
 
-export declare class GoodMiddleWare {
+export declare class GoodController {
   private count?: number;
-  private click?: number;
   private tweetRepository;
   private commentRepository;
   private goodRepository;
@@ -29,12 +26,10 @@ export declare class GoodMiddleWare {
   );
   goodTweet: (
     req: Request,
-    res: Response,
-    next: NextFunction
+    res: Response
   ) => Promise<Response<any, Record<string, any>> | void>;
   goodComment: (
     req: Request,
-    res: Response,
-    next: NextFunction
+    res: Response
   ) => Promise<Response<any, Record<string, any>> | void>;
 }

@@ -34,7 +34,7 @@ export default class CommentService {
 
   async clickGood(tweetId, mainId, good, clicked) {
     return this.http.fetch(
-      `/${tweetId}/comments/${mainId}`,
+      `/${tweetId}/comments/${mainId}/good`,
       {
         method: "PUT",
         body: JSON.stringify({ good, clicked }),

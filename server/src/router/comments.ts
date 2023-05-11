@@ -19,7 +19,7 @@ const validateComment: Array<ValidationChain | Validate> = [
 export default function commentsRouter(
   authValidator: AuthValidateHandler,
   commentController: CommentHandler,
-  goodMiddleware: GoodHandler
+  goodController: GoodHandler
 ): express.IRouter {
   const router = express.Router();
 
@@ -29,6 +29,7 @@ export default function commentsRouter(
     paramsValidate,
     commentController.getComments
   );
+
   router.post(
     "/:id/comments",
     authValidator.isAuth,
@@ -36,19 +37,27 @@ export default function commentsRouter(
     validateComment,
     commentController.createComment
   );
+
   router.put(
     "/:id/comments/:main",
     authValidator.isAuth,
     paramsValidate,
-    goodMiddleware.goodComment,
     validateComment,
     commentController.updateComment
   );
+
   router.delete(
     "/:id/comments/:main",
-    paramsValidate,
     authValidator.isAuth,
+    paramsValidate,
     commentController.deleteComment
+  );
+
+  router.put(
+    "/:id/comments/:main/good",
+    authValidator.isAuth,
+    paramsValidate,
+    goodController.goodComment
   );
 
   return router;

@@ -9,7 +9,7 @@ import {
 
 jest.mock("express-validator");
 
-describe.skip("Validator Middleware", () => {
+describe("Validator Middleware", () => {
   let request: httpMocks.MockRequest<any>;
   let response: httpMocks.MockResponse<any>;
   let next: jest.Mock;

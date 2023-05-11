@@ -14,7 +14,7 @@ import { csrfCheck } from "./middleware/csrf.js";
 import { TweetRepository } from "./data/tweet.js";
 import { TweetController } from "./controller/tweet.js";
 import { GoodRepository } from "./data/good.js";
-import { GoodMiddleWare } from "./middleware/good.js";
+import { GoodController } from "./controller/good.js";
 import { CommentRepository } from "./data/comments.js";
 import { CommentController } from "./controller/comments.js";
 import UserRepository from "./data/auth.js";
@@ -46,7 +46,7 @@ const commentController = new CommentController(
   getSocketIO
 );
 const goodRepository = new GoodRepository();
-const goodMiddleWare = new GoodMiddleWare(
+const goodContoller = new GoodController(
   tweetRepository,
   commentRepository,
   goodRepository
@@ -72,8 +72,8 @@ app.use("/uploads", express.static("uploads"));
 
 app.use(csrfCheck);
 app.use("/", [
-  tweetsRouter(authValidator, tweetController, goodMiddleWare),
-  commentsRouter(authValidator, commentController, goodMiddleWare),
+  tweetsRouter(authValidator, tweetController, goodContoller),
+  commentsRouter(authValidator, commentController, goodContoller),
 ]);
 app.use(
   "/auth",
