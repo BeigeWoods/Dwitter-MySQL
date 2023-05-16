@@ -14,13 +14,13 @@ export class CommentController implements CommentHandler {
   ) {}
 
   getComments = async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const data = await this.commentRepository.getAll(id, req.userId!);
+    const { tweetId } = req.params;
+    const data = await this.commentRepository.getAll(tweetId, req.userId!);
     return res.status(200).json(data);
   };
 
   createComment = async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { tweetId } = req.params;
     const { text, repliedUser }: { text: string; repliedUser?: string } =
       req.body;
     if (repliedUser) {
@@ -31,7 +31,7 @@ export class CommentController implements CommentHandler {
     }
     const comment = await this.commentRepository.create(
       req.userId!,
-      id,
+      tweetId,
       text,
       this.user ? this.user.username : ""
     );
@@ -40,11 +40,11 @@ export class CommentController implements CommentHandler {
   };
 
   updateComment = async (req: Request, res: Response) => {
-    const { id, main } = req.params;
+    const { tweetId, commentId } = req.params;
     const { text }: { text: string } = req.body;
     const updated = await this.commentRepository.update(
-      id,
-      main,
+      tweetId,
+      commentId,
       req.userId!,
       text
     );
@@ -52,8 +52,8 @@ export class CommentController implements CommentHandler {
   };
 
   deleteComment = async (req: Request, res: Response) => {
-    const { main } = req.params;
-    await this.commentRepository.remove(main);
+    const { commentId } = req.params;
+    await this.commentRepository.remove(commentId);
     return res.sendStatus(204);
   };
 }

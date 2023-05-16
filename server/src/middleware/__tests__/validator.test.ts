@@ -83,10 +83,10 @@ describe("Validator Middleware", () => {
   });
 
   describe("paramsValidate", () => {
-    it("return 404 if req.params.id doesn’t exist in operating tweet", () => {
+    it("return 404 if req.params.tweetId doesn’t exist in operating tweet", () => {
       request = httpMocks.createRequest({
         path: "/1",
-        params: { id: undefined },
+        params: { tweetId: undefined },
       });
 
       paramsValidate(request, response, next);
@@ -96,10 +96,10 @@ describe("Validator Middleware", () => {
       expect(next).not.toBeCalled();
     });
 
-    it("return 404 if req.params.id is 'undefined' in operating tweet", () => {
+    it("return 404 if req.params.tweetId is 'undefined' in operating tweet", () => {
       request = httpMocks.createRequest({
         path: "/",
-        params: { id: "undefined" },
+        params: { tweetId: "undefined" },
       });
 
       paramsValidate(request, response, next);
@@ -109,10 +109,10 @@ describe("Validator Middleware", () => {
       expect(next).not.toBeCalled();
     });
 
-    it("calls next if req.params.id is exist in operating tweet", () => {
+    it("calls next if req.params.tweetId is exist in operating tweet", () => {
       request = httpMocks.createRequest({
         path: "/1",
-        params: { id: 1 },
+        params: { tweetId: 1 },
       });
 
       paramsValidate(request, response, next);
@@ -120,11 +120,11 @@ describe("Validator Middleware", () => {
       expect(next).toBeCalled();
     });
 
-    it("return 404 if req.params.id is doesn’t exist in posting comment", () => {
+    it("return 404 if req.params.tweetId is doesn’t exist in posting comment", () => {
       request = httpMocks.createRequest({
         path: "/undefined/comments",
         method: "POST",
-        params: { id: "undefined" },
+        params: { tweetId: "undefined" },
       });
 
       paramsValidate(request, response, next);
@@ -135,11 +135,11 @@ describe("Validator Middleware", () => {
       expect(next).not.toBeCalled();
     });
 
-    it("calls next if only req.params.main is provided in updating comment", () => {
+    it("calls next if only req.params.commentId is provided in updating comment", () => {
       request = httpMocks.createRequest({
         path: "/undefined/comments/1",
         method: "PUT",
-        params: { id: "undefined", main: "1" },
+        params: { tweetId: "undefined", commentId: "1" },
       });
 
       paramsValidate(request, response, next);
@@ -150,11 +150,11 @@ describe("Validator Middleware", () => {
       expect(next).not.toBeCalled();
     });
 
-    it("return 404 if req.params.main doesn’t exist in updating comment", () => {
+    it("return 404 if req.params.commentId doesn’t exist in updating comment", () => {
       request = httpMocks.createRequest({
         path: "/1/comments/undefined",
         method: "PUT",
-        params: { id: "1", main: undefined },
+        params: { tweetId: "1", commentId: undefined },
       });
 
       paramsValidate(request, response, next);
@@ -165,11 +165,11 @@ describe("Validator Middleware", () => {
       expect(next).not.toBeCalled();
     });
 
-    it("calls next if req.params.main and id are provided in updating comment", () => {
+    it("calls next if req.params.commentId and id are provided in updating comment", () => {
       request = httpMocks.createRequest({
         path: "/10/comments/1",
         method: "PUT",
-        params: { id: "10", main: "1" },
+        params: { tweetId: "10", commentId: "1" },
       });
 
       paramsValidate(request, response, next);
@@ -177,11 +177,11 @@ describe("Validator Middleware", () => {
       expect(next).toBeCalled();
     });
 
-    it("return 404 if only req.params.main is provided in deleting comment", () => {
+    it("return 404 if only req.params.commentId is provided in deleting comment", () => {
       request = httpMocks.createRequest({
         path: "/undefined/comments/1",
         method: "DELETE",
-        params: { id: "undefined", main: "1" },
+        params: { tweetId: "undefined", commentId: "1" },
       });
 
       paramsValidate(request, response, next);
@@ -192,11 +192,11 @@ describe("Validator Middleware", () => {
       expect(next).not.toBeCalled();
     });
 
-    it("return 404 if req.params.main doesn’t exist in deleting comment", () => {
+    it("return 404 if req.params.commentId doesn’t exist in deleting comment", () => {
       request = httpMocks.createRequest({
         path: "/10/comments/undefined",
         method: "DELETE",
-        params: { id: "10", main: "undefined" },
+        params: { tweetId: "10", commentId: "undefined" },
       });
 
       paramsValidate(request, response, next);
@@ -207,11 +207,11 @@ describe("Validator Middleware", () => {
       expect(next).not.toBeCalled();
     });
 
-    it("calls next if req.params.main and id are provided in deleting comment", () => {
+    it("calls next if req.params.commentId and id are provided in deleting comment", () => {
       request = httpMocks.createRequest({
         path: "/10/comments/1",
         method: "DELETE",
-        params: { id: "10", main: "1" },
+        params: { tweetId: "10", commentId: "1" },
       });
 
       paramsValidate(request, response, next);

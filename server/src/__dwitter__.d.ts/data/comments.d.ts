@@ -16,7 +16,7 @@ export interface CommentDataHandler {
   ): Promise<CommentData[] | void | never>;
   getById(
     tweetId: string,
-    mainId: string,
+    commentId: string,
     userId: number
   ): Promise<CommentData | void | never>;
   create(
@@ -25,15 +25,15 @@ export interface CommentDataHandler {
     text: string,
     repliedUser?: string
   ): Promise<CommentData | void | never>;
-  createReply(mainId: string, username: string): Promise<void | never>;
+  createReply(commentId: string, username: string): Promise<void | never>;
   update(
     tweetId: string,
-    mainId: string,
+    commentId: string,
     userId: number,
     text: string
   ): Promise<CommentData | void | never>;
   updateGood(id: string, good: number): Promise<void | never>;
-  remove(mainId: string): Promise<void | never>;
+  remove(commentId: string): Promise<void | never>;
 }
 export declare class CommentRepository implements CommentDataHandler {
   private readonly Select_Feild;
@@ -47,7 +47,7 @@ export declare class CommentRepository implements CommentDataHandler {
   ) => Promise<CommentData[] | void | never>;
   getById: (
     tweetId: string,
-    mainId: string,
+    commentId: string,
     userId: number
   ) => Promise<CommentData | void | never>;
   create: (
@@ -56,13 +56,13 @@ export declare class CommentRepository implements CommentDataHandler {
     text: string,
     repliedUser?: string
   ) => Promise<CommentData | void | never>;
-  createReply: (mainId: string, username: string) => Promise<void | never>;
+  createReply: (commentId: string, username: string) => Promise<void | never>;
   update: (
     tweetId: string,
-    mainId: string,
+    commentId: string,
     userId: number,
     text: string
   ) => Promise<CommentData | void | never>;
   updateGood(id: string, good: number): Promise<void | never>;
-  remove: (mainId: string) => Promise<void | never>;
+  remove: (commentId: string) => Promise<void | never>;
 }

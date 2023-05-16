@@ -38,16 +38,16 @@ export const paramsValidate = (
   res: Response,
   next: NextFunction
 ) => {
-  const { id, main } = req.params;
+  const { tweetId, commentId } = req.params;
   const isComment = req.path.includes("comments");
   if (isComment && (req.method === "PUT" || req.method === "DELETE")) {
-    if (!main || main === "undefined") {
+    if (!commentId || commentId === "undefined") {
       return res
         .status(404)
         .json({ message: `Bad ${isComment ? "comment" : "tweet"} id` });
     }
   }
-  if (!id || id === "undefined") {
+  if (!tweetId || tweetId === "undefined") {
     return res
       .status(404)
       .json({ message: `Bad ${isComment ? "comment" : "tweet"} id` });

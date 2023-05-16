@@ -12,7 +12,7 @@ export class GoodController implements GoodHandler {
     private goodRepository: GoodDataHandler
   ) {}
   goodTweet = async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { tweetId } = req.params;
     const { clicked }: { clicked: boolean } = req.body;
     this.count = req.body.good as number;
     if (typeof clicked !== "boolean") {
@@ -20,21 +20,21 @@ export class GoodController implements GoodHandler {
     }
     if (clicked && this.count > 0) {
       this.count -= 1;
-      await this.goodRepository.unClickTweet(req.userId!, id);
+      await this.goodRepository.unClickTweet(req.userId!, tweetId);
     } else {
       this.count += 1;
-      await this.goodRepository.clickTweet(req.userId!, id);
+      await this.goodRepository.clickTweet(req.userId!, tweetId);
     }
-    await this.tweetRepository.updateGood(id, this.count);
+    await this.tweetRepository.updateGood(tweetId, this.count);
     return res.status(201).json({
-      id: Number(id),
+      id: Number(tweetId),
       good: this.count,
       clicked: clicked ? null : req.userId,
     });
   };
 
   goodComment = async (req: Request, res: Response) => {
-    const { main } = req.params;
+    const { commentId } = req.params;
     const { clicked }: { clicked: boolean } = req.body;
     this.count = req.body.good as number;
     if (typeof clicked !== "boolean") {
@@ -42,14 +42,14 @@ export class GoodController implements GoodHandler {
     }
     if (clicked && this.count > 0) {
       this.count -= 1;
-      await this.goodRepository.unClickComment(req.userId!, main);
+      await this.goodRepository.unClickComment(req.userId!, commentId);
     } else {
       this.count += 1;
-      await this.goodRepository.clickComment(req.userId!, main);
+      await this.goodRepository.clickComment(req.userId!, commentId);
     }
-    await this.commentRepository.updateGood(main, this.count);
+    await this.commentRepository.updateGood(commentId, this.count);
     return res.status(201).json({
-      id: Number(main),
+      id: Number(commentId),
       good: this.count,
       clicked: clicked ? null : req.userId,
     });

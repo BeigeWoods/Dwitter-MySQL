@@ -36,7 +36,7 @@ export default function tweetsRouter(
   router.get("/", authValidator.isAuth, tweetController.getTweets);
 
   router.get(
-    "/:id",
+    "/:tweetId",
     authValidator.isAuth,
     paramsValidate,
     tweetController.getTweet
@@ -51,7 +51,7 @@ export default function tweetsRouter(
   );
 
   router.put(
-    "/:id",
+    "/:tweetId",
     authValidator.isAuth,
     imageUploading,
     paramsValidate,
@@ -60,14 +60,14 @@ export default function tweetsRouter(
   );
 
   router.delete(
-    "/:id",
+    "/:tweetId",
     authValidator.isAuth,
     paramsValidate,
     tweetController.deleteTweet
   );
 
   router.put(
-    "/:id/good",
+    "/:tweetId/good",
     authValidator.isAuth,
     paramsValidate,
     goodController.goodTweet

@@ -24,14 +24,14 @@ export default function commentsRouter(
   const router = express.Router();
 
   router.get(
-    "/:id/comments",
+    "/:tweetId/comments",
     authValidator.isAuth,
     paramsValidate,
     commentController.getComments
   );
 
   router.post(
-    "/:id/comments",
+    "/:tweetId/comments",
     authValidator.isAuth,
     paramsValidate,
     validateComment,
@@ -39,7 +39,7 @@ export default function commentsRouter(
   );
 
   router.put(
-    "/:id/comments/:main",
+    "/:tweetId/comments/:commentId",
     authValidator.isAuth,
     paramsValidate,
     validateComment,
@@ -47,14 +47,14 @@ export default function commentsRouter(
   );
 
   router.delete(
-    "/:id/comments/:main",
+    "/:tweetId/comments/:commentId",
     authValidator.isAuth,
     paramsValidate,
     commentController.deleteComment
   );
 
   router.put(
-    "/:id/comments/:main/good",
+    "/:tweetId/comments/:commentId/good",
     authValidator.isAuth,
     paramsValidate,
     goodController.goodComment

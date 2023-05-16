@@ -21,9 +21,9 @@ export default class CommentService {
     );
   }
 
-  async updateComment(tweetId, mainId, text) {
+  async updateComment(tweetId, commentId, text) {
     return this.http.fetch(
-      `/${tweetId}/comments/${mainId}`,
+      `/${tweetId}/comments/${commentId}`,
       {
         method: "PUT",
         body: JSON.stringify({ text }),
@@ -32,9 +32,9 @@ export default class CommentService {
     );
   }
 
-  async clickGood(tweetId, mainId, good, clicked) {
+  async clickGood(tweetId, commentId, good, clicked) {
     return this.http.fetch(
-      `/${tweetId}/comments/${mainId}/good`,
+      `/${tweetId}/comments/${commentId}/good`,
       {
         method: "PUT",
         body: JSON.stringify({ good, clicked }),
@@ -43,8 +43,8 @@ export default class CommentService {
     );
   }
 
-  async deleteComment(tweetId, mainId) {
-    return this.http.fetch(`/${tweetId}/comments/${mainId}`, {
+  async deleteComment(tweetId, commentId) {
+    return this.http.fetch(`/${tweetId}/comments/${commentId}`, {
       method: "DELETE",
     });
   }

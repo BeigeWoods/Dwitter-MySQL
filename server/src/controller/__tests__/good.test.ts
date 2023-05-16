@@ -13,8 +13,8 @@ describe("GoodController", () => {
   let response: httpMocks.MockResponse<any>;
   let request: httpMocks.MockRequest<any>;
   let good: number | undefined, clicked: boolean | null | undefined;
-  let id: number = 2;
-  let main: number = 2;
+  let tweetId: number = 2;
+  let commentId: number = 2;
   let userId: number = 1;
 
   beforeEach(() => {
@@ -37,7 +37,7 @@ describe("GoodController", () => {
       good = 0;
       clicked = undefined;
       request = httpMocks.createRequest({
-        params: { id },
+        params: { tweetId },
         userId,
         body: { good, clicked },
       });
@@ -53,19 +53,19 @@ describe("GoodController", () => {
       good = 0;
       clicked = false;
       request = httpMocks.createRequest({
-        params: { id },
+        params: { tweetId },
         userId,
         body: { good, clicked },
       });
 
       await goodMiddleware.goodTweet(request, response);
 
-      expect(goodRepository.clickTweet).toHaveBeenCalledWith(userId, id);
+      expect(goodRepository.clickTweet).toHaveBeenCalledWith(userId, tweetId);
       expect(goodRepository.unClickTweet).not.toHaveBeenCalled();
-      expect(tweetRepository.updateGood).toHaveBeenCalledWith(id, 1);
+      expect(tweetRepository.updateGood).toHaveBeenCalledWith(tweetId, 1);
       expect(response.statusCode).toBe(201);
       expect(response._getJSONData()).toMatchObject({
-        id,
+        tweetId,
         good: 1,
         clicked: userId,
       });
@@ -75,19 +75,19 @@ describe("GoodController", () => {
       good = 1;
       clicked = true;
       request = httpMocks.createRequest({
-        params: { id },
+        params: { tweetId },
         userId,
         body: { good, clicked },
       });
 
       await goodMiddleware.goodTweet(request, response);
 
-      expect(goodRepository.unClickTweet).toHaveBeenCalledWith(userId, id);
+      expect(goodRepository.unClickTweet).toHaveBeenCalledWith(userId, tweetId);
       expect(goodRepository.clickTweet).not.toHaveBeenCalled();
-      expect(tweetRepository.updateGood).toHaveBeenCalledWith(id, 0);
+      expect(tweetRepository.updateGood).toHaveBeenCalledWith(tweetId, 0);
       expect(response.statusCode).toBe(201);
       expect(response._getJSONData()).toMatchObject({
-        id,
+        tweetId,
         good: 0,
         clicked: null,
       });
@@ -99,7 +99,7 @@ describe("GoodController", () => {
       good = 0;
       clicked = null;
       request = httpMocks.createRequest({
-        params: { main },
+        params: { commentId },
         userId,
         body: { good, clicked },
       });
@@ -115,19 +115,22 @@ describe("GoodController", () => {
       good = 0;
       clicked = false;
       request = httpMocks.createRequest({
-        params: { main },
+        params: { commentId },
         userId,
         body: { good, clicked },
       });
 
       await goodMiddleware.goodComment(request, response);
 
-      expect(goodRepository.clickComment).toHaveBeenCalledWith(userId, main);
+      expect(goodRepository.clickComment).toHaveBeenCalledWith(
+        userId,
+        commentId
+      );
       expect(goodRepository.unClickComment).not.toHaveBeenCalled();
-      expect(commentRepository.updateGood).toHaveBeenCalledWith(main, 1);
+      expect(commentRepository.updateGood).toHaveBeenCalledWith(commentId, 1);
       expect(response.statusCode).toBe(201);
       expect(response._getJSONData()).toMatchObject({
-        id: Number(main),
+        id: Number(commentId),
         good: 1,
         clicked: userId,
       });
@@ -137,19 +140,22 @@ describe("GoodController", () => {
       good = 1;
       clicked = true;
       request = httpMocks.createRequest({
-        params: { main },
+        params: { commentId },
         userId,
         body: { good, clicked },
       });
 
       await goodMiddleware.goodComment(request, response);
 
-      expect(goodRepository.unClickComment).toHaveBeenCalledWith(userId, main);
+      expect(goodRepository.unClickComment).toHaveBeenCalledWith(
+        userId,
+        commentId
+      );
       expect(goodRepository.clickComment).not.toHaveBeenCalled();
-      expect(commentRepository.updateGood).toHaveBeenCalledWith(main, 0);
+      expect(commentRepository.updateGood).toHaveBeenCalledWith(commentId, 0);
       expect(response.statusCode).toBe(201);
       expect(response._getJSONData()).toMatchObject({
-        id: Number(main),
+        id: Number(commentId),
         good: 0,
         clicked: null,
       });

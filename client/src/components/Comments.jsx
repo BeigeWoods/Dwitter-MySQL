@@ -49,9 +49,9 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
     return comment;
   };
 
-  const onClickGoodComment = (mainId, good, clicked) =>
+  const onClickGoodComment = (commentId, good, clicked) =>
     commentService
-      .clickGood(tweetId, mainId, good, clicked ? true : false)
+      .clickGood(tweetId, commentId, good, clicked ? true : false)
       .then((updated) => {
         setComments((comments) =>
           comments.map((item) =>

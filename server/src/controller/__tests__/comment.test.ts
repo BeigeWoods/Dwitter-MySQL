@@ -14,11 +14,11 @@ describe("Comment Controller", () => {
   let request: httpMocks.MockRequest<any>;
   let text: string = faker.random.words(3);
   let userId: number = 1;
-  let id: string = "2";
+  let tweetId: string = "2";
   let good: number = 0;
-  let main: string = "3";
+  let commentId: string = "3";
   let repliedUser: string | undefined = "smith";
-  let comment: any = { main, text, good, repliedUser, userId, id };
+  let comment: any = { commentId, text, good, repliedUser, userId, tweetId };
 
   beforeEach(() => {
     mockedSocket = { emit: jest.fn() };
@@ -33,7 +33,7 @@ describe("Comment Controller", () => {
   describe("getComments", () => {
     it("returns all comments when all data is provided", async () => {
       request = httpMocks.createRequest({
-        params: { id },
+        params: { tweetId },
         userId,
       });
       const allComments = [
@@ -45,7 +45,7 @@ describe("Comment Controller", () => {
       await commentController.getComments(request, response);
 
       expect(response.statusCode).toBe(200);
-      expect(commentRepository.getAll).toHaveBeenCalledWith(id, userId);
+      expect(commentRepository.getAll).toHaveBeenCalledWith(tweetId, userId);
       expect(response._getJSONData()).toEqual(allComments);
     });
   });
@@ -54,7 +54,7 @@ describe("Comment Controller", () => {
     let user = { username: repliedUser };
     beforeEach(() => {
       request = httpMocks.createRequest({
-        params: { id },
+        params: { tweetId },
         body: { text, repliedUser },
         userId,
       });
@@ -70,7 +70,7 @@ describe("Comment Controller", () => {
       expect(userRepository.findByUsername).toHaveBeenCalledWith(repliedUser);
       expect(commentRepository.create).toHaveBeenCalledWith(
         userId,
-        id,
+        tweetId,
         text,
         repliedUser
       );
@@ -91,7 +91,7 @@ describe("Comment Controller", () => {
 
     it("returns comment when only repliedUser isn't provided", async () => {
       request = httpMocks.createRequest({
-        params: { id },
+        params: { tweetId },
         body: { text },
         userId,
       });
@@ -103,7 +103,7 @@ describe("Comment Controller", () => {
       expect(userRepository.findByUsername).not.toHaveBeenCalled();
       expect(commentRepository.create).toHaveBeenCalledWith(
         userId,
-        id,
+        tweetId,
         text,
         ""
       );
@@ -120,7 +120,7 @@ describe("Comment Controller", () => {
     it("return updated comment when all data is provided", async () => {
       commentRepository.update = jest.fn(() => comment);
       request = httpMocks.createRequest({
-        params: { id, main },
+        params: { tweetId, commentId },
         body: { text, repliedUser },
         userId,
       });
@@ -128,8 +128,8 @@ describe("Comment Controller", () => {
       await commentController.updateComment(request, response);
 
       expect(commentRepository.update).toHaveBeenCalledWith(
-        id,
-        main,
+        tweetId,
+        commentId,
         userId,
         text
       );
@@ -139,9 +139,9 @@ describe("Comment Controller", () => {
   });
 
   describe("deleteComment", () => {
-    it("response 204 when main id is provided", async () => {
+    it("response 204 when commentId and tweetId is provided", async () => {
       request = httpMocks.createRequest({
-        params: { id, main },
+        params: { tweetId, commentId },
         userId,
       });
       commentRepository.remove = jest.fn();
@@ -149,7 +149,7 @@ describe("Comment Controller", () => {
       await commentController.deleteComment(request, response);
 
       expect(response.statusCode).toBe(204);
-      expect(commentRepository.remove).toHaveBeenCalledWith(main);
+      expect(commentRepository.remove).toHaveBeenCalledWith(commentId);
     });
   });
 });

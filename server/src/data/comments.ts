@@ -36,7 +36,7 @@ export class CommentRepository implements CommentDataHandler {
       });
   };
 
-  getById = async (tweetId: string, mainId: string, userId: number) => {
+  getById = async (tweetId: string, commentId: string, userId: number) => {
     return await db
       .execute(
         `${this.Select_Feild}
@@ -44,7 +44,7 @@ export class CommentRepository implements CommentDataHandler {
               WHERE C.id = ? AND tweetId = ?) J \
         ${this.With_Good}
         ${this.Order_By}`,
-        [mainId, tweetId, userId]
+        [commentId, tweetId, userId]
       )
       .then((result: any) => {
         return result[0][0];
@@ -77,12 +77,12 @@ export class CommentRepository implements CommentDataHandler {
       });
   };
 
-  createReply = async (mainId: string, username: string) => {
+  createReply = async (commentId: string, username: string) => {
     await db
       .execute(
         "INSERT INTO replies (commentId, username) \
         VALUES(?, ?)",
-        [mainId, username]
+        [commentId, username]
       )
       .catch((err) => {
         throw new Error(err);
@@ -91,7 +91,7 @@ export class CommentRepository implements CommentDataHandler {
 
   update = async (
     tweetId: string,
-    mainId: string,
+    commentId: string,
     userId: number,
     text?: string
   ) => {
@@ -100,10 +100,10 @@ export class CommentRepository implements CommentDataHandler {
         "UPDATE comments \
         SET text = ? , updatedAt = ? \
         WHERE id = ?",
-        [text, new Date(), mainId]
+        [text, new Date(), commentId]
       )
       .then(() => {
-        return this.getById(tweetId, mainId, userId);
+        return this.getById(tweetId, commentId, userId);
       })
       .catch((err) => {
         throw new Error(err);
@@ -118,9 +118,9 @@ export class CommentRepository implements CommentDataHandler {
       });
   };
 
-  remove = async (mainId: string) => {
+  remove = async (commentId: string) => {
     await db
-      .execute("DELETE FROM comments WHERE id = ?", [mainId])
+      .execute("DELETE FROM comments WHERE id = ?", [commentId])
       .catch((err) => {
         throw new Error(err);
       });
