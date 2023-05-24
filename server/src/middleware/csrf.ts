@@ -4,7 +4,7 @@ import { config } from "../config.js";
 
 export const csrfCheck = (req: Request, res: Response, next: NextFunction) => {
   if (
-    req.method === "GET" ||
+    (req.method === "GET" && req.path !== "/profile") ||
     req.method === "OPTIONS" ||
     req.method === "HEAD"
   ) {

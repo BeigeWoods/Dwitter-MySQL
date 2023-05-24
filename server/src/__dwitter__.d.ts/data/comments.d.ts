@@ -37,7 +37,7 @@ export interface CommentDataHandler {
 }
 export declare class CommentRepository implements CommentDataHandler {
   private readonly Select_Feild;
-  private readonly With_User;
+  private readonly With_User_Reply;
   private readonly With_Good;
   private readonly Order_By;
   constructor();

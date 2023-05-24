@@ -68,7 +68,7 @@ app.use(helmet());
 app.use(cors(corsOption));
 app.use(morgan("tiny"));
 app.use(cookieParser());
-app.use("/uploads", express.static("uploads"));
+// app.use("/uploads", express.static("uploads"));
 
 app.use(csrfCheck);
 app.use("/", [

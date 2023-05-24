@@ -20,7 +20,6 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
   const [user, setUser] = useState(undefined);
   const [csrfToken, setCsrfToken] = useState(undefined);
 
-  // 2. Ref에 다음 토큰 저장하기
   useImperativeHandle(tokenRef, () => (user ? user.token : undefined));
   useImperativeHandle(csrfRef, () => csrfToken);
 
@@ -30,7 +29,7 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
       setUser(undefined);
     });
   }, [authErrorEventBus]);
-  // 1. useEffect는 authService에서 토큰을 받아와서 modify 함수에 저장하기
+
   useEffect(() => {
     authService.csrfToken().then(setCsrfToken).catch(console.error);
   }, [authService]);

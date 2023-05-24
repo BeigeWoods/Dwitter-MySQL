@@ -26,7 +26,7 @@ export class CommentController implements CommentHandler {
     if (repliedUser) {
       this.user = await this.userRepository.findByUsername(repliedUser);
       if (!this.user) {
-        return res.status(409).json({ message: "Replied user not found" });
+        return res.status(400).json({ message: "Replied user not found" });
       }
     }
     const comment = await this.commentRepository.create(

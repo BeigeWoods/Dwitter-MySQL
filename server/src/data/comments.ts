@@ -4,7 +4,7 @@ import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
 export class CommentRepository implements CommentDataHandler {
   private readonly Select_Feild =
     "SELECT J.id, text, good, tweetId, repliedUser, J.userId, username, name, url, G.userId AS clicked, createdAt, updatedAt";
-  private readonly With_User =
+  private readonly With_User_Reply =
     "SELECT C.id, text, good, tweetId, R.username AS repliedUser, C.userId, U.username, U.name, U.url, createdAt, updatedAt \
     FROM comments C \
     JOIN users U \
@@ -22,7 +22,7 @@ export class CommentRepository implements CommentDataHandler {
     return await db
       .execute(
         `${this.Select_Feild}
-        FROM (${this.With_User}
+        FROM (${this.With_User_Reply}
               WHERE tweetId = ?) J \
         ${this.With_Good}
         ${this.Order_By}`,
@@ -40,7 +40,7 @@ export class CommentRepository implements CommentDataHandler {
     return await db
       .execute(
         `${this.Select_Feild}
-        FROM (${this.With_User}
+        FROM (${this.With_User_Reply}
               WHERE C.id = ? AND tweetId = ?) J \
         ${this.With_Good}
         ${this.Order_By}`,

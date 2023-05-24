@@ -4,10 +4,10 @@ import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 export class TweetRepository implements TweetDataHandler {
   private readonly Select_Feild =
     "SELECT id, text, video, image, good, createdAt, updatedAt, J.userId, name, username, url, G.userId AS clicked";
-  private readonly Sub_Select_From =
+  private readonly With_User =
     "SELECT T.id, text, video, image, good, createdAt, updatedAt, userId, name, username, url \
     FROM tweets T, users U";
-  private readonly Left_Join_On =
+  private readonly With_Good =
     "LEFT JOIN (SELECT * FROM goodTweets WHERE userId = ?) G \
     ON G.tweetId = J.id";
   private readonly Order_By = "ORDER BY createdAt DESC";
@@ -18,9 +18,9 @@ export class TweetRepository implements TweetDataHandler {
     return await db
       .execute(
         `${this.Select_Feild}\
-          FROM (${this.Sub_Select_From}
+          FROM (${this.With_User}
                 WHERE T.userId = U.id) J\
-        ${this.Left_Join_On}
+        ${this.With_Good}
         ${this.Order_By}`,
         [userId]
       )
@@ -36,9 +36,9 @@ export class TweetRepository implements TweetDataHandler {
     return await db
       .execute(
         `${this.Select_Feild}
-          FROM (${this.Sub_Select_From}
+          FROM (${this.With_User}
                 WHERE T.userId = U.id AND U.username = ?) J
-        ${this.Left_Join_On}
+        ${this.With_Good}
         ${this.Order_By}`,
         [username, userId]
       )
@@ -54,9 +54,9 @@ export class TweetRepository implements TweetDataHandler {
     return await db
       .execute(
         `${this.Select_Feild}
-          FROM (${this.Sub_Select_From}
+          FROM (${this.With_User}
                 WHERE T.userId = U.id AND T.id = ?) J
-        ${this.Left_Join_On}
+        ${this.With_Good}
         ${this.Order_By}`,
         [id, userId]
       )
