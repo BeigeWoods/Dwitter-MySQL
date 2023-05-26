@@ -12,7 +12,6 @@ export default class OauthController implements GithubOauth {
     private tokenController: TokenHandler,
     private userRepository: UserDataHandler
   ) {}
-  // Authorization 서버에서 Authorization code를 발급받기
   githubStart = async (req: Request, res: Response) => {
     const baseUrl = "https://github.com/login/oauth/authorize";
     const option = {
@@ -57,7 +56,6 @@ export default class OauthController implements GithubOauth {
     }
   };
 
-  // Authorization code로 Access token 발급받기
   githubFinish = async (req: Request, res: Response) => {
     const baseUrl = "https://github.com/login/oauth/access_token";
     const option = {
@@ -75,7 +73,6 @@ export default class OauthController implements GithubOauth {
         },
       })
     ).json();
-    // Access token으로 사용자의 데이터 받기
     if (!("access_token" in tokenReq)) {
       res.redirect(this.config.cors.allowedOrigin);
     }
