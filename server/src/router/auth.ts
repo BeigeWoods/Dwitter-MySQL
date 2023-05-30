@@ -81,9 +81,7 @@ export default function authRouter(
 
   router.post("/login", validateCredential, authController.login);
 
-  router.get("/github/start", oauthController.githubStart);
-
-  router.get("/github/finish", oauthController.githubFinish);
+  router.post("/github", oauthController.githubLogin);
 
   router.post("/logout", authValidator.isAuth, authController.logout);
 

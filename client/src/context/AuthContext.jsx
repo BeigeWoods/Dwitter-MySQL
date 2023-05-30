@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useHistory } from "react-router-dom";
 import Header from "../components/Header";
 import Login from "../pages/Login";
 
@@ -19,6 +20,7 @@ const csrfRef = createRef();
 export function AuthProvider({ authService, authErrorEventBus, children }) {
   const [user, setUser] = useState(undefined);
   const [csrfToken, setCsrfToken] = useState(undefined);
+  const history = useHistory();
 
   useImperativeHandle(tokenRef, () => (user ? user.token : undefined));
   useImperativeHandle(csrfRef, () => csrfToken);
@@ -52,6 +54,18 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
     [authService]
   );
 
+  const githubLogin = useCallback(
+    async (code) =>
+      authService
+        .githubLogin(code)
+        .then((user) => {
+          setUser(user);
+          history.push("/");
+        })
+        .catch(console.error),
+    [authService, history]
+  );
+
   const logout = useCallback(
     async () => authService.logout().then(() => setUser(undefined)),
     [authService]
@@ -67,10 +81,11 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
       user,
       signUp,
       logIn,
+      githubLogin,
       logout,
       withdrawal,
     }),
-    [user, signUp, logIn, logout, withdrawal]
+    [user, signUp, logIn, githubLogin, logout, withdrawal]
   );
 
   return (
@@ -80,7 +95,11 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
       ) : (
         <div className="app">
           <Header />
-          <Login onSignUp={signUp} onLogin={logIn} />
+          <Login
+            onSignUp={signUp}
+            onLogin={logIn}
+            onGithubLogin={githubLogin}
+          />
         </div>
       )}
     </AuthContext.Provider>

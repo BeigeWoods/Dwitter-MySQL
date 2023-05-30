@@ -12,19 +12,7 @@ export default class OauthController implements GithubOauth {
     private tokenController: TokenHandler,
     private userRepository: UserDataHandler
   ) {}
-  githubStart = async (req: Request, res: Response) => {
-    const baseUrl = "https://github.com/login/oauth/authorize";
-    const option = {
-      client_id: this.config.ghOauth.clientId,
-      allow_signup: "false",
-      scope: "read:user user:email",
-    };
-    const params = new URLSearchParams(option).toString();
-    const finalUrl = `${baseUrl}?${params}`;
-    return res.redirect(finalUrl);
-  };
-
-  private setUser = async (givenToken: any): Promise<string> => {
+  private setUser = async (givenToken: any) => {
     const apiUrl = "https://api.github.com";
     const userData: any = await (
       await fetch(`${apiUrl}/user`, {
@@ -50,18 +38,24 @@ export default class OauthController implements GithubOauth {
         url: userData.avatar_url,
         socialLogin: true,
       });
-      return this.tokenController.createJwtToken(userId!);
+      return {
+        token: this.tokenController.createJwtToken(userId!),
+        username: userData.login,
+      };
     } else {
-      return this.tokenController.createJwtToken(user.id);
+      return {
+        token: this.tokenController.createJwtToken(user.id),
+        username: user.username,
+      };
     }
   };
 
-  githubFinish = async (req: Request, res: Response) => {
+  githubLogin = async (req: Request, res: Response) => {
     const baseUrl = "https://github.com/login/oauth/access_token";
     const option = {
       client_id: this.config.ghOauth.clientId,
       client_secret: this.config.ghOauth.clientSecret,
-      code: req.query.code as string,
+      code: req.body.code as string,
     };
     const params = new URLSearchParams(option).toString();
     const finalUrl = `${baseUrl}?${params}`;
@@ -74,11 +68,11 @@ export default class OauthController implements GithubOauth {
       })
     ).json();
     if (!("access_token" in tokenReq)) {
-      res.redirect(this.config.cors.allowedOrigin);
+      return res.status(409).json({ message: "something is wrong!" });
     }
     const { access_token } = tokenReq;
-    const token = await this.setUser(access_token);
-    this.tokenController.setToken(res, token);
-    res.redirect(this.config.cors.allowedOrigin);
+    const data = await this.setUser(access_token);
+    this.tokenController.setToken(res, data.token);
+    return res.status(201).json(data);
   };
 }

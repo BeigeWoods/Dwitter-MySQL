@@ -23,16 +23,10 @@ export default class AuthService {
     });
   }
 
-  //githubOauth
-  async githubStart() {
-    return await this.http.fetch("/auth/github/start", {
-      method: "GET",
-    });
-  }
-
-  async githubFinish() {
-    return await this.http.fetch("/auth/github/finish", {
-      method: "GET",
+  async githubLogin(code) {
+    return await this.http.fetch("/auth/github", {
+      method: "POST",
+      body: JSON.stringify({ code }),
     });
   }
 

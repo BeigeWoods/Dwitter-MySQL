@@ -3,9 +3,15 @@ import { Config } from "../../config.js";
 import { TokenHandler } from "./token.js";
 import { UserDataHandler } from "../../data/auth.js";
 export interface GithubOauth {
-  githubStart(req: Request, res: Response): Promise<void>;
-  githubFinish(req: Request, res: Response): Promise<void>;
+  githubLogin(
+    req: Request,
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
 }
+export type UserObject = {
+  token: string;
+  username: string;
+};
 export default class OauthController implements GithubOauth {
   private config;
   private tokenController;
@@ -15,7 +21,9 @@ export default class OauthController implements GithubOauth {
     tokenController: TokenHandler,
     userRepository: UserDataHandler
   );
-  githubStart: (req: Request, res: Response) => Promise<void>;
-  private setUser;
-  githubFinish: (req: Request, res: Response) => Promise<void>;
+  private setUser(givenToken: string): Promise<UserObject>;
+  githubLogin: (
+    req: Request,
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
 }

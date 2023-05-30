@@ -5,6 +5,7 @@ import MyTweets from "./pages/MyTweets";
 import { useAuth } from "./context/AuthContext";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
+import Login from "./pages/Login";
 
 function App({ tweetService, authService, commentService }) {
   const history = useHistory();
@@ -58,6 +59,9 @@ function App({ tweetService, authService, commentService }) {
           </Route>
           <Route exact path="/auth/change-password">
             <ChangePassword authService={authService} />
+          </Route>
+          <Route path="/github_oauth">
+            <Login />
           </Route>
         </>
         )

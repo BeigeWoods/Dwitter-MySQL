@@ -15,7 +15,7 @@ import { AuthErrorEventBus } from "./context/AuthContext";
 import HttpClient from "./network/http";
 import Socket from "./network/socket";
 
-export const baseURL = process.env.REACT_APP_BASE_URL;
+const baseURL = process.env.REACT_APP_BASE_URL;
 const authErrorEventBus = new AuthErrorEventBus();
 const httpClient = new HttpClient(baseURL, authErrorEventBus, () =>
   fetchCsrfToken()

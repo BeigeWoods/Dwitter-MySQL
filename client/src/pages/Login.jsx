@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
+import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
-import { baseURL } from "..";
 import Banner from "../components/Banner";
 import { UserForm, UserInput, Submit } from "../css/authForm";
-import styled from "styled-components";
 
-const GithubLogin = styled.a`
+const GithubLogin = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -17,7 +17,7 @@ const GithubLogin = styled.a`
   text-decoration-line: none;
 `;
 
-const GithubButton = styled.div`
+const GithubButton = styled.button`
   display: grid;
   grid-template-columns: auto auto;
   grid-column-gap: 10px;
@@ -30,7 +30,7 @@ const CheckSignup = styled.div`
   margin-top: 8px;
 `;
 
-const Login = ({ onSignUp, onLogin }) => {
+const Login = ({ onSignUp, onLogin, onGithubLogin }) => {
   const [signup, setSignup] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -39,6 +39,14 @@ const Login = ({ onSignUp, onLogin }) => {
   const [url, setURL] = useState("");
   const [text, setText] = useState("");
   const [isAlert, setIsAlert] = useState(false);
+  const history = useHistory();
+
+  useEffect(() => {
+    const query = history.location.search;
+    if (query.includes("code")) {
+      onGithubLogin(query.substring(6)).catch(setError);
+    }
+  });
 
   const onSubmit = (event) => {
     event.preventDefault();
@@ -73,6 +81,17 @@ const Login = ({ onSignUp, onLogin }) => {
         return setSignup(checked);
       default:
     }
+  };
+
+  const githubStart = () => {
+    const baseUrl = "https://github.com/login/oauth/authorize";
+    const option = {
+      client_id: process.env.REACT_APP_GH_CLIENT_ID,
+      allow_signup: "false",
+      scope: "read:user user:email",
+    };
+    const params = new URLSearchParams(option).toString();
+    return window.location.assign(`${baseUrl}?${params}`);
   };
 
   return (
@@ -136,8 +155,8 @@ const Login = ({ onSignUp, onLogin }) => {
         </CheckSignup>
         <Submit type="submit">{signup ? "Sign Up" : "Sign In"}</Submit>
       </UserForm>
-      <GithubLogin href={`${baseURL}/auth/github/start`}>
-        <GithubButton>
+      <GithubLogin>
+        <GithubButton onClick={githubStart}>
           <FontAwesomeIcon icon={faGithub} className="github-icon" />
           <span>Github Login</span>
         </GithubButton>
