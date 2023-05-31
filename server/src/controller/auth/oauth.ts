@@ -68,7 +68,7 @@ export default class OauthController implements GithubOauth {
       })
     ).json();
     if (!("access_token" in tokenReq)) {
-      return res.status(409).json({ message: "something is wrong!" });
+      return res.status(409).json({ message: "failed Github login" });
     }
     const { access_token } = tokenReq;
     const data = await this.setUser(access_token);

@@ -30,7 +30,7 @@ export const tweetFormDataValidate = (
   if (video && !video?.match(urlRegex)) {
     return res.status(400).json({ message: "Invalid url" });
   }
-  next();
+  return next();
 };
 
 export const paramsValidate = (

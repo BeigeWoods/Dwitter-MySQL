@@ -65,7 +65,7 @@ describe("GoodController", () => {
       expect(tweetRepository.updateGood).toHaveBeenCalledWith(tweetId, 1);
       expect(response.statusCode).toBe(201);
       expect(response._getJSONData()).toMatchObject({
-        tweetId,
+        id: tweetId,
         good: 1,
         clicked: userId,
       });
@@ -87,7 +87,7 @@ describe("GoodController", () => {
       expect(tweetRepository.updateGood).toHaveBeenCalledWith(tweetId, 0);
       expect(response.statusCode).toBe(201);
       expect(response._getJSONData()).toMatchObject({
-        tweetId,
+        id: tweetId,
         good: 0,
         clicked: null,
       });

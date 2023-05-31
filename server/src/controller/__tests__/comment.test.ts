@@ -81,7 +81,7 @@ describe("Comment Controller", () => {
 
       await commentController.createComment(request, response);
 
-      expect(response.statusCode).toBe(409);
+      expect(response.statusCode).toBe(400);
       expect(userRepository.findByUsername).toHaveBeenCalledWith(repliedUser);
       expect(response._getJSONData()).toEqual({
         message: "Replied user not found",

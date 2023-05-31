@@ -8,7 +8,7 @@ export interface GithubOauth {
     res: Response
   ): Promise<Response<any, Record<string, any>> | void>;
 }
-export type UserObject = {
+export type UserData = {
   token: string;
   username: string;
 };
@@ -21,7 +21,7 @@ export default class OauthController implements GithubOauth {
     tokenController: TokenHandler,
     userRepository: UserDataHandler
   );
-  private setUser(givenToken: string): Promise<UserObject>;
+  private setUser(givenToken: string): Promise<UserData>;
   githubLogin: (
     req: Request,
     res: Response
