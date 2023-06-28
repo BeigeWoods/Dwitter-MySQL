@@ -1,0 +1,19 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ubuntu
+
+permissions:
+  - object: /home/ubuntu/server
+    pattern: "**"
+    except:
+      ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[tj]s?(x)", ".env"]
+    owner: mars
+    group: server
+    mode: 644
+
+hooks:
+  AfterInstall:
+    - location: script/execute.sh
+      timeout: 300

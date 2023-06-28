@@ -1,0 +1,110 @@
+name: Dwitter CI-CD
+
+on:
+  push:
+    branches:
+      - SQL_1
+
+env:
+  DIRECTORY: ./server
+  ALLOWED_ORIGIN: localhost:3000
+  JWT_SECRET: secret
+  JWT_EXPIRES_SEC: 86400
+  BCRYPT_SALT_ROUNDS: 12
+  BCRYPT_RANDOM_WORDS: words
+  HOST_PORT: 8080
+  DB_HOST: localhost
+  DB_USER: user
+  DB_DATABASE: database
+  DB_PASSWORD: password
+  CSRF_SECRET_KEY: secretKey
+  GH_CLIENT_ID: githubId
+  GH_CLIENT_SECRETS: githubSecret
+  AWS_S3_ID: awsS3Id
+  AWS_S3_SECRET: awsS3Secret
+  AWS_S3_REGION: ap-northeast-2
+  S3_BUCKET_NAME: dwitter-codes
+  CODE_DEPLOY_APPLICATION_NAME:
+  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      # Set
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cache Action
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-cache-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            npm-cache-
+            npm-
+
+      # - name: Set up Node
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: v17.4.0
+      #     cache: "npm"
+      #     cache-dependency-path: ./server/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: ${{ env.DIRECTORY }}
+        run: npm i
+
+      - name: Compile Typescript
+        working-directory: ${{ env.DIRECTORY }}
+        run: npx tsc
+
+      # Test
+      - name: Create .env.test file
+        working-directory: ${{ env.DIRECTORY }}
+        run: touch .env.test
+          cat << EOF >> .env.test
+          ALLOWED_ORIGIN = ${{ env.ALLOWED_ORIGIN }}
+          JWT_SECRET = ${{ env.JWT_SECRET }}
+          JWT_EXPIRES_SEC = ${{ env.JWT_EXPIRES_SEC }}
+          BCRYPT_SALT_ROUNDS = ${{ env.BCRYPT_SALT_ROUNDS }}
+          BCRYPT_RANDOM_WORDS = ${{ env.BCRYPT_RANDOM_WORDS }}
+          HOST_PORT = ${{ env.HOST_PORT }}
+          DB_HOST = ${{ env.DB_HOST }}
+          DB_USER = ${{ env.DB_USER }}
+          DB_DATABASE = ${{ env.DB_DATABASE }}
+          DB_PASSWORD = ${{ env.DB_PASSWORD }}
+          CSRF_SECRET_KEY = ${{ env.CSRF_SECRET_KEY }}
+          GH_CLIENT_ID = ${{ env.GH_CLIENT_ID }}
+          GH_CLIENT_SECRETS = ${{ env.GH_CLIENT_SECRETS }}
+          AWS_S3_REGION = ${{ env.AWS_S3_REGION }}
+          AWS_S3_ID = ${{ env.AWS_S3_ID }}
+          AWS_S3_SECRET = ${{ env.AWS_S3_SECRET }}
+          EOF
+
+      - name: Run jest test
+        working-directory: ${{ env.DIRECTORY }}
+        run: npm test
+
+      # AWS
+      - name: Make zip file
+        run: zip -r $GITHUB_SHA.zip ${{ env.DIRECTORY }} -x **/__tests__/** jest.config.js .gitignore
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_S3_REGION }}
+
+      - name: Upload to S3
+        run: aws s3 cp --region $AWS_S3_REGION ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
+
+      - name: Code Deploy
+        run: |
+          aws deploy create-deployment \
+          --deployment-config-name CodeDeployDefault.AllAtOnce \
+          --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
+          --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
+          --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip
