@@ -85,7 +85,7 @@ jobs:
 
       - name: Run jest test
         working-directory: ${{ env.DIRECTORY }}
-        run: npm test
+        run: npm actTest
 
       # AWS
       # - name: Make zip file
