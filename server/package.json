@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "DOTENV_CONFIG_PATH=./.env.test jest --watchAll --verbose",
-    "actTest": "DOTENV_CONFIG_PATH=./.env.test jest --verbose",
+    "action": "DOTENV_CONFIG_PATH=./.env.test jest --verbose",
     "start": "concurrently \"npx tsc -w\" \"nodemon dist/app\""
   },
   "author": "BeigeWoods",
