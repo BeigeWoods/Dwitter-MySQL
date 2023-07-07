@@ -89,7 +89,7 @@ jobs:
 
       # AWS
       - name: Make zip file
-        run: zip -r $GITHUB_SHA.zip ${{ env.DIRECTORY }} -x **/__tests__/** **/.vscode/** .env.test jest.config.js .gitignore
+        run: zip -r $GITHUB_SHA.zip ${{ env.DIRECTORY }} -x **/__tests__/** **/.vscode/** .env .env.test jest.config.js .gitignore
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
