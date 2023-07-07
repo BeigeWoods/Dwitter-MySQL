@@ -2,15 +2,14 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ubuntu
+    destination: /home/ubuntu/server
 
 permissions:
   - object: /home/ubuntu/server
     pattern: "**"
     except: [".env"]
-    owner: mars
-    group: server
-    mode: 644
+    owner: ubuntu
+    group: ubuntu
 
 hooks:
   AfterInstall:
