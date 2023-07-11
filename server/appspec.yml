@@ -7,11 +7,11 @@ files:
 permissions:
   - object: /home/ubuntu/server
     pattern: "**"
-    except: [".env"]
     owner: ubuntu
     group: ubuntu
 
 hooks:
   AfterInstall:
-    - location: script/execute.sh
+    - location: script/start.sh
       timeout: 300
+      runas: ubuntu

@@ -7,21 +7,6 @@ on:
 
 env:
   DIRECTORY: ./server
-  ALLOWED_ORIGIN: localhost:3000
-  JWT_SECRET: secret
-  JWT_EXPIRES_SEC: 86400
-  BCRYPT_SALT_ROUNDS: 12
-  BCRYPT_RANDOM_WORDS: words
-  HOST_PORT: 8080
-  DB_HOST: localhost
-  DB_USER: user
-  DB_DATABASE: database
-  DB_PASSWORD: password
-  CSRF_SECRET_KEY: secretKey
-  GH_CLIENT_ID: githubId
-  GH_CLIENT_SECRETS: githubSecret
-  AWS_S3_ID: awsS3Id
-  AWS_S3_SECRET: awsS3Secret
   AWS_S3_REGION: ap-northeast-2
   S3_BUCKET_NAME: dwitter-codes
   CODE_DEPLOY_APPLICATION_NAME: Dwitter_back
@@ -65,22 +50,22 @@ jobs:
         working-directory: ${{ env.DIRECTORY }}
         run: touch .env.test
           cat << EOF >> .env.test
-          ALLOWED_ORIGIN = ${{ env.ALLOWED_ORIGIN }}
-          JWT_SECRET = ${{ env.JWT_SECRET }}
-          JWT_EXPIRES_SEC = ${{ env.JWT_EXPIRES_SEC }}
-          BCRYPT_SALT_ROUNDS = ${{ env.BCRYPT_SALT_ROUNDS }}
-          BCRYPT_RANDOM_WORDS = ${{ env.BCRYPT_RANDOM_WORDS }}
-          HOST_PORT = ${{ env.HOST_PORT }}
-          DB_HOST = ${{ env.DB_HOST }}
-          DB_USER = ${{ env.DB_USER }}
-          DB_DATABASE = ${{ env.DB_DATABASE }}
-          DB_PASSWORD = ${{ env.DB_PASSWORD }}
-          CSRF_SECRET_KEY = ${{ env.CSRF_SECRET_KEY }}
-          GH_CLIENT_ID = ${{ env.GH_CLIENT_ID }}
-          GH_CLIENT_SECRETS = ${{ env.GH_CLIENT_SECRETS }}
+          ALLOWED_ORIGIN = localhost:3000
+          JWT_SECRET = secret
+          JWT_EXPIRES_SEC = 86400
+          BCRYPT_SALT_ROUNDS = 12
+          BCRYPT_RANDOM_WORDS = words
+          HOST_PORT = 8080
+          DB_HOST = localhost
+          DB_USER = user
+          DB_DATABASE = database
+          DB_PASSWORD = password
+          CSRF_SECRET_KEY = secretKey
+          GH_CLIENT_ID = githubId
+          GH_CLIENT_SECRETS = githubSecret
           AWS_S3_REGION = ${{ env.AWS_S3_REGION }}
-          AWS_S3_ID = ${{ env.AWS_S3_ID }}
-          AWS_S3_SECRET = ${{ env.AWS_S3_SECRET }}
+          AWS_S3_ID = awsS3Id
+          AWS_S3_SECRET = awsS3Secret
           EOF
 
       - name: Run jest test
@@ -88,8 +73,14 @@ jobs:
         run: npm run action
 
       # AWS
+      - name: Remove extraneous files
+        run: find ./test -not -path "./test/node_modules/*" -size 0 -exec rm -rf {} \;
+
+      - name: Remove useless folders
+        run: rm -r **/__tests__ **/.vscode
+
       - name: Make zip file
-        run: zip -r $GITHUB_SHA.zip ${{ env.DIRECTORY }} -x **/__tests__/** **/.vscode/** .env .env.test jest.config.js .gitignore
+        run: zip -r $GITHUB_SHA.zip ${{ env.DIRECTORY }} -x .env .env.test jest.config.js .gitignore
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
