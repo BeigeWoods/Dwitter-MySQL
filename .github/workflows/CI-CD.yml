@@ -89,7 +89,7 @@ jobs:
 
       # AWS
       - name: Remove extraneous files
-        run: find ./test -not -path "./test/node_modules/*" -size 0 -exec rm -rf {} \;
+        run: find ${{ env.DIRECTORY }} -not -path "${{ env.DIRECTORY }}/node_modules/*" -size 0 -exec rm -rf {} \;
 
       - name: Remove useless folders
         run: rm -r **/__tests__ **/.vscode
