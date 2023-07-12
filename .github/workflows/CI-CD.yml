@@ -92,7 +92,7 @@ jobs:
         run: find ${{ env.DIRECTORY }} -not -path "${{ env.DIRECTORY }}/node_modules/*" -size 0 -exec rm -rf {} \;
 
       - name: Remove useless folders
-        run: rm -r **/__tests__ **/.vscode
+        run: rm -rf **/__tests__ **/.vscode
 
       - name: Make zip file
         run: zip -r $GITHUB_SHA.zip ${{ env.DIRECTORY }} -x .env .env.test jest.config.js .gitignore
