@@ -1,9 +1,9 @@
 node_modules/
 dist/
-.vscode/
 coverage/
 .env
 .env.test
 tsconfig.tsbuildinfo
 uploads/
 .DS_Store
+.vscode/
