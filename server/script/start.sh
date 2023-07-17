@@ -1,10 +1,11 @@
 #!/bin/bash
 
 path="/project/env/"
+filename=".env"
 
 cd /home/ubuntu/server
 
-touch ".env"
+touch $filename
 
 echo ALLOWED_ORIGIN=$(aws ssm get-parameters --region ap-northeast-2 --names $path"ALLOWED_ORIGIN" --query Parameters[0].Value | sed 's/"//g') >> $filename
 echo JWT_SECRET=$(aws ssm get-parameters --region ap-northeast-2 --names $path"JWT_SECRET" -with-decryption --query Parameters[0].Value | sed 's/"//g') >> $filename
