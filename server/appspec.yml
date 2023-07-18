@@ -13,10 +13,10 @@ permissions:
 hooks:
   AfterInstall:
     - location: script/initialize.sh
-      timeout: 1000
+      timeout: 300
       runas: root
   
   ApplicationStart:
     - location: script/start.sh
-      timeout: 300
+      timeout: 120
       runas: root
