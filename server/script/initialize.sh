@@ -1,3 +1,5 @@
+#!/bin/bash
+
 path="/project/env/"
 filename=".env"
 

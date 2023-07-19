@@ -87,6 +87,7 @@ app.use(errorHandler);
 
 db.getConnection()
   .then(() => {
+    console.log("success connect with db!")
     const server = app.listen(config.port);
     initSocket(server);
   })
