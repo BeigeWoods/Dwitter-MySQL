@@ -9,7 +9,7 @@ env:
   DIRECTORY: ./server
   ALLOWED_ORIGIN: localhost:3000
   JWT_SECRET: secret
-  JWT_EXPIRES_SEC: 86400
+  JWT_EXPIRES_SEC: 1000
   BCRYPT_SALT_ROUNDS: 12
   BCRYPT_RANDOM_WORDS: words
   HOST_PORT: 8080
@@ -85,7 +85,7 @@ jobs:
 
       - name: Run jest test
         working-directory: ${{ env.DIRECTORY }}
-        run: npm run action
+        run: npm test
 
       # AWS
       # - name: Remove extraneous files
