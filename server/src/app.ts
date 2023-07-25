@@ -87,8 +87,10 @@ app.use(errorHandler);
 
 db.getConnection()
   .then(() => {
-    console.log("success connect with db!")
-    const server = app.listen(config.port);
+    console.log("success connect with db!");
+    const server = app.listen(config.port, () =>
+      console.log(`Server listening on port ${config.port}`)
+    );
     initSocket(server);
   })
   .catch((err) => console.error("the problem of db connect\n", err));
