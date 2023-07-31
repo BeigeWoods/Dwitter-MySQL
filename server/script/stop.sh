@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PATH=/home/ubuntu/server/dist/app.js
+PATH="/home/ubuntu/server/dist/app.js"
 CURRENT_PID=$(pgrep -f $PATH)
 
 if [-z $CURRENT_PID]; then
