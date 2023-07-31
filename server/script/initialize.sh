@@ -5,7 +5,9 @@ FILENAME=".env"
 
 cd /home/ubuntu/server
 
-rm -f $FILENAME
+if [ -f $FILENAME ]; then
+   rm test.txt
+   echo "$FILENAME is removed"
 
 touch $FILENAME
 
