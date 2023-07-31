@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd /home/ubuntu/server
+cd /home/ubuntu/server/dist
 
-sudo npm start
+sudo pm2 start app.js
