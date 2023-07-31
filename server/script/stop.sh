@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo pm2 delete 0
+sudo pm2 stop 0
