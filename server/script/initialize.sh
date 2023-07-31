@@ -3,7 +3,7 @@
 PATH="/project/env/"
 FILENAME=".env"
 
-cd /home/ubuntu/server/dist
+cd /home/ubuntu/server
 
 rm -f $FILENAME
 
