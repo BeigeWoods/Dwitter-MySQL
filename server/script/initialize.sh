@@ -6,7 +6,7 @@ FILENAME=".env"
 cd /home/ubuntu/server
 
 if [ -f $FILENAME ]; then
-   rm test.txt
+   rm $FILENAME
    echo "$FILENAME is removed"
 fi
 
@@ -29,4 +29,4 @@ echo AWS_S3_REGION=$(aws ssm get-parameters --region ap-northeast-2 --names $PAT
 echo AWS_S3_ID=$(aws ssm get-parameters --region ap-northeast-2 --names $PATH"AWS_S3_ID" --query Parameters[0].Value | sed 's/"//g') >> $FILENAME
 echo AWS_S3_SECRET=$(aws ssm get-parameters --region ap-northeast-2 --names $PATH"AWS_S3_SECRET" --with-decryption --query Parameters[0].Value | sed 's/"//g') >> $FILENAME
 
-sudo npm i
+npm i

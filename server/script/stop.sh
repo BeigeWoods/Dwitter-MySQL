@@ -5,5 +5,7 @@ CURRENT_PID=$(pgrep -f $PATH)
 
 if [-z $CURRENT_PID]; then
   sudo pm2 stop $PATH
-  echo "stop the pm2"
+  echo "stopped pm2"
+else
+  echo "skipped to stop pm2"
 fi
