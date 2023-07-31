@@ -8,6 +8,7 @@ cd /home/ubuntu/server
 if [ -f $FILENAME ]; then
    rm test.txt
    echo "$FILENAME is removed"
+fi
 
 touch $FILENAME
 
