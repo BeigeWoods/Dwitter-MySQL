@@ -19,7 +19,6 @@ hooks:
   AfterInstall:
     - location: script/initialize.sh
       timeout: 120
-      runas: root
 
   ApplicationStart:
     - location: script/start.sh
