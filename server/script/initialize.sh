@@ -6,7 +6,7 @@ FILENAME=".env"
 cd /home/ubuntu/server
 
 if [ -f $FILENAME ]; then
-   rm $FILENAME
+   sudo rm $FILENAME
    echo "$FILENAME is removed"
 fi
 
