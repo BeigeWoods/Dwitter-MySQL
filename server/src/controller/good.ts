@@ -1,57 +1,65 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 import { GoodDataHandler } from "../__dwitter__.d.ts/data/good";
 import { GoodHandler } from "../__dwitter__.d.ts/middleware/good";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
 
-export class GoodController implements GoodHandler {
-  private count?: number;
+export default class GoodController implements GoodHandler {
   constructor(
     private tweetRepository: TweetDataHandler,
     private commentRepository: CommentDataHandler,
     private goodRepository: GoodDataHandler
   ) {}
-  goodTweet = async (req: Request, res: Response) => {
+
+  goodTweet = async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user!.userId!;
     const { tweetId } = req.params;
-    const { clicked }: { clicked: boolean } = req.body;
-    this.count = req.body.good as number;
-    if (typeof clicked !== "boolean") {
-      return res.sendStatus(409);
-    }
-    if (clicked && this.count > 0) {
-      this.count -= 1;
-      await this.goodRepository.unClickTweet(req.userId!, tweetId);
+    let { clicked, good }: { clicked: boolean; good: number } = req.body;
+    if (clicked && good > 0) {
+      good -= 1;
+      await this.goodRepository.unClickTweet(userId, tweetId, (error) =>
+        next(error)
+      );
     } else {
-      this.count += 1;
-      await this.goodRepository.clickTweet(req.userId!, tweetId);
+      good += 1;
+      await this.goodRepository.clickTweet(userId, tweetId, (error) =>
+        next(error)
+      );
     }
-    await this.tweetRepository.updateGood(tweetId, this.count);
-    return res.status(201).json({
-      id: Number(tweetId),
-      good: this.count,
-      clicked: clicked ? null : req.userId,
-    });
+    await this.tweetRepository.updateGood(tweetId, good, (error) =>
+      error
+        ? next(error)
+        : res.status(201).json({
+            id: tweetId,
+            good,
+            clicked: clicked ? false : true,
+          })
+    );
   };
 
-  goodComment = async (req: Request, res: Response) => {
+  goodComment = async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user!.userId!;
     const { commentId } = req.params;
-    const { clicked }: { clicked: boolean } = req.body;
-    this.count = req.body.good as number;
-    if (typeof clicked !== "boolean") {
-      return res.sendStatus(409);
-    }
-    if (clicked && this.count > 0) {
-      this.count -= 1;
-      await this.goodRepository.unClickComment(req.userId!, commentId);
+    let { clicked, good }: { clicked: boolean; good: number } = req.body;
+    if (clicked && good > 0) {
+      good -= 1;
+      await this.goodRepository.unClickComment(userId, commentId, (error) =>
+        next(error)
+      );
     } else {
-      this.count += 1;
-      await this.goodRepository.clickComment(req.userId!, commentId);
+      good += 1;
+      await this.goodRepository.clickComment(userId, commentId, (error) =>
+        next(error)
+      );
     }
-    await this.commentRepository.updateGood(commentId, this.count);
-    return res.status(201).json({
-      id: Number(commentId),
-      good: this.count,
-      clicked: clicked ? null : req.userId,
-    });
+    await this.commentRepository.updateGood(commentId, good, (error) =>
+      error
+        ? next(error)
+        : res.status(201).json({
+            id: commentId,
+            good,
+            clicked: clicked ? false : true,
+          })
+    );
   };
 }

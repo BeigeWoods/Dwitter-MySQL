@@ -6,7 +6,7 @@ import { EmptyCard, Container, Folder } from "../css/comment";
 
 const Comments = memo(({ tweetId, commentService, onError }) => {
   const [comments, setComments] = useState([]);
-  const [repliedUser, setRepliedUser] = useState("");
+  const [recipient, setRecipient] = useState("");
   const { user } = useAuth();
 
   useEffect(() => {
@@ -51,7 +51,7 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
 
   const onClickGoodComment = (commentId, good, clicked) =>
     commentService
-      .clickGood(tweetId, commentId, good, clicked ? true : false)
+      .clickGood(tweetId, commentId, good, clicked)
       .then((updated) => {
         setComments((comments) =>
           comments.map((item) =>
@@ -61,8 +61,8 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
       })
       .catch((error) => onError(error));
 
-  const onClickReply = (repliedUser) => {
-    setRepliedUser(repliedUser);
+  const onClickReply = (recipient) => {
+    setRecipient(recipient);
   };
 
   return (
@@ -71,7 +71,7 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
         <NewCommentForm
           tweetId={tweetId}
           commentService={commentService}
-          repliedUser={repliedUser}
+          recipient={recipient}
           onClickReply={onClickReply}
           onError={onError}
         />

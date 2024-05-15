@@ -4,7 +4,7 @@ import { CommentCancle, CommentForm, CommentSubmit } from "../css/comment";
 const NewCommentForm = ({
   tweetId,
   commentService,
-  repliedUser,
+  recipient,
   onClickReply,
   onError,
 }) => {
@@ -13,7 +13,7 @@ const NewCommentForm = ({
   const onSubmit = async (event) => {
     event.preventDefault();
     commentService
-      .postComment(tweetId, text, repliedUser)
+      .postComment(tweetId, text, recipient)
       .then(() => {
         setText("");
         onClickReply("");
@@ -35,7 +35,7 @@ const NewCommentForm = ({
   return (
     <>
       <CommentForm
-        cancle={repliedUser ? true : false}
+        cancle={recipient ? true : false}
         isEdit={false}
         onSubmit={onSubmit}
       >
@@ -43,14 +43,14 @@ const NewCommentForm = ({
           type="text"
           name="text"
           placeholder={
-            repliedUser ? `Reply to @${repliedUser}` : "Edit your comment"
+            recipient ? `Reply to @${recipient}` : "Edit your comment"
           }
           value={text}
           autoFocus
           onChange={onChange}
         />
         <CommentSubmit type="submit">►</CommentSubmit>
-        {repliedUser && (
+        {recipient && (
           <CommentCancle type="button" onClick={() => onClickReply("")}>
             X
           </CommentCancle>

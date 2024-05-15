@@ -31,7 +31,7 @@ const CommentCard = memo(
       text,
       good,
       clicked,
-      repliedUser,
+      recipient,
       username,
       name,
       url,
@@ -46,17 +46,17 @@ const CommentCard = memo(
           <Avatar url={url} name={name} isTweet={true} />
           <div className="tweet-body">
             <span className="tweet-name">{username}</span>
-            {repliedUser && <Username>@{repliedUser}</Username>}
+            {recipient && <Username>@{recipient}</Username>}
             <span className="tweet-date"> · {parseDate(createdAt)}</span>
             {text && <p>{text}</p>}
           </div>
           <Attention>
             <Button
               onClick={() => {
-                onClickGoodComment(id, good, clicked ? clicked : 0);
+                onClickGoodComment(id, good, clicked);
               }}
             >
-              {clicked ? "♥︎" : "♡"} {good}
+              {Boolean(clicked) ? "♥︎" : "♡"} {good}
             </Button>
             <Button onClick={() => onClickReply(username)}>reply</Button>
           </Attention>
