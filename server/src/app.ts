@@ -1,27 +1,27 @@
-import express, { ErrorRequestHandler } from "express";
+import express, { Response } from "express";
 import "express-async-errors";
 import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-import tweetsRouter from "./router/tweets.js";
-import commentsRouter from "./router/comments.js";
-import authRouter from "./router/auth.js";
-import { config } from "./config.js";
-import { db } from "./db/database.js";
-import { initSocket, getSocketIO } from "./connection/socket.js";
-import { csrfCheck } from "./middleware/csrf.js";
-import { TweetRepository } from "./data/tweet.js";
-import { TweetController } from "./controller/tweet.js";
-import { GoodRepository } from "./data/good.js";
-import { GoodController } from "./controller/good.js";
-import { CommentRepository } from "./data/comments.js";
-import { CommentController } from "./controller/comments.js";
-import UserRepository from "./data/auth.js";
-import TokenRepository from "./controller/auth/token.js";
-import AuthValidator from "./middleware/auth.js";
-import AuthController from "./controller/auth/auth.js";
-import OauthController from "./controller/auth/oauth.js";
+import tweetsRouter from "./router/tweets";
+import commentsRouter from "./router/comments";
+import authRouter from "./router/auth";
+import { config } from "./config";
+import { db } from "./db/database";
+import { initSocket, getSocketIO } from "./connection/socket";
+import { csrfCheck } from "./middleware/csrf";
+import TweetRepository from "./data/tweet";
+import TweetController from "./controller/tweet";
+import GoodRepository from "./data/good";
+import GoodController from "./controller/good";
+import CommentRepository from "./data/comment";
+import CommentController from "./controller/comments";
+import UserRepository from "./data/user";
+import TokenRepository from "./controller/auth/token";
+import AuthValidator from "./middleware/auth";
+import AuthController from "./controller/auth/auth";
+import OauthController from "./controller/auth/oauth";
 
 const app = express();
 const userRepository = new UserRepository();
@@ -58,11 +58,6 @@ const corsOption = {
   credentials: true, // allow the Access-Control-Allow-Credentials
 };
 
-const errorHandler: ErrorRequestHandler = (err, req, res) => {
-  console.error("Something wrong with app\n", err);
-  res.sendStatus(500);
-};
-
 app.use(express.json());
 app.use(helmet());
 app.use(cors(corsOption));
@@ -80,17 +75,20 @@ app.use(
   authRouter(authValidator, authController, oauthController, tokenController)
 );
 
-app.use((req, res) => {
-  res.sendStatus(404);
+app.use((res: Response) => {
+  res.status(404).json({ message: "Bad Access" });
 });
-app.use(errorHandler);
+app.use((err: unknown, res: Response) => {
+  console.error("Something go wrong\n", err);
+  res.status(500).json({ message: "Sorry, Something wrong" });
+});
 
 db.getConnection()
   .then(() => {
-    console.log("success connect with db!");
+    console.log("Success connect with DB");
     const server = app.listen(config.port, () =>
       console.log(`Server listening on port ${config.port}`)
     );
     initSocket(server);
   })
-  .catch((err) => console.error("the problem of db connect\n", err));
+  .catch((err) => console.error("The problem of DB connection\n", err));

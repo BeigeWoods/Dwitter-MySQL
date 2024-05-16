@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
+import { GoodHandler } from "../__dwitter__.d.ts/controller/good";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 import { GoodDataHandler } from "../__dwitter__.d.ts/data/good";
-import { GoodHandler } from "../__dwitter__.d.ts/middleware/good";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
 
 export default class GoodController implements GoodHandler {
@@ -12,54 +12,52 @@ export default class GoodController implements GoodHandler {
   ) {}
 
   goodTweet = async (req: Request, res: Response, next: NextFunction) => {
+    let error: Error | void;
     const userId = req.user!.userId!;
     const { tweetId } = req.params;
     let { clicked, good }: { clicked: boolean; good: number } = req.body;
     if (clicked && good > 0) {
       good -= 1;
-      await this.goodRepository.unClickTweet(userId, tweetId, (error) =>
-        next(error)
-      );
+      error = await this.goodRepository.unClickTweet(userId, tweetId);
     } else {
       good += 1;
-      await this.goodRepository.clickTweet(userId, tweetId, (error) =>
-        next(error)
-      );
+      error = await this.goodRepository.clickTweet(userId, tweetId);
     }
-    await this.tweetRepository.updateGood(tweetId, good, (error) =>
-      error
-        ? next(error)
-        : res.status(201).json({
-            id: tweetId,
-            good,
-            clicked: clicked ? false : true,
-          })
-    );
+    error
+      ? next(error)
+      : await this.tweetRepository.updateGood(tweetId, good, (error) =>
+          error
+            ? next(error)
+            : res.status(201).json({
+                id: tweetId,
+                good,
+                clicked: clicked ? false : true,
+              })
+        );
   };
 
   goodComment = async (req: Request, res: Response, next: NextFunction) => {
+    let error: Error | void;
     const userId = req.user!.userId!;
     const { commentId } = req.params;
     let { clicked, good }: { clicked: boolean; good: number } = req.body;
     if (clicked && good > 0) {
       good -= 1;
-      await this.goodRepository.unClickComment(userId, commentId, (error) =>
-        next(error)
-      );
+      error = await this.goodRepository.unClickComment(userId, commentId);
     } else {
       good += 1;
-      await this.goodRepository.clickComment(userId, commentId, (error) =>
-        next(error)
-      );
+      error = await this.goodRepository.clickComment(userId, commentId);
     }
-    await this.commentRepository.updateGood(commentId, good, (error) =>
-      error
-        ? next(error)
-        : res.status(201).json({
-            id: commentId,
-            good,
-            clicked: clicked ? false : true,
-          })
-    );
+    error
+      ? next(error)
+      : await this.commentRepository.updateGood(commentId, good, (error) =>
+          error
+            ? next(error)
+            : res.status(201).json({
+                id: commentId,
+                good,
+                clicked: clicked ? false : true,
+              })
+        );
   };
 }

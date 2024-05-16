@@ -5,8 +5,8 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "test:dev": "DOTENV_CONFIG_PATH=./.env.test jest --watchAll --verbose",
-    "test": "DOTENV_CONFIG_PATH=./.env.test jest --verbose",
+    "test:dev": "DOTENV_CONFIG_PATH=./.env.test jest --watchAll",
+    "test": "DOTENV_CONFIG_PATH=./.env.test jest",
     "start:dev": "concurrently \"npx tsc -w\" \"nodemon dist/app\"",
     "start": "node dist/app"
   },
@@ -32,6 +32,7 @@
     "socket.io": "^4.1.2"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
     "@types/aws-sdk": "^2.7.0",
     "@types/bcrypt": "^5.0.0",
     "@types/cookie-parser": "^1.4.2",
@@ -41,6 +42,7 @@
     "@types/express-validator": "^3.0.0",
     "@types/faker": "^5.5.9",
     "@types/helmet": "^4.0.0",
+    "@types/jest": "^29.5.12",
     "@types/jsonwebtoken": "^8.5.5",
     "@types/morgan": "^1.9.3",
     "@types/multer": "^1.4.7",
@@ -50,13 +52,13 @@
     "@types/sequelize": "^4.28.10",
     "@types/socket.io": "^3.0.2",
     "@types/validator": "^13.6.3",
+    "concurrently": "^6.3.0",
     "faker": "^5.5.3",
     "jest": "^27.4.5",
     "node-mocks-http": "^1.11.0",
+    "nodemon": "^2.0.7",
     "ts-jest": "^27.1.1",
     "ts-node": "^10.4.0",
-    "typescript": "^4.4.4",
-    "concurrently": "^6.3.0",
-    "nodemon": "^2.0.7"
+    "typescript": "^4.4.4"
   }
 }
