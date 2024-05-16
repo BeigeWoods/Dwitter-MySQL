@@ -1,5 +1,3 @@
-import { Callback } from "./callback";
-
 export interface GoodDataHandler {
   clickTweet(userId: number, tweetId: string): Promise<Error | void>;
   unClickTweet(userId: number, tweetId: string): Promise<Error | void>;

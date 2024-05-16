@@ -1,6 +1,5 @@
 import { db } from "../db/database.js";
 import { GoodDataHandler } from "../__dwitter__.d.ts/data/good";
-import { Callback } from "../__dwitter__.d.ts/data/callback";
 
 export default class GoodRepository implements GoodDataHandler {
   private readonly errorMessage = "DB at GoodRepository\n";
