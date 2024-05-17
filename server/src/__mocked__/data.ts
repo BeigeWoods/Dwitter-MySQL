@@ -38,3 +38,11 @@ export const mockComment: CommentData = {
   createdAt: {},
   updatedAt: {},
 };
+
+export const userData = {
+  login: "mr.smith",
+  name: "smith",
+  avatar_url: "https://",
+};
+
+export const emailData = [{ email: "@" }];

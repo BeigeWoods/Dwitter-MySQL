@@ -1,29 +1,42 @@
-import { Request, Response } from "express";
-import { Config } from "../../config.js";
-import { TokenHandler } from "./token.js";
-import { UserDataHandler } from "../../data/auth.js";
-export interface GithubOauth {
-  githubLogin(
-    req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>> | void>;
-}
-export type UserData = {
+import { NextFunction, Request, Response } from "express";
+import { Config } from "../../config";
+import { TokenHandler } from "./token";
+import { UserDataHandler } from "../../data/user";
+
+export type SendTinyUserInfo = {
   token: string;
   username: string;
 };
-export default class OauthController implements GithubOauth {
+
+export declare interface GithubOauth {
+  githubLogin(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<any, Record<string, any>> | void>;
+}
+
+export declare class OauthController implements GithubOauth {
   private config;
   private tokenController;
   private userRepository;
+
   constructor(
     config: Config,
     tokenController: TokenHandler,
     userRepository: UserDataHandler
   );
-  private setUser(givenToken: string): Promise<UserData>;
+
+  private signIn(
+    userData: any,
+    emailData: any
+  ): Promise<SendTinyUserInfo | undefined>;
+  protected getUserData(githubToken: unknown): Promise<unknown[]>;
+  protected getToken(code: string): Promise<{}>;
+
   githubLogin: (
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
   ) => Promise<Response<any, Record<string, any>> | void>;
 }
