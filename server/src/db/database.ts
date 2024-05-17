@@ -1,5 +1,5 @@
 import mysql from "mysql2";
-import { config } from "../config.js";
+import { config } from "../config";
 
 const { database, user, password, host } = config.db;
 

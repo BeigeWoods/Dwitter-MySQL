@@ -76,11 +76,11 @@ app.use(
 );
 
 app.use((res: Response) => {
-  res.status(404).json({ message: "Bad Access" });
+  return res.status(404).json({ message: "Bad Access" });
 });
-app.use((err: unknown, res: Response) => {
+app.use((err: Error | unknown, res: Response) => {
   console.error("Something go wrong\n", err);
-  res.status(500).json({ message: "Sorry, Something wrong" });
+  return res.status(500).json({ message: "Sorry, Something wrong" });
 });
 
 db.getConnection()

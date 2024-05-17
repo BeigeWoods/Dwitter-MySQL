@@ -1,11 +1,12 @@
-import { db } from "../db/database.js";
+import { db } from "../db/database";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
+import { Callback } from "../__dwitter__.d.ts/data/callback";
 
-export class CommentRepository implements CommentDataHandler {
+export default class CommentRepository implements CommentDataHandler {
   private readonly Select_Feild =
-    "SELECT J.id, text, good, tweetId, repliedUser, J.userId, username, name, url, G.userId AS clicked, createdAt, updatedAt";
+    "SELECT J.id, text, good, tweetId, recipient, J.userId, username, name, url, G.userId AS clicked, createdAt, updatedAt";
   private readonly With_User_Reply =
-    "SELECT C.id, text, good, tweetId, R.username AS repliedUser, C.userId, U.username, U.name, U.url, createdAt, updatedAt \
+    "SELECT C.id, text, good, tweetId, R.username AS recipient, C.userId, U.username, U.name, U.url, createdAt, updatedAt \
     FROM comments C \
     JOIN users U \
     ON C.userId = U.id \
@@ -28,12 +29,8 @@ export class CommentRepository implements CommentDataHandler {
         ${this.Order_By}`,
         [tweetId, userId]
       )
-      .then((result: any) => {
-        return result[0];
-      })
-      .catch((err) => {
-        throw new Error(err);
-      });
+      .then((result: any[]) => result[0])
+      .catch((error) => console.error("commentRepository.getAll\n", error));
   };
 
   getById = async (tweetId: string, commentId: string, userId: number) => {
@@ -46,19 +43,15 @@ export class CommentRepository implements CommentDataHandler {
         ${this.Order_By}`,
         [commentId, tweetId, userId]
       )
-      .then((result: any) => {
-        return result[0][0];
-      })
-      .catch((err) => {
-        throw new Error(err);
-      });
+      .then((result: any[]) => result[0][0])
+      .catch((error) => console.error("commentRepository.getById\n", error));
   };
 
   create = async (
     userId: number,
     tweetId: string,
     text: string,
-    repliedUser?: string
+    recipient?: string
   ) => {
     return await db
       .execute(
@@ -66,27 +59,25 @@ export class CommentRepository implements CommentDataHandler {
         VALUES(?, ?, ?, ?, ?, ?)",
         [text, 0, userId, tweetId, new Date(), new Date()]
       )
-      .then(async (result: any) => {
-        if (repliedUser) {
-          await this.createReply(result[0].insertId, repliedUser);
+      .then(async (result: any[]) => {
+        if (recipient) {
+          await this.createReply(result[0].insertId, recipient);
         }
         return this.getById(tweetId, result[0].insertId, userId);
       })
-      .catch((err) => {
-        throw new Error(err);
-      });
+      .catch((error) => console.error("commentRepository.create\n", error));
   };
 
   createReply = async (commentId: string, username: string) => {
-    await db
+    return await db
       .execute(
         "INSERT INTO replies (commentId, username) \
         VALUES(?, ?)",
         [commentId, username]
       )
-      .catch((err) => {
-        throw new Error(err);
-      });
+      .catch((error) =>
+        console.error("commentRepository.createReply\n", error)
+      );
   };
 
   update = async (
@@ -102,27 +93,25 @@ export class CommentRepository implements CommentDataHandler {
         WHERE id = ?",
         [text, new Date(), commentId]
       )
-      .then(() => {
-        return this.getById(tweetId, commentId, userId);
-      })
-      .catch((err) => {
-        throw new Error(err);
-      });
+      .then(async () => await this.getById(tweetId, commentId, userId))
+      .catch((error) => console.error("commentRepository.update\n", error));
   };
 
-  updateGood = async (id: string, good: number) => {
-    await db
+  updateGood = async (id: string, good: number, callback: Callback) => {
+    return await db
       .execute("UPDATE comments SET good = ? WHERE id = ?", [good, id])
-      .catch((err) => {
-        throw new Error(err);
+      .catch((error) => {
+        console.error("commentRepository.updateGood\n", error);
+        return callback(error);
       });
   };
 
-  remove = async (commentId: string) => {
-    await db
+  remove = async (commentId: string, callback: Callback) => {
+    return await db
       .execute("DELETE FROM comments WHERE id = ?", [commentId])
-      .catch((err) => {
-        throw new Error(err);
+      .catch((error) => {
+        console.error("commentRepository.remove\n", error);
+        return callback(error);
       });
   };
 }

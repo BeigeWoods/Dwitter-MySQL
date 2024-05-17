@@ -1,4 +1,4 @@
-export interface GoodDataHandler {
+export declare interface GoodDataHandler {
   clickTweet(userId: number, tweetId: string): Promise<Error | void>;
   unClickTweet(userId: number, tweetId: string): Promise<Error | void>;
   clickComment(userId: number, commentId: string): Promise<Error | void>;
@@ -6,8 +6,6 @@ export interface GoodDataHandler {
 }
 
 export declare class GoodRepository implements GoodDataHandler {
-  private readonly errorMessage;
-
   constructor();
 
   clickTweet: (userId: number, tweetId: string) => Promise<Error | void>;

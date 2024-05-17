@@ -1,68 +1,83 @@
+import { Callback } from "./callback";
+
 declare type CommentData = {
   id: string;
   text: string;
   good: number;
   tweetId: string;
   userId: number;
-  repliedId?: string;
   createdAt: object;
   updatedAt: object;
 };
 
-export interface CommentDataHandler {
-  getAll(
-    tweetId: string,
-    userId: number
-  ): Promise<CommentData[] | void | never>;
+export declare interface CommentDataHandler {
+  getAll(tweetId: string, userId: number): Promise<CommentData[] | void>;
   getById(
     tweetId: string,
     commentId: string,
     userId: number
-  ): Promise<CommentData | void | never>;
+  ): Promise<CommentData | void>;
   create(
     userId: number,
     tweetId: string,
     text: string,
-    repliedUser?: string
-  ): Promise<CommentData | void | never>;
-  createReply(commentId: string, username: string): Promise<void | never>;
+    recipient?: string
+  ): Promise<CommentData | void>;
+  createReply(commentId: string, username: string): Promise<unknown[] | void>;
   update(
     tweetId: string,
     commentId: string,
     userId: number,
     text: string
-  ): Promise<CommentData | void | never>;
-  updateGood(id: string, good: number): Promise<void | never>;
-  remove(commentId: string): Promise<void | never>;
+  ): Promise<CommentData | void>;
+  updateGood(
+    id: string,
+    good: number,
+    callback: Callback
+  ): Promise<void | unknown[] | Callback>;
+  remove(
+    commentId: string,
+    callback: Callback
+  ): Promise<void | unknown[] | Callback>;
 }
+
 export declare class CommentRepository implements CommentDataHandler {
-  private readonly Select_Feild;
-  private readonly With_User_Reply;
-  private readonly With_Good;
-  private readonly Order_By;
+  private readonly Select_Feild: string;
+  private readonly With_User_Reply: string;
+  private readonly With_Good: string;
+  private readonly Order_By: string;
+
   constructor();
-  getAll: (
-    tweetId: string,
-    userId: number
-  ) => Promise<CommentData[] | void | never>;
+
+  getAll: (tweetId: string, userId: number) => Promise<CommentData[] | void>;
   getById: (
     tweetId: string,
     commentId: string,
     userId: number
-  ) => Promise<CommentData | void | never>;
+  ) => Promise<CommentData | void>;
   create: (
     userId: number,
     tweetId: string,
     text: string,
-    repliedUser?: string
-  ) => Promise<CommentData | void | never>;
-  createReply: (commentId: string, username: string) => Promise<void | never>;
+    recipient?: string
+  ) => Promise<CommentData | void>;
+  createReply: (
+    commentId: string,
+    username: string
+  ) => Promise<unknown[] | void>;
   update: (
     tweetId: string,
     commentId: string,
     userId: number,
     text: string
-  ) => Promise<CommentData | void | never>;
-  updateGood(id: string, good: number): Promise<void | never>;
-  remove: (commentId: string) => Promise<void | never>;
+  ) => Promise<CommentData | void>;
+  updateGood(
+    id: string,
+    good: number,
+    callback: Callback
+  ): Promise<void | unknown[] | Callback>;
+  remove: (
+    commentId: string,
+    callback: Callback
+  ) => Promise<void | unknown[] | Callback>;
 }

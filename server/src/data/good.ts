@@ -2,8 +2,6 @@ import { db } from "../db/database.js";
 import { GoodDataHandler } from "../__dwitter__.d.ts/data/good";
 
 export default class GoodRepository implements GoodDataHandler {
-  private readonly errorMessage = "DB at GoodRepository\n";
-
   constructor() {}
 
   clickTweet = async (userId: number, tweetId: string) => {
@@ -13,7 +11,7 @@ export default class GoodRepository implements GoodDataHandler {
         tweetId,
       ])
       .catch((error) => {
-        console.error(this.errorMessage, error);
+        console.error("goodRepository.clickTweet\n", error);
         return error;
       });
   };
@@ -25,7 +23,7 @@ export default class GoodRepository implements GoodDataHandler {
         tweetId,
       ])
       .catch((error) => {
-        console.error(this.errorMessage, error);
+        console.error("goodRepository.unClickTweet\n", error);
         return error;
       });
   };
@@ -37,7 +35,7 @@ export default class GoodRepository implements GoodDataHandler {
         commentId,
       ])
       .catch((error) => {
-        console.error(this.errorMessage, error);
+        console.error("goodRepository.clickComment\n", error);
         return error;
       });
   };
@@ -49,7 +47,7 @@ export default class GoodRepository implements GoodDataHandler {
         commentId,
       ])
       .catch((error) => {
-        console.error(this.errorMessage, error);
+        console.error("goodRepository.unClickComment\n", error);
         return error;
       });
   };

@@ -1,7 +1,8 @@
-import { db } from "../db/database.js";
+import { db } from "../db/database";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
+import { Callback } from "../__dwitter__.d.ts/data/callback";
 
-export class TweetRepository implements TweetDataHandler {
+export default class TweetRepository implements TweetDataHandler {
   private readonly Select_Feild =
     "SELECT id, text, video, image, good, createdAt, updatedAt, J.userId, name, username, url, G.userId AS clicked";
   private readonly With_User =
@@ -24,12 +25,8 @@ export class TweetRepository implements TweetDataHandler {
         ${this.Order_By}`,
         [userId]
       )
-      .then((result: any) => {
-        return result[0];
-      })
-      .catch((err) => {
-        throw Error(err);
-      });
+      .then((result: any[]) => result[0])
+      .catch((error) => console.error("tweetRepository.getAll\n", error));
   };
 
   getAllByUsername = async (userId: number, username: string) => {
@@ -42,15 +39,13 @@ export class TweetRepository implements TweetDataHandler {
         ${this.Order_By}`,
         [username, userId]
       )
-      .then((result: any) => {
-        return result[0];
-      })
-      .catch((err) => {
-        throw Error(err);
-      });
+      .then((result: any[]) => result[0])
+      .catch((error) =>
+        console.error("tweetRepository.getAllByUsername\n", error)
+      );
   };
 
-  getById = async (id: string | number, userId: number) => {
+  getById = async (tweetId: string | number, userId: number) => {
     return await db
       .execute(
         `${this.Select_Feild}
@@ -58,14 +53,10 @@ export class TweetRepository implements TweetDataHandler {
                 WHERE T.userId = U.id AND T.id = ?) J
         ${this.With_Good}
         ${this.Order_By}`,
-        [id, userId]
+        [tweetId, userId]
       )
-      .then((result: any) => {
-        return result[0][0];
-      })
-      .catch((err) => {
-        throw Error(err);
-      });
+      .then((result: any[]) => result[0][0])
+      .catch((error) => console.error("tweetRepository.getById\n", error));
   };
 
   create = async (
@@ -80,14 +71,14 @@ export class TweetRepository implements TweetDataHandler {
         VALUES(?, ?, ?, ?, ?, ?, ?)",
         [text, video, image, 0, userId, new Date(), new Date()]
       )
-      .then((result: any) => this.getById(result[0].insertId, userId))
-      .catch((err) => {
-        throw Error(err);
-      });
+      .then(
+        async (result: any[]) => await this.getById(result[0].insertId, userId)
+      )
+      .catch((error) => console.error("tweetRepository.create\n", error));
   };
 
   update = async (
-    id: string,
+    tweetId: string,
     userId: number,
     text?: string,
     video?: string,
@@ -98,27 +89,27 @@ export class TweetRepository implements TweetDataHandler {
         "UPDATE tweets \
         SET text = ? , video = ?, image = ?, updatedAt = ? \
         WHERE id = ?",
-        [text, video, image, new Date(), id]
+        [text, video, image, new Date(), tweetId]
       )
-      .then(() => {
-        return this.getById(id, userId);
-      })
-      .catch((err) => {
-        throw Error(err);
+      .then(async () => await this.getById(tweetId, userId))
+      .catch((error) => console.error("tweetRepository.update\n", error));
+  };
+
+  updateGood = async (tweetId: string, good: number, callback: Callback) => {
+    return await db
+      .execute("UPDATE tweets SET good = ? WHERE id = ?", [good, tweetId])
+      .catch((error) => {
+        console.error("tweetRepository.updateGood\n", error);
+        return callback(error);
       });
   };
 
-  updateGood = async (id: string, good: number) => {
-    await db
-      .execute("UPDATE tweets SET good = ? WHERE id = ?", [good, id])
-      .catch((err) => {
-        throw Error(err);
+  remove = async (tweetId: string, callback: Callback) => {
+    return await db
+      .execute("DELETE FROM tweets WHERE id = ?", [tweetId])
+      .catch((error) => {
+        console.error("tweetRepository.remove\n", error);
+        return callback(error);
       });
-  };
-
-  remove = async (id: string) => {
-    await db.execute("DELETE FROM tweets WHERE id = ?", [id]).catch((err) => {
-      throw Error(err);
-    });
   };
 }
