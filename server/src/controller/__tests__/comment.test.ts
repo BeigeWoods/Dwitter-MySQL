@@ -3,7 +3,7 @@ import faker from "faker";
 import { CommentHandler } from "../../__dwitter__.d.ts/controller/comments";
 import { CommentDataHandler } from "../../__dwitter__.d.ts/data/comments";
 import { CommentController } from "../comments";
-import { UserDataHandler } from "../../__dwitter__.d.ts/data/auth";
+import { UserDataHandler } from "../../__dwitter__.d.ts/data/user";
 
 describe("Comment Controller", () => {
   let commentController: CommentHandler;
@@ -17,8 +17,8 @@ describe("Comment Controller", () => {
   let tweetId: string = "2";
   let good: number = 0;
   let commentId: string = "3";
-  let repliedUser: string | undefined = "smith";
-  let comment: any = { commentId, text, good, repliedUser, userId, tweetId };
+  let recipient: string | undefined = "smith";
+  let comment: any = { commentId, text, good, recipient, userId, tweetId };
 
   beforeEach(() => {
     mockedSocket = { emit: jest.fn() };
@@ -37,8 +37,8 @@ describe("Comment Controller", () => {
         userId,
       });
       const allComments = [
-        { text, good, repliedUser },
-        { text, good, repliedUser },
+        { text, good, recipient },
+        { text, good, recipient },
       ];
       commentRepository.getAll = jest.fn(() => allComments);
 
@@ -51,11 +51,11 @@ describe("Comment Controller", () => {
   });
 
   describe("createComment", () => {
-    let user = { username: repliedUser };
+    let user = { username: recipient };
     beforeEach(() => {
       request = httpMocks.createRequest({
         params: { tweetId },
-        body: { text, repliedUser },
+        body: { text, recipient },
         userId,
       });
       commentRepository.create = jest.fn(() => comment);
@@ -67,12 +67,12 @@ describe("Comment Controller", () => {
 
       expect(response.statusCode).toBe(201);
       expect(response._getJSONData()).toEqual(comment);
-      expect(userRepository.findByUsername).toHaveBeenCalledWith(repliedUser);
+      expect(userRepository.findByUsername).toHaveBeenCalledWith(recipient);
       expect(commentRepository.create).toHaveBeenCalledWith(
         userId,
         tweetId,
         text,
-        repliedUser
+        recipient
       );
     });
 
@@ -82,14 +82,14 @@ describe("Comment Controller", () => {
       await commentController.createComment(request, response);
 
       expect(response.statusCode).toBe(400);
-      expect(userRepository.findByUsername).toHaveBeenCalledWith(repliedUser);
+      expect(userRepository.findByUsername).toHaveBeenCalledWith(recipient);
       expect(response._getJSONData()).toEqual({
         message: "Replied user not found",
       });
       expect(commentRepository.create).not.toHaveBeenCalled();
     });
 
-    it("returns comment when only repliedUser isn't provided", async () => {
+    it("returns comment when only recipient isn't provided", async () => {
       request = httpMocks.createRequest({
         params: { tweetId },
         body: { text },
@@ -121,7 +121,7 @@ describe("Comment Controller", () => {
       commentRepository.update = jest.fn(() => comment);
       request = httpMocks.createRequest({
         params: { tweetId, commentId },
-        body: { text, repliedUser },
+        body: { text, recipient },
         userId,
       });
 

@@ -10,12 +10,12 @@ export default class CommentService {
     });
   }
 
-  async postComment(tweetId, text, repliedUser) {
+  async postComment(tweetId, text, recipient) {
     return this.http.fetch(
       `/${tweetId}/comments`,
       {
         method: "POST",
-        body: JSON.stringify({ text, repliedUser }),
+        body: JSON.stringify({ text, recipient }),
       },
       true
     );
