@@ -5,12 +5,12 @@ import {
   expressValidate,
   tweetFormDataValidate,
   paramsValidate,
-} from "../middleware/validator.js";
-import { imageUploading } from "../middleware/multer.js";
-import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth.js";
-import { Validate } from "../__dwitter__.d.ts/middleware/validator.js";
-import { TweetHandler } from "../__dwitter__.d.ts/controller/tweet.js";
-import { GoodHandler } from "../__dwitter__.d.ts/middleware/good.js";
+} from "../middleware/validator";
+import { imageUploading } from "../middleware/multer";
+import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth";
+import { Validate } from "../__dwitter__.d.ts/middleware/validator";
+import { TweetHandler } from "../__dwitter__.d.ts/controller/tweet";
+import { GoodHandler } from "../__dwitter__.d.ts/controller/good";
 
 const validateTweet: Array<ValidationChain | Validate> = [
   body("text")

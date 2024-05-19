@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { Config } from "../__dwitter__.d.ts/config.js";
-import { UserDataHandler } from "../__dwitter__.d.ts/data/auth.js";
-import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth.js";
+import { Config } from "../__dwitter__.d.ts/config";
+import { UserDataHandler } from "../__dwitter__.d.ts/data/user";
+import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth";
 
 const AUTH_ERROR = { message: "Authentication Error" };
 
@@ -35,7 +35,7 @@ export default class AuthValidator implements AuthValidateHandler {
       if (!user) {
         return res.status(401).json(AUTH_ERROR);
       }
-      req.userId = user.id;
+      req.user!userId = user.id;
       req.token = token;
       next();
     });

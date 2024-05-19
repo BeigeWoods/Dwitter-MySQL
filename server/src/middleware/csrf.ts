@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
-import { config } from "../config.js";
+import { config } from "../config";
 
 export const csrfCheck = (req: Request, res: Response, next: NextFunction) => {
   if (

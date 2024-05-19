@@ -4,8 +4,8 @@ import { ValidationChain, body } from "express-validator";
 import { Validate } from "../__dwitter__.d.ts/middleware/validator";
 import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth";
 import { CommentHandler } from "../__dwitter__.d.ts/controller/comments";
-import { GoodHandler } from "../__dwitter__.d.ts/middleware/good";
-import { expressValidate, paramsValidate } from "../middleware/validator.js";
+import { GoodHandler } from "../__dwitter__.d.ts/controller/good";
+import { expressValidate, paramsValidate } from "../middleware/validator";
 
 const validateComment: Array<ValidationChain | Validate> = [
   body("text")

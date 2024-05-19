@@ -4,7 +4,7 @@ import { verify as verifying } from "jsonwebtoken";
 import AuthValidator from "../auth";
 import { config } from "../../config";
 import { AuthValidateHandler } from "../../__dwitter__.d.ts/middleware/auth";
-import { UserDataHandler } from "../../__dwitter__.d.ts/data/auth";
+import { UserDataHandler } from "../../__dwitter__.d.ts/data/user";
 
 jest.mock("jsonwebtoken");
 

@@ -1,12 +1,12 @@
 import express from "express";
 import {} from "express-async-errors";
 import { body, ValidationChain } from "express-validator";
-import { expressValidate } from "../middleware/validator.js";
-import { Validate } from "../__dwitter__.d.ts/middleware/validator.js";
-import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth.js";
-import { TokenHandler } from "../__dwitter__.d.ts/controller/auth/token.js";
-import { AuthDataHandler } from "../__dwitter__.d.ts/controller/auth/auth.js";
-import { GithubOauth } from "../__dwitter__.d.ts/controller/auth/oauth.js";
+import { expressValidate } from "../middleware/validator";
+import { Validate } from "../__dwitter__.d.ts/middleware/validator";
+import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth";
+import { TokenHandler } from "../__dwitter__.d.ts/controller/auth/token";
+import { AuthDataHandler } from "../__dwitter__.d.ts/controller/auth/auth";
+import { GithubOauth } from "../__dwitter__.d.ts/controller/auth/oauth";
 
 const validateCredential: Array<ValidationChain | Validate> = [
   body("username")
@@ -77,7 +77,7 @@ export default function authRouter(
 ): express.IRouter {
   const router = express.Router();
 
-  router.post("/signup", validateSignup, authController.signup);
+  router.post("/signup", validateSignup, authController.signUp);
 
   router.post("/login", validateCredential, authController.login);
 
