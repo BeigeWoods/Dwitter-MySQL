@@ -98,6 +98,15 @@ describe("UserRepository", () => {
           )
         );
     });
+
+    test("returns error by wrong query", async () => {
+      await db
+        .execute("SELECT * FROM userss")
+        .then((result: any[]) => expect(result[0]).toBeUndefined())
+        .catch((error) =>
+          expect(error.message).toBe("Table 'dwitter.userss' doesn't exist")
+        );
+    });
   });
 
   describe("deleteUser", () => {

@@ -82,7 +82,7 @@ export default class AuthController implements AuthDataHandler {
     if (!isSamePw) {
       return res.status(400).json({ message: "Invalid user or password" });
     }
-    const token = this.tokenController.createJwtToken(req.user!.userId!);
+    const token = this.tokenController.createJwtToken(req.user!.userId);
     this.tokenController.setToken(res, token);
     return res.status(200).json({ token, username });
   };
@@ -114,8 +114,8 @@ export default class AuthController implements AuthDataHandler {
             message: `${isDuplicate} already exists.`,
           });
     }
-    await this.userRepository.updateUser(
-      req.user!.userId!,
+    return await this.userRepository.updateUser(
+      req.user!.userId,
       {
         username,
         name,
@@ -152,15 +152,15 @@ export default class AuthController implements AuthDataHandler {
       newPassword + this.config.bcrypt.randomWords,
       this.config.bcrypt.saltRounds
     );
-    await this.userRepository.updatePassword(
-      req.user!.userId!,
+    return await this.userRepository.updatePassword(
+      req.user!.userId,
       hashedNewPw,
       (error) => (error ? next(error) : res.sendStatus(204))
     );
   };
 
   withdrawal = async (req: Request, res: Response, next: NextFunction) => {
-    await this.userRepository.deleteUser(req.user!.userId!, (error) => {
+    return await this.userRepository.deleteUser(req.user!.userId, (error) => {
       if (error) {
         return next(error);
       }

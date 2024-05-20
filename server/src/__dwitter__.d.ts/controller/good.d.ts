@@ -2,18 +2,19 @@ import { NextFunction, Request, Response } from "express";
 import { GoodDataHandler } from "../data/good";
 import { TweetDataHandler } from "../data/tweet";
 import { CommentDataHandler } from "../data/comments";
+import { Callback } from "../data/callback";
 
-export interface GoodHandler {
+export declare interface GoodHandler {
   goodTweet(
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | void>;
+  ): Promise<Callback | unknown[] | void>;
   goodComment: (
     req: Request,
     res: Response,
     next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | void>;
+  ) => Promise<Callback | unknown[] | void>;
 }
 
 export declare class GoodController {
@@ -31,10 +32,10 @@ export declare class GoodController {
     req: Request,
     res: Response,
     next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | void>;
+  ) => Promise<Callback | unknown[] | void>;
   goodComment: (
     req: Request,
     res: Response,
     next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | void>;
+  ) => Promise<Callback | unknown[] | void>;
 }

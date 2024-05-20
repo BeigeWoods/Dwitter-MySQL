@@ -13,7 +13,7 @@ export default class GoodController implements GoodHandler {
 
   goodTweet = async (req: Request, res: Response, next: NextFunction) => {
     let error: Error | void;
-    const userId = req.user!.userId!;
+    const { userId } = req.user!;
     const { tweetId } = req.params;
     let { clicked, good }: { clicked: boolean; good: number } = req.body;
     if (clicked && good > 0) {
@@ -23,7 +23,7 @@ export default class GoodController implements GoodHandler {
       good += 1;
       error = await this.goodRepository.clickTweet(userId, tweetId);
     }
-    error
+    return error
       ? next(error)
       : await this.tweetRepository.updateGood(tweetId, good, (error) =>
           error
@@ -38,7 +38,7 @@ export default class GoodController implements GoodHandler {
 
   goodComment = async (req: Request, res: Response, next: NextFunction) => {
     let error: Error | void;
-    const userId = req.user!.userId!;
+    const { userId } = req.user!;
     const { commentId } = req.params;
     let { clicked, good }: { clicked: boolean; good: number } = req.body;
     if (clicked && good > 0) {
@@ -48,7 +48,7 @@ export default class GoodController implements GoodHandler {
       good += 1;
       error = await this.goodRepository.clickComment(userId, commentId);
     }
-    error
+    return error
       ? next(error)
       : await this.commentRepository.updateGood(commentId, good, (error) =>
           error

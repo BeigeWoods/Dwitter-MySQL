@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { Config } from "../../config";
 import { UserDataHandler } from "../../data/user";
 import { TokenHandler } from "./token";
+import { Callback } from "../../data/callback";
 
 export declare interface AuthDataHandler {
   signUp(
@@ -26,17 +27,17 @@ export declare interface AuthDataHandler {
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | void>;
+  ): Promise<Response<any, Record<string, any>> | Callback | unknown[] | void>;
   updatePassword(
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | void>;
+  ): Promise<Response<any, Record<string, any>> | Callback | unknown[] | void>;
   withdrawal(
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | void>;
+  ): Promise<Callback | unknown[] | void>;
 }
 
 export declare class AuthController implements AuthDataHandler {
@@ -79,15 +80,19 @@ export declare class AuthController implements AuthDataHandler {
     req: Request,
     res: Response,
     next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | void>;
+  ) => Promise<
+    Response<any, Record<string, any>> | Callback | unknown[] | void
+  >;
   updatePassword: (
     req: Request,
     res: Response,
     next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | void>;
+  ) => Promise<
+    Response<any, Record<string, any>> | Callback | unknown[] | void
+  >;
   withdrawal: (
     req: Request,
     res: Response,
     next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | void>;
+  ) => Promise<Callback | unknown[] | void>;
 }

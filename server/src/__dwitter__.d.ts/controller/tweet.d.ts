@@ -1,52 +1,65 @@
-import { TweetDataHandler } from "../data/tweet.js";
-import { Request, Response } from "express";
+import { TweetDataHandler } from "../data/tweet";
+import { NextFunction, Request, Response } from "express";
 import { Server } from "socket.io";
-export interface TweetHandler {
+import { Callback } from "../data/callback";
+
+export declare interface TweetHandler {
   getTweets(
     req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>>>;
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<any, Record<string, any>> | void>;
   getTweet(
     req: Request,
     res: Response
   ): Promise<Response<any, Record<string, any>>>;
   createTweet(
     req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>>>;
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<any, Record<string, any>> | void>;
   updateTweet(
     req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>>>;
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<any, Record<string, any>> | void>;
   deleteTweet(
     req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>>>;
+    res: Response,
+    next: NextFunction
+  ): Promise<Callback | unknown[] | void>;
 }
+
 export declare class TweetController implements TweetHandler {
+  private readonly idRegex;
   private tweetRepository;
   private getSocketIO;
-  private readonly idRegex;
+
   constructor(tweetRepository: TweetDataHandler, getSocketIO: () => Server);
+
+  private handleUrl(video?: string): string;
   getTweets: (
     req: Request,
-    res: Response
-  ) => Promise<Response<any, Record<string, any>>>;
+    res: Response,
+    next: NextFunction
+  ) => Promise<Response<any, Record<string, any>> | void>;
   getTweet: (
     req: Request,
     res: Response
   ) => Promise<Response<any, Record<string, any>>>;
-  private readonly handleUrl;
   createTweet: (
     req: Request,
-    res: Response
-  ) => Promise<Response<any, Record<string, any>>>;
+    res: Response,
+    next: NextFunction
+  ) => Promise<Response<any, Record<string, any>> | void>;
   updateTweet: (
     req: Request,
-    res: Response
-  ) => Promise<Response<any, Record<string, any>>>;
+    res: Response,
+    next: NextFunction
+  ) => Promise<Response<any, Record<string, any>> | void>;
   deleteTweet: (
     req: Request,
-    res: Response
-  ) => Promise<Response<any, Record<string, any>>>;
+    res: Response,
+    next: NextFunction
+  ) => Promise<Callback | unknown[] | void>;
 }
