@@ -4,7 +4,7 @@ import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
 import { CommentHandler } from "../__dwitter__.d.ts/controller/comments";
 import { UserDataHandler, OutputUserInfo } from "../__dwitter__.d.ts/data/user";
 
-export class CommentController implements CommentHandler {
+export default class CommentController implements CommentHandler {
   constructor(
     private commentRepository: CommentDataHandler,
     private userRepository: UserDataHandler,

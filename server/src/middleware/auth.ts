@@ -4,9 +4,8 @@ import { Config } from "../__dwitter__.d.ts/config";
 import { UserDataHandler } from "../__dwitter__.d.ts/data/user";
 import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth";
 
-const AUTH_ERROR = { message: "Authentication Error" };
-
 export default class AuthValidator implements AuthValidateHandler {
+  private readonly AUTH_ERROR = { message: "Authentication Error" };
   constructor(
     private config: Config,
     private userRepository: UserDataHandler
@@ -23,19 +22,19 @@ export default class AuthValidator implements AuthValidateHandler {
     }
 
     if (!token) {
-      return res.status(401).json(AUTH_ERROR);
+      return res.status(401).json(this.AUTH_ERROR);
     }
 
     jwt.verify(token, this.config.jwt.secretKey, async (error, decoded) => {
       if (error) {
         console.error("The problem of verifying jwt token\n", error);
-        return res.status(401).json(AUTH_ERROR);
+        return res.status(401).json(this.AUTH_ERROR);
       }
       const user = await this.userRepository.findById(decoded!.id);
       if (!user) {
-        return res.status(401).json(AUTH_ERROR);
+        return res.status(401).json(this.AUTH_ERROR);
       }
-      req.user!userId = user.id;
+      req.user = user;
       req.token = token;
       next();
     });

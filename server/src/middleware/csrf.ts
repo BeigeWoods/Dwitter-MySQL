@@ -2,7 +2,13 @@ import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { config } from "../config";
 
-export const csrfCheck = (req: Request, res: Response, next: NextFunction) => {
+export const csrfCheck = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const CSRF_ERROR = { message: "Failed CSRF check" };
+
   if (
     (req.method === "GET" && req.path !== "/profile") ||
     req.method === "OPTIONS" ||
@@ -17,27 +23,27 @@ export const csrfCheck = (req: Request, res: Response, next: NextFunction) => {
       'Missing required "dwitter_csrf-token" header.',
       req.headers.origin
     );
-    return res.status(403).json({ message: "Failed CSRF check" });
+    return res.status(403).json(CSRF_ERROR);
   }
 
-  validateCsrfToken(csrfHeader)
+  return await validateCsrfToken(csrfHeader)
     .then((valid) => {
       if (!valid) {
         console.warn(
-          'Value provided in "dwitter_csrf-token" header does not validate.\n',
+          "Value provided in 'dwitter_csrf-token' header doesn't validate.\n",
           req.headers.origin,
           csrfHeader
         );
-        return res.status(403).json({ message: "Failed CSRF check" });
+        return res.status(403).json(CSRF_ERROR);
       }
       next();
     })
-    .catch((err) => {
-      console.error('The problem of validating "dwitter_csrf-token"\n', err);
-      return res.status(500).json({ message: "Something went wrong" });
+    .catch((error) => {
+      console.error('The problem of validating "dwitter_csrf-token"\n', error);
+      return next(error);
     });
 };
 
-async function validateCsrfToken(csrfHeader: string): Promise<boolean> {
+async function validateCsrfToken(csrfHeader: string) {
   return await bcrypt.compare(config.csrf.plainToken, csrfHeader);
 }

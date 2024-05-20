@@ -11,6 +11,7 @@ export declare interface AuthValidateHandler {
 }
 
 export declare class AuthValidator implements AuthValidateHandler {
+  private readonly AUTH_ERROR: { message: string };
   private config;
   private userRepository;
 

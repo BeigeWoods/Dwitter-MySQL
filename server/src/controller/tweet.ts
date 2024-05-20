@@ -3,7 +3,7 @@ import { Server } from "socket.io";
 import { TweetHandler } from "../__dwitter__.d.ts/controller/tweet";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 
-export class TweetController implements TweetHandler {
+export default class TweetController implements TweetHandler {
   private readonly idRegex =
     /(?:(?:youtu\.be\/)|(?:youtube\.com\/(?:(?:watch\?v\=)|(?:embed\/))))([a-zA-Z0-9-_]{11})/;
   constructor(
