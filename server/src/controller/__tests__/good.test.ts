@@ -7,7 +7,6 @@ import {
   mockedTweetRepository,
   mockedCommentRepository,
 } from "../../__mocked__/repository";
-import { mockUser } from "../../__mocked__/data";
 
 describe("GoodController", () => {
   const goodMiddleware: GoodHandler = new GoodController(
@@ -23,7 +22,7 @@ describe("GoodController", () => {
     good: number,
     clicked: boolean
   ): httpMocks.RequestOptions => ({
-    user: mockUser(userId),
+    user: { userId: 1 },
     params: isTweet ? { tweetId } : { commentId },
     body: { good, clicked },
   });

@@ -17,9 +17,12 @@ export default class TweetController implements TweetHandler {
   }
 
   getTweets = async (req: Request, res: Response, next: NextFunction) => {
-    const username = req.query.username! as string;
+    const { username } = req.query;
     const data = await (username
-      ? this.tweetRepository.getAllByUsername(req.user!.userId, username)
+      ? this.tweetRepository.getAllByUsername(
+          req.user!.userId,
+          username as string
+        )
       : this.tweetRepository.getAll(req.user!.userId));
     return data
       ? res.status(200).json(data)

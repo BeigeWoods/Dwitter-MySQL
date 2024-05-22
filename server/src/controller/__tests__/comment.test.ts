@@ -1,107 +1,82 @@
 import httpMocks from "node-mocks-http";
 import faker from "faker";
-import { CommentHandler } from "../../__dwitter__.d.ts/controller/comments";
-import { CommentDataHandler } from "../../__dwitter__.d.ts/data/comments";
-import { CommentController } from "../comments";
-import { UserDataHandler } from "../../__dwitter__.d.ts/data/user";
+import { NextFunction } from "express";
+import CommentController from "../comments";
+import {
+  mockedCommentRepository,
+  mockedUserRepository,
+} from "../../__mocked__/repository";
+import { mockComment, mockUser } from "../../__mocked__/data";
 
 describe("Comment Controller", () => {
-  let commentController: CommentHandler;
-  let commentRepository: jest.Mocked<CommentDataHandler | any> = {};
-  let userRepository: jest.Mocked<UserDataHandler | any> = {};
-  let mockedSocket: jest.Mocked<any>;
-  let response: httpMocks.MockResponse<any>;
-  let request: httpMocks.MockRequest<any>;
-  let text: string = faker.random.words(3);
-  let userId: number = 1;
-  let tweetId: string = "2";
-  let good: number = 0;
-  let commentId: string = "3";
-  let recipient: string | undefined = "smith";
-  let comment: any = { commentId, text, good, recipient, userId, tweetId };
+  const mockedSocket: jest.Mocked<any> = { emit: jest.fn() };
+  const commentController = new CommentController(
+    mockedCommentRepository,
+    mockedUserRepository,
+    () => mockedSocket
+  );
+  const userId = 1,
+    tweetId = 2,
+    commentId = 3,
+    text = faker.random.words(3),
+    recipient = "smith";
+  let response: httpMocks.MockResponse<any>,
+    request: httpMocks.MockRequest<any>,
+    next: jest.Mock<NextFunction>;
 
   beforeEach(() => {
-    mockedSocket = { emit: jest.fn() };
-    commentController = new CommentController(
-      commentRepository,
-      userRepository,
-      () => mockedSocket
-    );
     response = httpMocks.createResponse();
+    next = jest.fn();
   });
 
   describe("getComments", () => {
-    it("returns all comments when all data is provided", async () => {
-      request = httpMocks.createRequest({
-        params: { tweetId },
-        userId,
-      });
-      const allComments = [
-        { text, good, recipient },
-        { text, good, recipient },
-      ];
-      commentRepository.getAll = jest.fn(() => allComments);
+    test("returns all comments when all data is provided", async () => {
+      request = httpMocks.createRequest(mockComment.reqOptions());
+      mockedCommentRepository.getAll.mockResolvedValueOnce([
+        mockComment.comment,
+      ]);
 
-      await commentController.getComments(request, response);
+      await commentController.getComments(request, response, next);
 
+      expect(mockedCommentRepository.getAll).toHaveBeenCalledWith(
+        tweetId,
+        userId
+      );
       expect(response.statusCode).toBe(200);
-      expect(commentRepository.getAll).toHaveBeenCalledWith(tweetId, userId);
-      expect(response._getJSONData()).toEqual(allComments);
+      expect(response._getJSONData()).toEqual([mockComment.comment]);
+      expect(next).not.toHaveBeenCalled();
     });
   });
 
   describe("createComment", () => {
-    let user = { username: recipient };
-    beforeEach(() => {
-      request = httpMocks.createRequest({
-        params: { tweetId },
-        body: { text, recipient },
-        userId,
-      });
-      commentRepository.create = jest.fn(() => comment);
-      userRepository.findByUsername = jest.fn(() => user);
-    });
+    test("returns status 409 when recipient is a non-existent user", async () => {
+      request = httpMocks.createRequest(
+        mockComment.reqOptions(NaN, text, recipient)
+      );
 
-    it("returns comment when all data is provided", async () => {
-      await commentController.createComment(request, response);
+      await commentController.createComment(request, response, next);
 
-      expect(response.statusCode).toBe(201);
-      expect(response._getJSONData()).toEqual(comment);
-      expect(userRepository.findByUsername).toHaveBeenCalledWith(recipient);
-      expect(commentRepository.create).toHaveBeenCalledWith(
-        userId,
-        tweetId,
-        text,
+      expect(mockedUserRepository.findByUsername).toHaveBeenCalledWith(
         recipient
       );
-    });
-
-    it("returns status 409 when all data is provided but user doesn't exist", async () => {
-      userRepository.findByUsername = jest.fn();
-
-      await commentController.createComment(request, response);
-
-      expect(response.statusCode).toBe(400);
-      expect(userRepository.findByUsername).toHaveBeenCalledWith(recipient);
+      expect(response.statusCode).toBe(409);
       expect(response._getJSONData()).toEqual({
         message: "Replied user not found",
       });
-      expect(commentRepository.create).not.toHaveBeenCalled();
+      expect(mockedCommentRepository.create).not.toHaveBeenCalled();
+      expect(mockedSocket.emit).not.toHaveBeenCalled();
     });
 
-    it("returns comment when only recipient isn't provided", async () => {
-      request = httpMocks.createRequest({
-        params: { tweetId },
-        body: { text },
-        userId,
-      });
+    test("returns comment and sends data to websocket when recipient isn't provided", async () => {
+      request = httpMocks.createRequest(mockComment.reqOptions(NaN, text));
+      mockedCommentRepository.create.mockResolvedValueOnce(mockComment.comment);
 
-      await commentController.createComment(request, response);
+      await commentController.createComment(request, response, next);
 
       expect(response.statusCode).toBe(201);
-      expect(response._getJSONData()).toEqual(comment);
-      expect(userRepository.findByUsername).not.toHaveBeenCalled();
-      expect(commentRepository.create).toHaveBeenCalledWith(
+      expect(response._getJSONData()).toEqual(mockComment.comment);
+      expect(mockedUserRepository.findByUsername).not.toHaveBeenCalled();
+      expect(mockedCommentRepository.create).toHaveBeenCalledWith(
         userId,
         tweetId,
         text,
@@ -109,47 +84,84 @@ describe("Comment Controller", () => {
       );
     });
 
-    it("send comment data to websocket", async () => {
-      await commentController.createComment(request, response);
+    test("returns reply and sends data to websocket when all data is provided", async () => {
+      request = httpMocks.createRequest(
+        mockComment.reqOptions(NaN, text, recipient)
+      );
+      mockedUserRepository.findByUsername.mockResolvedValueOnce(
+        mockUser(1, recipient)
+      );
+      mockedCommentRepository.create.mockResolvedValueOnce(mockComment.comment);
 
-      expect(mockedSocket.emit).toHaveBeenLastCalledWith("comments", comment);
+      await commentController.createComment(request, response, next);
+
+      expect(mockedUserRepository.findByUsername).toHaveBeenCalledWith(
+        recipient
+      );
+      expect(mockedCommentRepository.create).toHaveBeenCalledWith(
+        userId,
+        tweetId,
+        text,
+        recipient
+      );
+      expect(mockedSocket.emit).toHaveBeenCalledWith(
+        "comments",
+        mockComment.comment
+      );
+      expect(response.statusCode).toBe(201);
+      expect(response._getJSONData()).toEqual(mockComment.comment);
     });
   });
 
   describe("updateComment", () => {
-    it("return updated comment when all data is provided", async () => {
-      commentRepository.update = jest.fn(() => comment);
-      request = httpMocks.createRequest({
-        params: { tweetId, commentId },
-        body: { text, recipient },
-        userId,
-      });
+    test("calls next middleware when DB returns nothing of updating comment", async () => {
+      request = httpMocks.createRequest(
+        mockComment.reqOptions(commentId, text, recipient)
+      );
 
-      await commentController.updateComment(request, response);
+      await commentController.updateComment(request, response, next);
 
-      expect(commentRepository.update).toHaveBeenCalledWith(
+      expect(mockedCommentRepository.update).toHaveBeenCalledWith(
         tweetId,
         commentId,
         userId,
         text
       );
-      expect(response.statusCode).toBe(200);
-      expect(response._getJSONData()).toMatchObject(comment);
+      expect(next).toHaveBeenCalled();
     });
   });
 
   describe("deleteComment", () => {
-    it("response 204 when commentId and tweetId is provided", async () => {
-      request = httpMocks.createRequest({
-        params: { tweetId, commentId },
-        userId,
-      });
-      commentRepository.remove = jest.fn();
+    test("calls next middleware when DB returns error by callback", async () => {
+      request = httpMocks.createRequest(mockComment.reqOptions(commentId));
+      mockedCommentRepository.remove.mockImplementation((commentId, callback) =>
+        Promise.resolve(callback(new Error("Error")))
+      );
 
-      await commentController.deleteComment(request, response);
+      await commentController.deleteComment(request, response, next);
 
+      expect(mockedCommentRepository.remove).toHaveBeenCalledWith(
+        commentId,
+        expect.any(Function)
+      );
+      expect(next).toHaveBeenCalled();
+      expect(response.statusCode).not.toBe(204);
+    });
+
+    test("returns status 204 when succeeds to deleting", async () => {
+      request = httpMocks.createRequest(mockComment.reqOptions(commentId));
+      mockedCommentRepository.remove.mockImplementation((commentId, callback) =>
+        Promise.resolve(callback(undefined))
+      );
+
+      await commentController.deleteComment(request, response, next);
+
+      expect(mockedCommentRepository.remove).toHaveBeenCalledWith(
+        commentId,
+        expect.any(Function)
+      );
+      expect(next).not.toHaveBeenCalled();
       expect(response.statusCode).toBe(204);
-      expect(commentRepository.remove).toHaveBeenCalledWith(commentId);
     });
   });
 });

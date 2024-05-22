@@ -32,7 +32,7 @@ export default class CommentController implements CommentHandler {
             new Error("createComment : from userRepository.findByUsername")
           );
         case undefined:
-          return res.status(400).json({ message: "Replied user not found" });
+          return res.status(409).json({ message: "Replied user not found" });
       }
     }
     const comment = await this.commentRepository.create(

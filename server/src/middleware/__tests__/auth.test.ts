@@ -1,45 +1,43 @@
 import httpMocks from "node-mocks-http";
+import { NextFunction } from "express";
 import faker from "faker";
 import { verify as verifying } from "jsonwebtoken";
 import AuthValidator from "../auth";
 import { config } from "../../config";
-import { AuthValidateHandler } from "../../__dwitter__.d.ts/middleware/auth";
-import { UserDataHandler } from "../../__dwitter__.d.ts/data/user";
+import { mockedUserRepository } from "../../__mocked__/repository";
+import { mockUser } from "../../__mocked__/data";
 
 jest.mock("jsonwebtoken");
 
 describe("Auth Middleware", () => {
-  let response: httpMocks.MockResponse<any>;
-  let next: jest.Mock;
-  let authMiddleware: AuthValidateHandler;
-  let userRepository: jest.Mocked<UserDataHandler | any>;
+  const authMiddleware = new AuthValidator(config, mockedUserRepository);
   const verify = verifying as jest.Mock;
+  const userId = 1;
+  const headers = {
+    headers: { Authorization: `Bearer ${faker.random.alphaNumeric(3)}` },
+  };
+  let request: httpMocks.MockRequest<any>,
+    response: httpMocks.MockResponse<any>,
+    next: jest.Mock<NextFunction>;
 
   beforeEach(() => {
-    userRepository = {};
-    authMiddleware = new AuthValidator(config, userRepository);
     response = httpMocks.createResponse();
     next = jest.fn();
   });
 
-  it("returns 401 for the request without Authorization", async () => {
-    const request = httpMocks.createRequest({
-      method: "GET",
-      url: "/",
-    });
+  test("returns status 401 for the request without Authorization", async () => {
+    request = httpMocks.createRequest();
 
     await authMiddleware.isAuth(request, response, next);
 
     expect(response.statusCode).toBe(401);
     expect(response._getJSONData().message).toBe("Authentication Error");
-    expect(next).not.toBeCalled();
+    expect(next).not.toHaveBeenCalled();
   });
 
   describe("Check Authorization header for Non-Browser Client", () => {
-    it("returns 401 for the request with unsupposed Authorization header", async () => {
-      const request = httpMocks.createRequest({
-        method: "GET",
-        url: "/",
+    test("returns status 401 for the request with unsupposed Authorization header", async () => {
+      request = httpMocks.createRequest({
         headers: { Authorization: `Basic` },
       });
 
@@ -47,68 +45,53 @@ describe("Auth Middleware", () => {
 
       expect(response.statusCode).toBe(401);
       expect(response._getJSONData().message).toBe("Authentication Error");
-      expect(next).not.toBeCalled();
+      expect(next).not.toHaveBeenCalled();
     });
 
-    it("returns 401 for the request with invalid JWT", async () => {
-      const token = faker.random.alphaNumeric(128);
+    test("returns status 401 for the request with invalid JWT", async () => {
+      request = httpMocks.createRequest(headers);
+      verify.mockImplementation((token, secret, callback) =>
+        callback(new Error("Bad Token"), undefined)
+      );
       const error = jest
         .spyOn(console, "error")
-        .mockImplementation(() => "bad Token");
-      const request = httpMocks.createRequest({
-        method: "GET",
-        url: "/",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      verify.mockImplementation((token, secret, callback) => {
-        callback(new Error("bad Token"), undefined);
-      });
+        .mockImplementation(() => "Bad Token");
 
       await authMiddleware.isAuth(request, response, next);
 
-      expect(response.statusCode).toBe(401);
-      expect(error).toBeCalled();
-      expect(response._getJSONData().message).toBe("Authentication Error");
-      expect(next).not.toBeCalled();
-    });
-
-    it("returns 401 when cannot find a user by id from the JWT", async () => {
-      const token = faker.random.alphaNumeric(128);
-      const userId = faker.random.alphaNumeric(32);
-      const request = httpMocks.createRequest({
-        method: "GET",
-        url: "/",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      verify.mockImplementation((token, secret, callback) => {
-        callback(undefined, { id: userId });
-      });
-      userRepository.findById = jest.fn((id) => Promise.resolve(undefined));
-
-      await authMiddleware.isAuth(request, response, next);
-
+      expect(error).toHaveBeenCalled();
       expect(response.statusCode).toBe(401);
       expect(response._getJSONData().message).toBe("Authentication Error");
-      expect(next).not.toBeCalled();
+      expect(next).not.toHaveBeenCalled();
     });
 
-    it("success Authorization", async () => {
-      const token = faker.random.alphaNumeric(128);
-      const userId = faker.random.alphaNumeric(32);
-      const request = httpMocks.createRequest({
-        method: "GET",
-        url: "/",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      verify.mockImplementation((token, secret, callback) => {
-        callback(undefined, { id: userId });
-      });
-      userRepository.findById = jest.fn((id) => Promise.resolve({ id }));
+    test("returns status 401 when cannot find a user by id from the JWT", async () => {
+      request = httpMocks.createRequest(headers);
+      verify.mockImplementation((token, secret, callback) =>
+        callback(undefined, { id: userId })
+      );
 
       await authMiddleware.isAuth(request, response, next);
 
-      expect(request).toMatchObject({ userId, token });
-      expect(next).toHaveBeenCalledTimes(1);
+      expect(mockedUserRepository.findById).toHaveBeenCalledWith(userId);
+      expect(response.statusCode).toBe(401);
+      expect(response._getJSONData().message).toBe("Authentication Error");
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    test("succeeds Authorization", async () => {
+      request = httpMocks.createRequest(headers);
+      verify.mockImplementation((token, secret, callback) =>
+        callback(undefined, { id: userId })
+      );
+      mockedUserRepository.findById.mockReturnValueOnce(
+        Promise.resolve(mockUser(userId))
+      );
+
+      await authMiddleware.isAuth(request, response, next);
+
+      expect(request.user).toMatchObject(mockUser(userId));
+      expect(next).toHaveBeenCalled();
     });
   });
 });
