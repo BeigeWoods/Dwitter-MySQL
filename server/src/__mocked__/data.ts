@@ -3,7 +3,7 @@ import { OutputUserInfo } from "../__dwitter__.d.ts/data/user";
 import { TweetData } from "../__dwitter__.d.ts/data/tweet";
 
 export const mockUser = (userId: number, username = ""): OutputUserInfo => ({
-  userId,
+  id: userId,
   username,
   name: "",
   email: "",
@@ -16,7 +16,7 @@ export const mockTweet = {
     username: "",
     name: "",
     url: "",
-    tweetId: "",
+    id: 2,
     text,
     video,
     image,
@@ -32,7 +32,7 @@ export const mockTweet = {
     oldImg = "",
     username = ""
   ): httpMocks.RequestOptions => ({
-    user: { userId: 1 },
+    user: { id: 1 },
     params: { tweetId },
     query: { username },
     body: { text, video, oldImg },
@@ -55,7 +55,7 @@ export const mockComment = {
     text = "",
     recipient = ""
   ): httpMocks.RequestOptions => ({
-    user: { userId: 1 },
+    user: { id: 1 },
     params: { tweetId: 2, commentId },
     body: { text, recipient },
   }),

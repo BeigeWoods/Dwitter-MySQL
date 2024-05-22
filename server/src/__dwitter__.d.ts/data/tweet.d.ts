@@ -2,7 +2,7 @@ import { Callback } from "./callback";
 import { UserProfile } from "./user";
 
 declare type TweetData = UserProfile & {
-  tweetId: string;
+  id: number | string;
   text: string;
   video: string;
   image: string;

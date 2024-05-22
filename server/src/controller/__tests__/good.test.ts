@@ -22,7 +22,7 @@ describe("GoodController", () => {
     good: number,
     clicked: boolean
   ): httpMocks.RequestOptions => ({
-    user: { userId: 1 },
+    user: { id: 1 },
     params: isTweet ? { tweetId } : { commentId },
     body: { good, clicked },
   });

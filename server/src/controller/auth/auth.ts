@@ -72,17 +72,28 @@ export default class AuthController implements AuthDataHandler {
     return res.status(201).json({ token, username });
   };
 
-  login = async (req: Request, res: Response) => {
+  login = async (req: Request, res: Response, next: NextFunction) => {
     const { username, password }: { username: string; password: string } =
       req.body;
+    const user = await this.userRepository.findByUsername(username);
+    switch (user) {
+      case 1:
+        return next(new Error("login : from userRepository.findByUsername"));
+      case undefined:
+        return res.status(400).json({ message: "Invalid user or password" });
+    }
+
     const isSamePw = await bcrypt.compare(
       password + this.config.bcrypt.randomWords,
-      req.user!.password!
+      (user as OutputUserInfo).password
     );
     if (!isSamePw) {
       return res.status(400).json({ message: "Invalid user or password" });
     }
-    const token = this.tokenController.createJwtToken(req.user!.userId);
+
+    const token = this.tokenController.createJwtToken(
+      (user as OutputUserInfo).id
+    );
     this.tokenController.setToken(res, token);
     return res.status(200).json({ token, username });
   };
@@ -115,7 +126,7 @@ export default class AuthController implements AuthDataHandler {
           });
     }
     return await this.userRepository.updateUser(
-      req.user!.userId,
+      req.user!.id,
       {
         username,
         name,
@@ -153,14 +164,14 @@ export default class AuthController implements AuthDataHandler {
       this.config.bcrypt.saltRounds
     );
     return await this.userRepository.updatePassword(
-      req.user!.userId,
+      req.user!.id,
       hashedNewPw,
       (error) => (error ? next(error) : res.sendStatus(204))
     );
   };
 
   withdrawal = async (req: Request, res: Response, next: NextFunction) => {
-    return await this.userRepository.deleteUser(req.user!.userId, (error) => {
+    return await this.userRepository.deleteUser(req.user!.id, (error) => {
       if (error) {
         return next(error);
       }

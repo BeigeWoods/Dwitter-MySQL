@@ -1,4 +1,4 @@
-import { db } from "../db/database";
+import { db } from "../db/database.js";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
 import { Callback } from "../__dwitter__.d.ts/data/callback";
 
@@ -97,9 +97,9 @@ export default class CommentRepository implements CommentDataHandler {
       .catch((error) => console.error("commentRepository.update\n", error));
   };
 
-  updateGood = async (id: string, good: number, callback: Callback) => {
+  updateGood = async (commentId: string, good: number, callback: Callback) => {
     return await db
-      .execute("UPDATE comments SET good = ? WHERE id = ?", [good, id])
+      .execute("UPDATE comments SET good = ? WHERE id = ?", [good, commentId])
       .catch((error) => {
         console.error("commentRepository.updateGood\n", error);
         return callback(error);

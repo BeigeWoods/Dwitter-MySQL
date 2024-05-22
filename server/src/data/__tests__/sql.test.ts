@@ -81,9 +81,16 @@ describe("UserRepository", () => {
         .catch((error) => expect(error.message).toBe([]));
     });
 
-    test("returns nothing to get user by NaN", async () => {
+    test("returns undefined when gets user by NaN", async () => {
       await db
         .execute("SELECT * FROM users WHERE id = ?", [NaN])
+        .then((result: any[]) => expect(result[0][0]).toBeUndefined())
+        .catch((error) => expect(error.message).toBe([]));
+    });
+
+    test("returns undefined when user doesn't exist", async () => {
+      await db
+        .execute("SELECT * FROM users WHERE id = ?", [1])
         .then((result: any[]) => expect(result[0][0]).toBeUndefined())
         .catch((error) => expect(error.message).toBe([]));
     });

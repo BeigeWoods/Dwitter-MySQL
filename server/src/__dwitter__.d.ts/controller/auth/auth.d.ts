@@ -12,8 +12,9 @@ export declare interface AuthDataHandler {
   ): Promise<Response<any, Record<string, any>> | void>;
   login(
     req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>>>;
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<any, Record<string, any>> | void>;
   logout(
     req: Request,
     res: Response
@@ -62,8 +63,9 @@ export declare class AuthController implements AuthDataHandler {
   ) => Promise<Response<any, Record<string, any>> | void>;
   login: (
     req: Request,
-    res: Response
-  ) => Promise<Response<any, Record<string, any>>>;
+    res: Response,
+    next: NextFunction
+  ) => Promise<Response<any, Record<string, any>> | void>;
   logout: (
     req: Request,
     res: Response

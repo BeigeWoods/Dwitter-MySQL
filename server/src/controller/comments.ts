@@ -14,7 +14,7 @@ export default class CommentController implements CommentHandler {
   getComments = async (req: Request, res: Response, next: NextFunction) => {
     const data = await this.commentRepository.getAll(
       req.params.tweetId,
-      req.user!.userId
+      req.user!.id
     );
     return data
       ? res.status(200).json(data)
@@ -36,7 +36,7 @@ export default class CommentController implements CommentHandler {
       }
     }
     const comment = await this.commentRepository.create(
-      req.user!.userId,
+      req.user!.id,
       req.params.tweetId,
       req.body.text,
       user ? (user as OutputUserInfo).username : ""
@@ -52,7 +52,7 @@ export default class CommentController implements CommentHandler {
     const updated = await this.commentRepository.update(
       req.params.tweetId,
       req.params.commentId,
-      req.user!.userId,
+      req.user!.id,
       req.body.text
     );
     return updated

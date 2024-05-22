@@ -72,7 +72,7 @@ export declare class CommentRepository implements CommentDataHandler {
     text: string
   ) => Promise<CommentData | void>;
   updateGood(
-    id: string,
+    commentId: string,
     good: number,
     callback: Callback
   ): Promise<void | unknown[] | Callback>;

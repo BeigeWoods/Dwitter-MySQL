@@ -19,11 +19,8 @@ export default class TweetController implements TweetHandler {
   getTweets = async (req: Request, res: Response, next: NextFunction) => {
     const { username } = req.query;
     const data = await (username
-      ? this.tweetRepository.getAllByUsername(
-          req.user!.userId,
-          username as string
-        )
-      : this.tweetRepository.getAll(req.user!.userId));
+      ? this.tweetRepository.getAllByUsername(req.user!.id, username as string)
+      : this.tweetRepository.getAll(req.user!.id));
     return data
       ? res.status(200).json(data)
       : next(new Error("getTweets : from tweetRepository.getAll(ByUsername)"));
@@ -32,7 +29,7 @@ export default class TweetController implements TweetHandler {
   getTweet = async (req: Request, res: Response) => {
     const tweet = await this.tweetRepository.getById(
       req.params.tweetId,
-      req.user!.userId
+      req.user!.id
     );
     if (!tweet) {
       return res.status(404).json({ message: `Tweet not found` });
@@ -44,7 +41,7 @@ export default class TweetController implements TweetHandler {
     // const image = req.file ? req.file.path : "";
     const { video }: { video?: string } = req.body;
     const tweet = await this.tweetRepository.create(
-      req.user!.userId,
+      req.user!.id,
       req.body.text,
       this.handleUrl(video),
       req.file?.location
@@ -62,7 +59,7 @@ export default class TweetController implements TweetHandler {
     const { video, oldImg }: { video?: string; oldImg: string } = req.body;
     const updated = await this.tweetRepository.update(
       req.params.tweetId,
-      req.user!.userId,
+      req.user!.id,
       req.body.text,
       this.handleUrl(video),
       image ? image : oldImg ? oldImg : ""

@@ -1,6 +1,6 @@
 import httpMocks from "node-mocks-http";
-import { NextFunction } from "express";
 import faker from "faker";
+import { NextFunction } from "express";
 import { verify as verifying } from "jsonwebtoken";
 import AuthValidator from "../auth";
 import { config } from "../../config";
@@ -12,10 +12,10 @@ jest.mock("jsonwebtoken");
 describe("Auth Middleware", () => {
   const authMiddleware = new AuthValidator(config, mockedUserRepository);
   const verify = verifying as jest.Mock;
-  const userId = 1;
-  const headers = {
-    headers: { Authorization: `Bearer ${faker.random.alphaNumeric(3)}` },
-  };
+  const userId = 1,
+    headers = {
+      headers: { Authorization: `Bearer ${faker.random.alphaNumeric(3)}` },
+    };
   let request: httpMocks.MockRequest<any>,
     response: httpMocks.MockResponse<any>,
     next: jest.Mock<NextFunction>;

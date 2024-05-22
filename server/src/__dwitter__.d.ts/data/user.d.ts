@@ -18,7 +18,7 @@ export declare type InputUserInfo = UserProfile & {
   socialLogin: boolean;
 };
 
-export declare type OutputUserInfo = InputUserInfo & { userId: number };
+export declare type OutputUserInfo = InputUserInfo & { id: number };
 
 export declare interface UserDataHandler {
   findById(userId: number): Promise<OutputUserInfo | void>;
