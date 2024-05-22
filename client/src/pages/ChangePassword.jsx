@@ -4,7 +4,7 @@ import Banner from "../components/Banner";
 import { UserForm, UserInput, Submit } from "../css/authForm";
 
 const ChangePassword = ({ authService }) => {
-  const [oldPassword, setOldPassword] = useState("");
+  const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
   const [text, setText] = useState("");
@@ -14,7 +14,7 @@ const ChangePassword = ({ authService }) => {
   const onSubmit = (event) => {
     event.preventDefault();
     authService
-      .password(oldPassword, newPassword, checkPassword)
+      .password(password, newPassword, checkPassword)
       .then(() => history.push("/auth/profile"))
       .catch(setError);
   };
@@ -29,13 +29,12 @@ const ChangePassword = ({ authService }) => {
       target: { name, value },
     } = event;
     switch (name) {
-      case "oldPassword":
-        return setOldPassword(value);
+      case "password":
+        return setPassword(value);
       case "newPassword":
         return setNewPassword(value);
       case "checkPassword":
         return setCheckPassword(value);
-      default:
     }
   };
 
@@ -44,10 +43,10 @@ const ChangePassword = ({ authService }) => {
       <Banner text={text} isAlert={isAlert} />
       <UserForm onSubmit={onSubmit}>
         <UserInput
-          name="oldPassword"
+          name="password"
           type="password"
           placeholder="Old Password"
-          defaultValue={oldPassword}
+          defaultValue={password}
           onChange={onChange}
           required
         />
@@ -62,7 +61,7 @@ const ChangePassword = ({ authService }) => {
         <UserInput
           name="checkPassword"
           type="password"
-          placeholder="Check Password"
+          placeholder="Check new Password"
           defaultValue={checkPassword}
           onChange={onChange}
           required

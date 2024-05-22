@@ -1,7 +1,7 @@
 import { Callback } from "./callback";
 
 export type PasswordInfo = {
-  oldPassword: string;
+  password: string;
   newPassword: string;
   checkPassword: string;
 };

@@ -54,11 +54,11 @@ export default class AuthService {
     });
   }
 
-  async password(oldPassword, newPassword, checkPassword) {
+  async password(password, newPassword, checkPassword) {
     return await this.http.fetch("/auth/change-password", {
       method: "POST",
       body: JSON.stringify({
-        oldPassword,
+        password,
         newPassword,
         checkPassword,
       }),

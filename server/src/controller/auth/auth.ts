@@ -130,19 +130,19 @@ export default class AuthController implements AuthDataHandler {
   };
 
   updatePassword = async (req: Request, res: Response, next: NextFunction) => {
-    const { oldPassword, newPassword, checkPassword }: PasswordInfo = req.body;
+    const { password, newPassword, checkPassword }: PasswordInfo = req.body;
     if (req.user!.socialLogin) {
       return res.sendStatus(403);
     }
 
-    if (oldPassword === newPassword) {
+    if (password === newPassword) {
       return res
         .status(400)
         .json({ message: "Do not use the old password again" });
     }
     const isSamePw = await bcrypt.compare(
-      oldPassword + this.config.bcrypt.randomWords,
-      req.user!.password!
+      password + this.config.bcrypt.randomWords,
+      req.user!.password
     );
     if (!isSamePw || newPassword !== checkPassword) {
       return res.status(400).json({ message: "Incorrect password" });
