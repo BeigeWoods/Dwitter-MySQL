@@ -15,8 +15,7 @@ describe("Tweet Controller", () => {
     text = faker.random.words(3),
     video = "https://youtu.be/q_VsCxx3jpo",
     match = "https://www.youtube.com/embed/q_VsCxx3jpo",
-    image = faker.internet.url(),
-    oldImg = faker.internet.url();
+    image = faker.internet.url();
   let response: httpMocks.MockResponse<any>,
     request: httpMocks.MockRequest<any>,
     next: jest.Mock<NextFunction>;
@@ -40,7 +39,7 @@ describe("Tweet Controller", () => {
 
     test("returns tweets for the given user when username is provided", async () => {
       request = httpMocks.createRequest(
-        mockTweet.reqOptions(NaN, "", "", "", "", "smith")
+        mockTweet.reqOptions(NaN, "", "", "", "smith")
       );
       mockedTweetRepository.getAllByUsername.mockResolvedValueOnce([
         mockTweet.tweet(),
@@ -124,9 +123,9 @@ describe("Tweet Controller", () => {
   });
 
   describe("updateTweet", () => {
-    test("returns updated tweet for given new image even if existing image is provided", async () => {
+    test("returns updated tweet for given new image", async () => {
       request = httpMocks.createRequest(
-        mockTweet.reqOptions(tweetId, "", "", image, oldImg)
+        mockTweet.reqOptions(tweetId, "", "", image)
       );
       mockedTweetRepository.update.mockResolvedValueOnce(mockTweet.tweet());
 
@@ -138,25 +137,6 @@ describe("Tweet Controller", () => {
         "",
         "",
         image
-      );
-      expect(response.statusCode).toBe(200);
-      expect(next).not.toHaveBeenCalled();
-    });
-
-    test("returns updated tweet for existing image when new image isn't provided", async () => {
-      request = httpMocks.createRequest(
-        mockTweet.reqOptions(tweetId, "", "", "", oldImg)
-      );
-      mockedTweetRepository.update.mockResolvedValueOnce(mockTweet.tweet());
-
-      await tweetController.updateTweet(request, response, next);
-
-      expect(mockedTweetRepository.update).toHaveBeenCalledWith(
-        tweetId,
-        1,
-        "",
-        "",
-        oldImg
       );
       expect(response.statusCode).toBe(200);
       expect(next).not.toHaveBeenCalled();

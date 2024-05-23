@@ -55,14 +55,13 @@ export default class TweetController implements TweetHandler {
 
   updateTweet = async (req: Request, res: Response, next: NextFunction) => {
     // const image = req.file?.path;
-    const image = req.file?.location;
-    const { video, oldImg }: { video?: string; oldImg: string } = req.body;
+    const { video }: { video?: string } = req.body;
     const updated = await this.tweetRepository.update(
       req.params.tweetId,
       req.user!.id,
       req.body.text,
       this.handleUrl(video),
-      image ? image : oldImg ? oldImg : ""
+      req.file?.location
     );
     return updated
       ? res.status(200).json(updated)

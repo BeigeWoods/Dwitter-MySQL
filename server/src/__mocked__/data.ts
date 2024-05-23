@@ -29,13 +29,12 @@ export const mockTweet = {
     text = "",
     video = "",
     image = "",
-    oldImg = "",
     username = ""
   ): httpMocks.RequestOptions => ({
     user: { id: 1 },
     params: { tweetId },
     query: { username },
-    body: { text, video, oldImg },
+    body: { text, video },
     file: { location: image },
   }),
 };
