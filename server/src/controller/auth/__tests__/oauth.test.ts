@@ -27,7 +27,7 @@ describe("OauthController.signIn", () => {
           : "the problem of createUser";
     }
     return {
-      token: mockJWTCreateToken(user.userId, "nothing"),
+      token: mockJWTCreateToken(user.id, "nothing"),
       username: user.username,
     };
   }

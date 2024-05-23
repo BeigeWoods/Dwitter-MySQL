@@ -41,9 +41,7 @@ export default class OauthController implements GithubOauth {
           : undefined;
     }
     return {
-      token: this.tokenController.createJwtToken(
-        (user as OutputUserInfo).userId
-      ),
+      token: this.tokenController.createJwtToken((user as OutputUserInfo).id),
       username: (user as OutputUserInfo).username,
     };
   };
