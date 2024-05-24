@@ -1,6 +1,6 @@
 import express from "express";
 import "express-async-errors";
-import { imageUploading } from "../middleware/multer";
+import { imageUploading } from "../middleware/multer.js";
 import {
   goodValidator,
   tweetValidator,

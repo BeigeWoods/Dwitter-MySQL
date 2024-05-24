@@ -1,5 +1,5 @@
 import { body, check, param, query } from "express-validator";
-import { expressValidator } from "./validator";
+import { expressValidator } from "./validator.js";
 
 const content = {
   tweetId: [

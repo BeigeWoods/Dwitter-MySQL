@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
-import { config } from "../config";
+import { config } from "../config.js";
 
 export const csrfCheck = async (
   req: Request,

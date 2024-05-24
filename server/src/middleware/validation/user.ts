@@ -1,5 +1,5 @@
 import { body } from "express-validator";
-import { expressValidator } from "./validator";
+import { expressValidator } from "./validator.js";
 
 const user = {
   username: [

@@ -2,7 +2,7 @@ import aws from "@aws-sdk/client-s3";
 import { NextFunction, Request, Response } from "express";
 import multer from "multer";
 import multerS3 from "multer-s3";
-import { config } from "../config";
+import { config } from "../config.js";
 
 const s3 = new aws.S3Client({
   credentials: {
