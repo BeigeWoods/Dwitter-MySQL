@@ -1,20 +1,12 @@
 import express from "express";
 import "express-async-errors";
-import { ValidationChain, body } from "express-validator";
-import { Validate } from "../__dwitter__.d.ts/middleware/validator";
+import {
+  commentValidator,
+  goodValidator,
+} from "../middleware/validation/content.js";
 import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth";
 import { CommentHandler } from "../__dwitter__.d.ts/controller/comments";
 import { GoodHandler } from "../__dwitter__.d.ts/controller/good";
-import { expressValidate, paramsValidate } from "../middleware/validator";
-
-const validateComment: Array<ValidationChain | Validate> = [
-  body("text")
-    .notEmpty()
-    .trim()
-    .isLength({ min: 1 })
-    .withMessage("text should be at least 1 characters"),
-  expressValidate,
-];
 
 export default function commentsRouter(
   authValidator: AuthValidateHandler,
@@ -26,37 +18,35 @@ export default function commentsRouter(
   router.get(
     "/:tweetId/comments",
     authValidator.isAuth,
-    paramsValidate,
+    commentValidator.tweetId,
     commentController.getComments
   );
 
   router.post(
     "/:tweetId/comments",
     authValidator.isAuth,
-    paramsValidate,
-    validateComment,
+    commentValidator.creation,
     commentController.createComment
   );
 
   router.put(
     "/:tweetId/comments/:commentId",
     authValidator.isAuth,
-    paramsValidate,
-    validateComment,
+    commentValidator.update,
     commentController.updateComment
   );
 
   router.delete(
     "/:tweetId/comments/:commentId",
     authValidator.isAuth,
-    paramsValidate,
+    commentValidator.commentId,
     commentController.deleteComment
   );
 
   router.put(
     "/:tweetId/comments/:commentId/good",
     authValidator.isAuth,
-    paramsValidate,
+    goodValidator.comment,
     goodController.goodComment
   );
 

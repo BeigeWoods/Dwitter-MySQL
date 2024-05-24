@@ -1,31 +1,13 @@
 import express from "express";
 import "express-async-errors";
-import { body, ValidationChain } from "express-validator";
-import {
-  expressValidate,
-  tweetFormDataValidate,
-  paramsValidate,
-} from "../middleware/validator";
 import { imageUploading } from "../middleware/multer";
+import {
+  goodValidator,
+  tweetValidator,
+} from "../middleware/validation/content.js";
 import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth";
-import { Validate } from "../__dwitter__.d.ts/middleware/validator";
 import { TweetHandler } from "../__dwitter__.d.ts/controller/tweet";
 import { GoodHandler } from "../__dwitter__.d.ts/controller/good";
-
-const validateTweet: Array<ValidationChain | Validate> = [
-  body("text")
-    .optional({ checkFalsy: true })
-    .trim()
-    .isLength({ min: 1 })
-    .withMessage("text should be at least 1 characters"),
-  body("video")
-    .optional({ checkFalsy: true })
-    .trim()
-    .isURL()
-    .withMessage("invalid url"),
-  expressValidate,
-  tweetFormDataValidate,
-];
 
 export default function tweetsRouter(
   authValidator: AuthValidateHandler,
@@ -33,12 +15,17 @@ export default function tweetsRouter(
   goodController: GoodHandler
 ): express.IRouter {
   const router = express.Router();
-  router.get("/", authValidator.isAuth, tweetController.getTweets);
+  router.get(
+    "/",
+    authValidator.isAuth,
+    tweetValidator.username,
+    tweetController.getTweets
+  );
 
   router.get(
     "/:tweetId",
     authValidator.isAuth,
-    paramsValidate,
+    tweetValidator.tweetId,
     tweetController.getTweet
   );
 
@@ -46,7 +33,7 @@ export default function tweetsRouter(
     "/",
     authValidator.isAuth,
     imageUploading,
-    validateTweet,
+    tweetValidator.creation,
     tweetController.createTweet
   );
 
@@ -54,22 +41,21 @@ export default function tweetsRouter(
     "/:tweetId",
     authValidator.isAuth,
     imageUploading,
-    paramsValidate,
-    validateTweet,
+    tweetValidator.update,
     tweetController.updateTweet
   );
 
   router.delete(
     "/:tweetId",
     authValidator.isAuth,
-    paramsValidate,
+    tweetValidator.tweetId,
     tweetController.deleteTweet
   );
 
   router.put(
     "/:tweetId/good",
     authValidator.isAuth,
-    paramsValidate,
+    goodValidator.tweet,
     goodController.goodTweet
   );
 
