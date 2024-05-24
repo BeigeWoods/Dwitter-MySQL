@@ -1,4 +1,4 @@
-import { db } from "../db/database";
+import { db } from "../db/database.js";
 import { GoodDataHandler } from "../__dwitter__.d.ts/data/good";
 
 export default class GoodRepository implements GoodDataHandler {

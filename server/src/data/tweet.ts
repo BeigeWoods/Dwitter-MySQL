@@ -1,4 +1,4 @@
-import { db } from "../db/database";
+import { db } from "../db/database.js";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 import { Callback } from "../__dwitter__.d.ts/data/callback";
 
