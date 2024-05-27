@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt";
-import {} from "express-async-errors";
 import { NextFunction, Request, Response } from "express";
 import { AuthDataHandler } from "../../__dwitter__.d.ts/controller/auth/auth";
 import {
-  OutputUserInfo,
+  InputUserInfo,
+  InputUserProf,
+  OutputUser,
   PasswordInfo,
   UserDataHandler,
-  UserProfile,
 } from "../../__dwitter__.d.ts/data/user";
 import { TokenHandler } from "../../__dwitter__.d.ts/controller/auth/token";
 import { Config } from "../../__dwitter__.d.ts/config";
@@ -19,7 +19,7 @@ export default class AuthController implements AuthDataHandler {
   ) {}
 
   private async isDuplicateEmailOrUsername(email: string, username: string) {
-    let result: number | void | OutputUserInfo;
+    let result: number | void | OutputUser;
     result = await this.userRepository.findByUserEmail(email);
     if (result) {
       return Number(result) ? 1 : email;
@@ -32,16 +32,7 @@ export default class AuthController implements AuthDataHandler {
   }
 
   signUp = async (req: Request, res: Response, next: NextFunction) => {
-    const {
-      username,
-      password,
-      name,
-      email,
-      url,
-    }: UserProfile & {
-      password: string;
-      email: string;
-    } = req.body;
+    const { username, password, name, email, url }: InputUserInfo = req.body;
 
     const isDuplicate = await this.isDuplicateEmailOrUsername(email, username);
     if (isDuplicate) {
@@ -58,7 +49,7 @@ export default class AuthController implements AuthDataHandler {
     );
     const userId = await this.userRepository.createUser({
       username,
-      password: hashedPw,
+      password,
       name,
       email,
       url,
@@ -73,8 +64,7 @@ export default class AuthController implements AuthDataHandler {
   };
 
   login = async (req: Request, res: Response, next: NextFunction) => {
-    const { username, password }: { username: string; password: string } =
-      req.body;
+    const { username, password }: InputUserInfo = req.body;
     const user = await this.userRepository.findByUsername(username);
     switch (user) {
       case 1:
@@ -85,15 +75,13 @@ export default class AuthController implements AuthDataHandler {
 
     const isSamePw = await bcrypt.compare(
       password + this.config.bcrypt.randomWords,
-      (user as OutputUserInfo).password
+      (user as OutputUser).password
     );
     if (!isSamePw) {
       return res.status(400).json({ message: "Invalid user or password" });
     }
 
-    const token = this.tokenController.createJwtToken(
-      (user as OutputUserInfo).id
-    );
+    const token = this.tokenController.createJwtToken((user as OutputUser).id);
     this.tokenController.setToken(res, token);
     return res.status(200).json({ token, username });
   };
@@ -115,9 +103,11 @@ export default class AuthController implements AuthDataHandler {
   };
 
   updateUser = async (req: Request, res: Response, next: NextFunction) => {
-    const { username, name, email, url }: UserProfile & { email: string } =
-      req.body;
-    const isDuplicate = await this.isDuplicateEmailOrUsername(email, username);
+    const { username, name, email, url }: InputUserProf = req.body;
+    const isDuplicate = await this.isDuplicateEmailOrUsername(
+      email!,
+      username!
+    );
     if (isDuplicate) {
       return Number(isDuplicate)
         ? next(new Error("updateUser: from isDuplicateEmailOrUsername"))

@@ -1,11 +1,7 @@
-import {} from "express-async-errors";
 import { NextFunction, Request, Response } from "express";
 import fetch from "node-fetch";
 import { TokenHandler } from "../../__dwitter__.d.ts/controller/auth/token";
-import {
-  OutputUserInfo,
-  UserDataHandler,
-} from "../../__dwitter__.d.ts/data/user";
+import { OutputUser, UserDataHandler } from "../../__dwitter__.d.ts/data/user";
 import { GithubOauth } from "../../__dwitter__.d.ts/controller/auth/oauth";
 import { Config } from "../../__dwitter__.d.ts/config";
 
@@ -41,8 +37,8 @@ export default class OauthController implements GithubOauth {
           : undefined;
     }
     return {
-      token: this.tokenController.createJwtToken((user as OutputUserInfo).id),
-      username: (user as OutputUserInfo).username,
+      token: this.tokenController.createJwtToken((user as OutputUser).id),
+      username: (user as OutputUser).username,
     };
   };
 

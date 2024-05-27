@@ -1,5 +1,8 @@
 import { db } from "../db/database.js";
-import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
+import {
+  InputTweetContents,
+  TweetDataHandler,
+} from "../__dwitter__.d.ts/data/tweet";
 import { Callback } from "../__dwitter__.d.ts/data/callback";
 
 export default class TweetRepository implements TweetDataHandler {
@@ -14,6 +17,32 @@ export default class TweetRepository implements TweetDataHandler {
   private readonly Order_By = "ORDER BY createdAt DESC";
 
   constructor() {}
+
+  private handleUpdateQuery = (tweet: InputTweetContents) => {
+    const { text, video, image } = tweet;
+    let result = "";
+    result = text ? result + "text = ?," : result;
+    result = video
+      ? result
+        ? result + " video = ?,"
+        : result + "video = ?,"
+      : result;
+    result = image
+      ? result
+        ? result + " image = ?,"
+        : result + "image = ?,"
+      : result;
+    return result;
+  };
+
+  private handleUpdateValues = (tweet: InputTweetContents) => {
+    const { text, video, image } = tweet;
+    let result: string[] = [];
+    text ? result.push(text) : false;
+    video ? result.push(video) : false;
+    image ? result.push(image) : false;
+    return result;
+  };
 
   getAll = async (userId: number) => {
     return await db
@@ -80,16 +109,13 @@ export default class TweetRepository implements TweetDataHandler {
   update = async (
     tweetId: string,
     userId: number,
-    text?: string,
-    video?: string,
-    image?: string
+    tweet: InputTweetContents
   ) => {
     return await db
       .execute(
-        "UPDATE tweets \
-        SET text = ? , video = ?, image = ?, updatedAt = ? \
-        WHERE id = ?",
-        [text, video, image, new Date(), tweetId]
+        `UPDATE tweets \
+        SET ${this.handleUpdateQuery(tweet)} updatedAt = ? WHERE id = ?`,
+        [...this.handleUpdateValues(tweet), new Date(), tweetId]
       )
       .then(async () => await this.getById(tweetId, userId))
       .catch((error) => console.error("tweetRepository.update\n", error));

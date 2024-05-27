@@ -1,4 +1,4 @@
-import { OutputUserInfo } from "../../../__dwitter__.d.ts/data/user";
+import { OutputUser } from "../../../__dwitter__.d.ts/data/user";
 import { mockUser } from "../../../__mocked__/data";
 import { mockedUserRepository } from "../../../__mocked__/repository";
 
@@ -7,7 +7,7 @@ describe("AuthController.isDuplicateEmailOrUsername", () => {
     username = "smith";
   const isDuplicateEmailOrUsername = jest.fn(
     async (email: string, username: string) => {
-      let result: number | void | OutputUserInfo;
+      let result: number | void | OutputUser;
       result = await mockedUserRepository.findByUserEmail(email);
       if (result) {
         return Number(result) ? 1 : email;

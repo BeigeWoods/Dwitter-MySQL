@@ -39,12 +39,13 @@ export default class TweetController implements TweetHandler {
 
   createTweet = async (req: Request, res: Response, next: NextFunction) => {
     // const image = req.file ? req.file.path : "";
-    const { video }: { video?: string } = req.body;
+    const image = req.file?.location;
+    const { text, video }: { text?: string; video?: string } = req.body;
     const tweet = await this.tweetRepository.create(
       req.user!.id,
-      req.body.text,
-      this.handleUrl(video),
-      req.file?.location
+      text ? text : "",
+      video ? this.handleUrl(video) : "",
+      image ? image : ""
     );
     if (!tweet) {
       return next(new Error("createTweet : from tweetRepository.create"));
@@ -59,9 +60,11 @@ export default class TweetController implements TweetHandler {
     const updated = await this.tweetRepository.update(
       req.params.tweetId,
       req.user!.id,
-      req.body.text,
-      this.handleUrl(video),
-      req.file?.location
+      {
+        text: req.body.text,
+        video: video ? this.handleUrl(video) : "",
+        image: req.file?.location,
+      }
     );
     return updated
       ? res.status(200).json(updated)

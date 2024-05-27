@@ -1,6 +1,8 @@
 import { db } from "../../db/database";
+import UserRepository from "../user";
 
 describe("UserRepository", () => {
+  const userRepository = new UserRepository();
   const errorCallback = jest.fn((err: any) => err);
   let userId: number;
 
@@ -106,42 +108,6 @@ describe("UserRepository", () => {
         );
     });
 
-    describe("updateUser", () => {
-      test("returns error when null is provided", async () => {
-        await db
-          .execute("UPDATE users SET username = ? WHERE id = ?", [null, userId])
-          .catch((error) =>
-            expect(error.message).toBe("Column 'username' cannot be null")
-          );
-      });
-
-      test("returns '' when '' is provided", async () => {
-        await db.execute("UPDATE users SET username = ? WHERE id = ?", [
-          "",
-          userId,
-        ]);
-
-        await db
-          .execute("SELECT username FROM users WHERE id = ?", [userId])
-          .then((result: any[]) => expect(result[0][0].username).toBe(""))
-          .catch((error) => expect(error.message).toBe([]));
-      });
-
-      test("returns 'mr.smith' when 'mr.smith' is provided", async () => {
-        await db.execute("UPDATE users SET username = ? WHERE id = ?", [
-          "mr.smith",
-          userId,
-        ]);
-
-        await db
-          .execute("SELECT username FROM users WHERE id = ?", [userId])
-          .then((result: any[]) =>
-            expect(result[0][0].username).toBe("mr.smith")
-          )
-          .catch((error) => expect(error.message).toBe([]));
-      });
-    });
-
     test("returns error by wrong query", async () => {
       await db
         .execute("SELECT * FROM userss")
@@ -149,6 +115,57 @@ describe("UserRepository", () => {
         .catch((error) =>
           expect(error.message).toBe("Table 'dwitter.userss' doesn't exist")
         );
+    });
+  });
+
+  describe("updateUser", () => {
+    test("returns error when null is provided", async () => {
+      await db
+        .execute("UPDATE users SET username = ? WHERE id = ?", [null, userId])
+        .catch((error) =>
+          expect(error.message).toBe("Column 'username' cannot be null")
+        );
+    });
+
+    test("returns '' when '' is provided", async () => {
+      await db.execute("UPDATE users SET username = ? WHERE id = ?", [
+        "",
+        userId,
+      ]);
+
+      await db
+        .execute("SELECT username FROM users WHERE id = ?", [userId])
+        .then((result: any[]) => expect(result[0][0].username).toBe(""))
+        .catch((error) => expect(error.message).toBe([]));
+    });
+
+    test("userRepository.updateUser : returns 'mr.smith' when 'mr.smith' is provided", async () => {
+      const user = {
+        username: "mr.smith",
+        name: "",
+        email: null,
+        url: undefined,
+      };
+
+      await userRepository.updateUser(userId, user, (error) =>
+        expect(error?.message).toBe([])
+      );
+
+      await db
+        .execute("SELECT username, name, email, url FROM users WHERE id = ?", [
+          userId,
+        ])
+        .then((result: any[]) => {
+          expect(result[0][0]).toMatchObject({
+            username: "mr.smith",
+            name: "smith",
+            email: "@",
+            url: "",
+          });
+        })
+        .catch((error) => {
+          expect(error).toBeUndefined();
+        });
     });
   });
 

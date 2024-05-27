@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { Server } from "socket.io";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
 import { CommentHandler } from "../__dwitter__.d.ts/controller/comments";
-import { UserDataHandler, OutputUserInfo } from "../__dwitter__.d.ts/data/user";
+import { UserDataHandler, OutputUser } from "../__dwitter__.d.ts/data/user";
 
 export default class CommentController implements CommentHandler {
   constructor(
@@ -22,7 +22,7 @@ export default class CommentController implements CommentHandler {
   };
 
   createComment = async (req: Request, res: Response, next: NextFunction) => {
-    let user: OutputUserInfo | number | void = undefined;
+    let user: OutputUser | number | void = undefined;
     const { recipient }: { recipient?: string } = req.body;
     if (recipient) {
       user = await this.userRepository.findByUsername(recipient);
@@ -39,7 +39,7 @@ export default class CommentController implements CommentHandler {
       req.user!.id,
       req.params.tweetId,
       req.body.text,
-      user ? (user as OutputUserInfo).username : ""
+      user ? (user as OutputUser).username : ""
     );
     if (!comment) {
       return next(new Error("createComment : from commentRepository.create"));

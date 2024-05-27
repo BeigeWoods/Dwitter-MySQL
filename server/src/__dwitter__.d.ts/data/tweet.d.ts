@@ -1,36 +1,45 @@
 import { Callback } from "./callback";
 import { UserProfile } from "./user";
 
-declare type TweetData = UserProfile & {
+export declare type InputTweetContents = {
+  text?: string | null;
+  video?: string | null;
+  image?: string | null;
+};
+
+declare type OutputTweet = UserProfile & {
   id: number;
   text: string;
   video: string;
   image: string;
-  good: number;
   createdAt: object;
+  updatedAt: object;
+  good: number;
+  clicked: number;
   userId: number;
 };
 
 export declare interface TweetDataHandler {
-  getAll(userId: number): Promise<TweetData[] | void>;
+  getAll(userId: number): Promise<OutputTweet[] | void>;
   getAllByUsername(
     userId: number,
     username: string
-  ): Promise<TweetData[] | void>;
-  getById(tweetId: string | number, userId: number): Promise<TweetData | void>;
+  ): Promise<OutputTweet[] | void>;
+  getById(
+    tweetId: string | number,
+    userId: number
+  ): Promise<OutputTweet | void>;
   create(
     userId: number,
     text?: string,
     video?: string,
     image?: string
-  ): Promise<TweetData | void>;
+  ): Promise<OutputTweet | void>;
   update(
     tweetId: string,
     userId: number,
-    text?: string,
-    video?: string,
-    image?: string
-  ): Promise<TweetData | void>;
+    tweetContents: InputTweetContents
+  ): Promise<OutputTweet | void>;
   updateGood(
     tweetId: string,
     good: number,
@@ -50,28 +59,28 @@ export declare class TweetRepository implements TweetDataHandler {
 
   constructor();
 
-  getAll: (userId: number) => Promise<TweetData[] | void>;
+  private handleUpdateQuery(tweet: InputTweetContents): string;
+  private handleUpdateValues(tweet: InputTweetContents): string[];
+  getAll: (userId: number) => Promise<OutputTweet[] | void>;
   getAllByUsername: (
     userId: number,
     username: string
-  ) => Promise<TweetData[] | void>;
+  ) => Promise<OutputTweet[] | void>;
   getById: (
     tweetId: string | number,
     userId: number
-  ) => Promise<TweetData | void>;
+  ) => Promise<OutputTweet | void>;
   create: (
     userId: number,
     text?: string,
     video?: string,
     image?: string
-  ) => Promise<TweetData | void>;
+  ) => Promise<OutputTweet | void>;
   update: (
     tweetId: string,
     userId: number,
-    text?: string,
-    video?: string,
-    image?: string
-  ) => Promise<TweetData | void>;
+    tweetContents: InputTweetContents
+  ) => Promise<OutputTweet | void>;
   updateGood(
     tweetId: string,
     good: number,

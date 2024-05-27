@@ -131,13 +131,11 @@ describe("Tweet Controller", () => {
 
       await tweetController.updateTweet(request, response, next);
 
-      expect(mockedTweetRepository.update).toHaveBeenCalledWith(
-        tweetId,
-        1,
-        "",
-        "",
-        image
-      );
+      expect(mockedTweetRepository.update).toHaveBeenCalledWith(tweetId, 1, {
+        text: "",
+        video: "",
+        image,
+      });
       expect(response.statusCode).toBe(200);
       expect(next).not.toHaveBeenCalled();
     });

@@ -185,4 +185,11 @@ export default {
 
   // Whether to use watchman for file crawling
   // watchman: true,
+
+  // Jest CLI options
+  forceExit: true,
+  detectOpenHandles: true,
+
+  //The transform script was changed or Babel was updated and the changes aren't being recognized by Jest?
+  //Retry with --no-cache.
 };

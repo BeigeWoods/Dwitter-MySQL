@@ -1,8 +1,8 @@
 import httpMocks from "node-mocks-http";
-import { OutputUserInfo } from "../__dwitter__.d.ts/data/user";
-import { TweetData } from "../__dwitter__.d.ts/data/tweet";
+import { OutputUser } from "../__dwitter__.d.ts/data/user";
+import { OutputTweet } from "../__dwitter__.d.ts/data/tweet";
 
-export const mockUser = (userId: number, username = ""): OutputUserInfo => ({
+export const mockUser = (userId: number, username = ""): OutputUser => ({
   id: userId,
   username,
   name: "",
@@ -12,7 +12,7 @@ export const mockUser = (userId: number, username = ""): OutputUserInfo => ({
 });
 
 export const mockTweet = {
-  tweet: (text = "", video = "", image = ""): TweetData => ({
+  tweet: (text = "", video = "", image = ""): OutputTweet => ({
     username: "",
     name: "",
     url: "",
@@ -22,6 +22,8 @@ export const mockTweet = {
     image,
     good: 1,
     createdAt: {},
+    updatedAt: {},
+    clicked: 1,
     userId: 1,
   }),
   reqOptions: (

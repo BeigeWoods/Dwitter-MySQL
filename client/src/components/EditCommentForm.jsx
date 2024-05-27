@@ -6,7 +6,9 @@ const EditCommentForm = ({ tweetId, comment, onUpdate, onClose }) => {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    onUpdate(tweetId, comment.id, text);
+    if (text !== comment.text) {
+      onUpdate(tweetId, comment.id, text);
+    }
     onClose();
   };
 

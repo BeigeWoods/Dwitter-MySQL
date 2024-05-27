@@ -1,9 +1,9 @@
-import { OutputUserInfo } from "../__dwitter__.d.ts/data/user";
+import { OutputUser } from "../__dwitter__.d.ts/data/user";
 
 declare global {
   namespace Express {
     interface Request {
-      user?: OutputUserInfo;
+      user?: OutputUser;
       token?: string;
     }
   }

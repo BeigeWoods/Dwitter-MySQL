@@ -56,10 +56,22 @@ const Profile = memo(({ onWithdrawal, authService }) => {
 
   const onSubmit = (event) => {
     event.preventDefault();
-    authService
-      .updateUser(username, name, email, url, socialLogin)
-      .then((user) => setUser(user))
-      .catch(setError);
+    if (
+      username !== user.username &&
+      name !== user.name &&
+      email !== user.email &&
+      url !== user.url
+    ) {
+      authService
+        .updateUser(
+          username === user.username ? "" : username,
+          name === user.name ? "" : name,
+          email === user.email ? "" : email,
+          url === user.url ? "" : url
+        )
+        .then((user) => setUser(user))
+        .catch(setError);
+    }
   };
 
   const onChange = (event) => {

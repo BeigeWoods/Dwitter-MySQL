@@ -18,7 +18,15 @@ const EditTweetForm = ({ tweet, onUpdate, onClose }) => {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    onUpdate(tweet.id, text, video, image, tweet.image);
+    if (text !== tweet.text && video !== tweet.video && image !== tweet.image) {
+      onUpdate(
+        tweet.id,
+        text === tweet.text ? "" : text,
+        video === tweet.video ? "" : video,
+        image === tweet.image ? "" : image,
+        tweet.image
+      );
+    }
     onClose();
   };
 

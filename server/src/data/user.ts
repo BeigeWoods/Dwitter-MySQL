@@ -1,13 +1,45 @@
 import { db } from "../db/database.js";
 import {
   InputUserInfo,
+  InputUserProf,
   UserDataHandler,
-  UserProfile,
 } from "../__dwitter__.d.ts/data/user";
 import { Callback } from "../__dwitter__.d.ts/data/callback";
 
 export default class UserRepository implements UserDataHandler {
   constructor() {}
+
+  private handleUpdateQuery = (user: InputUserProf) => {
+    const { username, name, email, url } = user;
+    let result = "";
+    result = username ? result + "username = ?" : result;
+    result = name
+      ? result
+        ? result + ", name = ?"
+        : result + "name = ?"
+      : result;
+    result = email
+      ? result
+        ? result + ", email = ?"
+        : result + "email = ?"
+      : result;
+    result = url
+      ? result
+        ? result + ", url = ?"
+        : result + "url = ?"
+      : result;
+    return result;
+  };
+
+  private handleUpdateValues = (user: InputUserProf) => {
+    const { username, name, email, url } = user;
+    let result: string[] = [];
+    username ? result.push(username) : false;
+    name ? result.push(name) : false;
+    email ? result.push(email) : false;
+    url ? result.push(url) : false;
+    return result;
+  };
 
   findById = async (userId: number) => {
     return await db
@@ -56,13 +88,13 @@ export default class UserRepository implements UserDataHandler {
 
   updateUser = async (
     userId: number,
-    user: UserProfile & { email: string },
+    user: InputUserProf,
     callback: Callback
   ) => {
     return await db
       .execute(
-        "UPDATE users SET username = ?, name = ?, email = ?, url = ? WHERE id = ?",
-        [user.username, user.name, user.email, user.url, userId]
+        `UPDATE users SET ${this.handleUpdateQuery(user)} WHERE id = ?`,
+        [...this.handleUpdateValues(user), userId]
       )
       .catch((error) => {
         console.error("userRepository.updateUser\n", error);
