@@ -11,7 +11,8 @@ const content = {
       .withMessage("Invalid tweet_X")
       .bail()
       .trim()
-      .isNumeric(),
+      .isNumeric()
+      .isInt({ allow_leading_zeroes: false, min: 1 }),
   ],
   commentId: [
     param("commentId", "Invalid comment")
@@ -22,7 +23,8 @@ const content = {
       .withMessage("Invalid comment_X")
       .bail()
       .trim()
-      .isNumeric(),
+      .isNumeric()
+      .isInt({ allow_leading_zeroes: false, min: 1 }),
   ],
   username: [
     query("username", "Invalid username")
@@ -86,15 +88,16 @@ const content = {
     }),
   ],
   aboutGood: [
-    body("clicked", "Invalid click about good")
+    body("clicked", "Invalid to click good")
       .notEmpty()
-      .withMessage("Invalid click about good_0")
+      .withMessage("Invalid to click good_0")
       .bail()
-      .exists({ values: "falsy" })
-      .withMessage("Invalid click about good_X")
+      .exists({ values: "null" })
+      .withMessage("Invalid to click good_X")
       .bail()
       .trim()
-      .isBoolean(),
+      .isNumeric()
+      .isInt({ allow_leading_zeroes: true, min: 0 }),
     body("good", "Invalid good")
       .notEmpty()
       .withMessage("Invalid good_0")
@@ -103,7 +106,8 @@ const content = {
       .withMessage("Invalid good_X")
       .bail()
       .trim()
-      .isNumeric(),
+      .isNumeric()
+      .isInt({ allow_leading_zeroes: true, min: 0 }),
   ],
 };
 
