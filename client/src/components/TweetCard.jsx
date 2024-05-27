@@ -92,7 +92,7 @@ const TweetCard = memo(
                 onClickGoodTweet(id, good, clicked);
               }}
             >
-              {Boolean(clicked) ? "♥︎" : "♡"} {good}
+              {Number(clicked) ? "♥︎" : "♡"} {good}
             </Button>
             <Button onClick={() => setCommenting(commenting ? false : true)}>
               <FontAwesomeIcon icon={faComment} />
