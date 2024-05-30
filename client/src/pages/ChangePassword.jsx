@@ -35,6 +35,8 @@ const ChangePassword = ({ authService }) => {
         return setNewPassword(value);
       case "checkPassword":
         return setCheckPassword(value);
+      default:
+        break;
     }
   };
 

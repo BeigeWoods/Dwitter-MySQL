@@ -2,15 +2,12 @@ import dotenv from "dotenv";
 import { Config } from "./__dwitter__.d.ts/config";
 dotenv.config();
 
-function required<V extends string | number>(
-  key: string,
-  defaultValue?: number
-): V {
-  const value = defaultValue ? Number(process.env[key]) : process.env[key];
+function required(key: string) {
+  const value = process.env[key];
   if (!value) {
     throw new Error(`Key ${key} is undefined`);
   }
-  return value as V;
+  return value;
 }
 
 export const config: Config = {
@@ -19,13 +16,13 @@ export const config: Config = {
   },
   jwt: {
     secretKey: required("JWT_SECRET"),
-    expiresInSec: required("JWT_EXPIRES_SEC", 86400),
+    expiresInSec: Number(required("JWT_EXPIRES_SEC")),
   },
   bcrypt: {
-    saltRounds: required("BCRYPT_SALT_ROUNDS", 12),
     randomWords: required("BCRYPT_RANDOM_WORDS"),
+    saltRounds: Number(required("BCRYPT_SALT_ROUNDS")),
   },
-  port: required("HOST_PORT", 8080),
+  port: Number(required("HOST_PORT")),
   db: {
     host: required("DB_HOST"),
     user: required("DB_USER"),
@@ -34,6 +31,7 @@ export const config: Config = {
   },
   csrf: {
     plainToken: required("CSRF_SECRET_KEY"),
+    saltRounds: Number(required("CSRF_SALT_ROUNDS")),
   },
   ghOauth: {
     clientId: required("GH_CLIENT_ID"),

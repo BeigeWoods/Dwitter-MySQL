@@ -20,7 +20,7 @@ export const csrfCheck = async (
   const csrfHeader = req.get("dwitter_csrf-token");
   if (!csrfHeader) {
     console.warn(
-      'Missing required "dwitter_csrf-token" header.',
+      'Missing required "dwitter_csrf-token" header : ',
       req.headers.origin
     );
     return res.status(403).json(CSRF_ERROR);
@@ -30,9 +30,9 @@ export const csrfCheck = async (
     .then((valid) => {
       if (!valid) {
         console.warn(
-          "Value provided in 'dwitter_csrf-token' header doesn't validate.\n",
-          req.headers.origin,
-          csrfHeader
+          `Value provided in 'dwitter_csrf-token' header doesn't validate.\n
+          - request origin : ${req.headers.origin}\n
+          - dwitter_csrf-token : ${csrfHeader}`
         );
         return res.status(403).json(CSRF_ERROR);
       }
