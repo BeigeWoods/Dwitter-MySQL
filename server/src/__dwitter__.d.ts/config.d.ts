@@ -19,6 +19,7 @@ export declare type Config = {
   };
   csrf: {
     plainToken: string;
+    saltRounds: number;
   };
   ghOauth: {
     clientId: string;
@@ -30,4 +31,3 @@ export declare type Config = {
     region: string;
   };
 };
-export declare const config: Config;
