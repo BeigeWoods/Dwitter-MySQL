@@ -49,7 +49,7 @@ export default class AuthController implements AuthDataHandler {
     );
     const userId = await this.userRepository.createUser({
       username,
-      password,
+      password: hashedPw,
       name,
       email,
       url,
