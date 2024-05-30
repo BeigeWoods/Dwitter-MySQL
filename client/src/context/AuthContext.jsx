@@ -54,15 +54,22 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
     [authService]
   );
 
-  const githubLogin = useCallback(
-    async (code) =>
+  const githubStart = useCallback(
+    async () =>
       authService
-        .githubLogin(code)
-        .then((user) => {
-          setUser(user);
-          history.push("/");
-        })
+        .githubStart()
+        .then((value) => window.location.assign(value))
         .catch(console.error),
+    [authService]
+  );
+
+  const githubLogin = useCallback(
+    async (query) =>
+      authService
+        .githubLogin(query)
+        .then((user) => setUser(user))
+        .catch((err) => console.error(err))
+        .finally(history.push("/")),
     [authService, history]
   );
 
@@ -81,11 +88,12 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
       user,
       signUp,
       logIn,
+      githubStart,
       githubLogin,
       logout,
       withdrawal,
     }),
-    [user, signUp, logIn, githubLogin, logout, withdrawal]
+    [user, signUp, logIn, githubStart, githubLogin, logout, withdrawal]
   );
 
   return (
@@ -98,6 +106,7 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
           <Login
             onSignUp={signUp}
             onLogin={logIn}
+            onGithubStart={githubStart}
             onGithubLogin={githubLogin}
           />
         </div>

@@ -30,7 +30,7 @@ const CheckSignup = styled.div`
   margin-top: 8px;
 `;
 
-const Login = ({ onSignUp, onLogin, onGithubLogin }) => {
+const Login = ({ onSignUp, onLogin, onGithubStart, onGithubLogin }) => {
   const [signup, setSignup] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -44,7 +44,7 @@ const Login = ({ onSignUp, onLogin, onGithubLogin }) => {
   useEffect(() => {
     const query = history.location.search;
     if (query.includes("code")) {
-      onGithubLogin(query.substring(6)).catch(setError);
+      onGithubLogin(query).catch(setError);
     }
   });
 
@@ -81,17 +81,6 @@ const Login = ({ onSignUp, onLogin, onGithubLogin }) => {
         return setSignup(checked);
       default:
     }
-  };
-
-  const githubStart = () => {
-    const baseUrl = "https://github.com/login/oauth/authorize";
-    const option = {
-      client_id: process.env.REACT_APP_GH_CLIENT_ID,
-      allow_signup: "false",
-      scope: "read:user user:email",
-    };
-    const params = new URLSearchParams(option).toString();
-    return window.location.assign(`${baseUrl}?${params}`);
   };
 
   return (
@@ -156,7 +145,7 @@ const Login = ({ onSignUp, onLogin, onGithubLogin }) => {
         <Submit type="submit">{signup ? "Sign Up" : "Sign In"}</Submit>
       </UserForm>
       <GithubLogin>
-        <GithubButton onClick={githubStart}>
+        <GithubButton onClick={onGithubStart}>
           <FontAwesomeIcon icon={faGithub} className="github-icon" />
           <span>Github Login</span>
         </GithubButton>
