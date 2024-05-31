@@ -37,7 +37,7 @@ export default class CommentService {
       `/${tweetId}/comments/${commentId}/good`,
       {
         method: "PUT",
-        body: JSON.stringify({ good, clicked }),
+        body: JSON.stringify({ good, clicked: Number(clicked) }),
       },
       true
     );

@@ -56,7 +56,7 @@ const CommentCard = memo(
                 onClickGoodComment(id, good, clicked);
               }}
             >
-              {Number(clicked) ? "♥︎" : "♡"} {good}
+              {clicked ? "♥︎" : "♡"} {good}
             </Button>
             <Button onClick={() => onClickReply(username)}>reply</Button>
           </Attention>

@@ -87,12 +87,8 @@ const TweetCard = memo(
             )}
           </div>
           <Attention>
-            <Button
-              onClick={() => {
-                onClickGoodTweet(id, good, clicked);
-              }}
-            >
-              {Number(clicked) ? "♥︎" : "♡"} {good}
+            <Button onClick={() => onClickGoodTweet(id, good, clicked)}>
+              {clicked ? "♥︎" : "♡"} {good}
             </Button>
             <Button onClick={() => setCommenting(commenting ? false : true)}>
               <FontAwesomeIcon icon={faComment} />

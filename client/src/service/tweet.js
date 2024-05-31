@@ -46,7 +46,7 @@ export default class TweetService {
       `/${tweetId}/good`,
       {
         method: "PUT",
-        body: JSON.stringify({ good, clicked }),
+        body: JSON.stringify({ good, clicked: Number(clicked) }),
       },
       true
     );
