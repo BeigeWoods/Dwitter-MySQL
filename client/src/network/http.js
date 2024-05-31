@@ -5,7 +5,7 @@ export default class HttpClient {
     this.getCsrfToken = getCsrfToken;
   }
 
-  async fetch(url, options, json = true) {
+  async fetch(url, options, json = true, isnOauth = undefined) {
     const contentType = json && { "Content-Type": "application/json" };
     const res = await fetch(`${this.baseURL}${url}`, {
       ...options,
@@ -13,7 +13,7 @@ export default class HttpClient {
         Accept: "application/json",
         ...contentType,
         ...options.headers,
-        "dwitter_csrf-token": this.getCsrfToken(),
+        "dwitter_csrf-token": isnOauth ? isnOauth : this.getCsrfToken(),
       },
       credentials: "include",
     });

@@ -48,14 +48,14 @@ export default class OauthController implements GithubOauth {
       await (
         await fetch(`${apiUrl}/user`, {
           headers: {
-            Authorization: `token ${givenToken}`,
+            Authorization: `Bearer ${givenToken}`,
           },
         })
       ).json(),
       await (
         await fetch(`${apiUrl}/user/emails`, {
           headers: {
-            Authorization: `token ${givenToken}`,
+            Authorization: `Bearer ${givenToken}`,
           },
         })
       ).json(),
@@ -68,6 +68,7 @@ export default class OauthController implements GithubOauth {
       client_id: this.config.ghOauth.clientId,
       client_secret: this.config.ghOauth.clientSecret,
       code,
+      redirect_uri: `${this.config.cors.baseUri}/auth/github`,
     };
     const params = new URLSearchParams(option).toString();
     const finalUrl = `${baseUrl}?${params}`;

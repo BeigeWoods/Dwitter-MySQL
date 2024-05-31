@@ -1,5 +1,6 @@
 export declare type Config = {
   cors: {
+    baseUri: string;
     allowedOrigin: string;
   };
   jwt: {

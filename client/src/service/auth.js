@@ -38,7 +38,6 @@ export default class AuthService {
       client_id: process.env.REACT_APP_GH_CLIENT_ID,
       allow_signup: "false",
       scope: "read:user user:email",
-      redirect_uri: process.env.REACT_APP_URL,
       state,
     };
     const params = new URLSearchParams(option).toString();
@@ -52,10 +51,15 @@ export default class AuthService {
     if (!result) {
       throw new Error("Github OAuth state doesn't validate.");
     }
-    return await this.http.fetch("/auth/github", {
-      method: "POST",
-      body: JSON.stringify({ code }),
-    });
+    return await this.http.fetch(
+      "/auth/github",
+      {
+        method: "POST",
+        body: JSON.stringify({ code }),
+      },
+      true,
+      await this.csrfToken()
+    );
   }
 
   async me() {

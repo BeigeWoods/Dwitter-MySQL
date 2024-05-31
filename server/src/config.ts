@@ -12,6 +12,7 @@ function required(key: string) {
 
 export const config: Config = {
   cors: {
+    baseUri: required("BASE_URI"),
     allowedOrigin: required("ALLOWED_ORIGIN"),
   },
   jwt: {
