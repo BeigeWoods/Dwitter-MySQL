@@ -28,7 +28,7 @@ const Tweets = memo(({ tweetService, commentService, username, addable }) => {
   const onDelete = (tweetId) =>
     tweetService
       .deleteTweet(tweetId)
-      .then(() =>
+      .then(
         setTweets((tweets) => tweets.filter((tweet) => tweet.id !== tweetId))
       )
       .catch((error) => onError(error));

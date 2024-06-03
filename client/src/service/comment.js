@@ -15,7 +15,7 @@ export default class CommentService {
       `/${tweetId}/comments`,
       {
         method: "POST",
-        body: JSON.stringify({ text, recipient }),
+        body: JSON.stringify(recipient ? { text, recipient } : { text }),
       },
       true
     );
