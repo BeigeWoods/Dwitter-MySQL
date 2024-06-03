@@ -5,7 +5,7 @@ export default class GoodRepository implements GoodDataHandler {
   constructor() {}
 
   clickTweet = async (userId: number, tweetId: string) => {
-    return await db
+    await db
       .execute("INSERT INTO goodTweets(userId, tweetId) VALUES(?, ?)", [
         userId,
         tweetId,
@@ -17,7 +17,7 @@ export default class GoodRepository implements GoodDataHandler {
   };
 
   unClickTweet = async (userId: number, tweetId: string) => {
-    return await db
+    await db
       .execute("DELETE FROM goodTweets WHERE userId = ? AND tweetId = ?", [
         userId,
         tweetId,
@@ -29,7 +29,7 @@ export default class GoodRepository implements GoodDataHandler {
   };
 
   clickComment = async (userId: number, commentId: string) => {
-    return await db
+    await db
       .execute("INSERT INTO goodComments(userId, commentId) VALUES(?, ?)", [
         userId,
         commentId,
@@ -41,7 +41,7 @@ export default class GoodRepository implements GoodDataHandler {
   };
 
   unClickComment = async (userId: number, commentId: string) => {
-    return await db
+    await db
       .execute("DELETE FROM goodComments WHERE userId = ? AND commentId = ?", [
         userId,
         commentId,

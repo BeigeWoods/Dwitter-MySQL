@@ -12,10 +12,12 @@ export default class GoodController implements GoodHandler {
   ) {}
 
   goodTweet = async (req: Request, res: Response, next: NextFunction) => {
-    let error: Error | void;
     const userId = req.user!.id;
     const { tweetId } = req.params;
-    let { clicked, good }: { clicked: number; good: number } = req.body;
+    const clicked = Number(req.body.clicked);
+    let good = Number(req.body.good);
+    let error: Error | void = undefined;
+
     if (clicked && good > 0) {
       good -= 1;
       error = await this.goodRepository.unClickTweet(userId, tweetId);
@@ -23,24 +25,27 @@ export default class GoodController implements GoodHandler {
       good += 1;
       error = await this.goodRepository.clickTweet(userId, tweetId);
     }
+    if (error) {
+      return next(error);
+    }
+    error = await this.tweetRepository.updateGood(tweetId, good);
+
     return error
       ? next(error)
-      : await this.tweetRepository.updateGood(tweetId, good, (error) =>
-          error
-            ? next(error)
-            : res.status(201).json({
-                id: tweetId,
-                good,
-                clicked: clicked ? 0 : userId,
-              })
-        );
+      : res.status(201).json({
+          id: Number(tweetId),
+          good,
+          clicked: clicked ? 0 : userId,
+        });
   };
 
   goodComment = async (req: Request, res: Response, next: NextFunction) => {
-    let error: Error | void;
     const userId = req.user!.id;
     const { commentId } = req.params;
-    let { clicked, good }: { clicked: number; good: number } = req.body;
+    const clicked = Number(req.body.clicked);
+    let good = Number(req.body.good);
+    let error: Error | void = undefined;
+
     if (clicked && good > 0) {
       good -= 1;
       error = await this.goodRepository.unClickComment(userId, commentId);
@@ -48,16 +53,17 @@ export default class GoodController implements GoodHandler {
       good += 1;
       error = await this.goodRepository.clickComment(userId, commentId);
     }
+    if (error) {
+      return next(error);
+    }
+    error = await this.commentRepository.updateGood(commentId, good);
+
     return error
       ? next(error)
-      : await this.commentRepository.updateGood(commentId, good, (error) =>
-          error
-            ? next(error)
-            : res.status(201).json({
-                id: commentId,
-                good,
-                clicked: clicked ? 0 : userId,
-              })
-        );
+      : res.status(201).json({
+          id: Number(commentId),
+          good,
+          clicked: clicked ? 0 : userId,
+        });
   };
 }
