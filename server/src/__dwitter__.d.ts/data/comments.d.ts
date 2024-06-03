@@ -1,5 +1,3 @@
-import { Callback } from "./callback";
-
 declare type CommentData = {
   id: string;
   text: string;
@@ -30,15 +28,8 @@ export declare interface CommentDataHandler {
     userId: number,
     text: string
   ): Promise<CommentData | void>;
-  updateGood(
-    id: string,
-    good: number,
-    callback: Callback
-  ): Promise<void | unknown[] | Callback>;
-  remove(
-    commentId: string,
-    callback: Callback
-  ): Promise<void | unknown[] | Callback>;
+  updateGood(id: string, good: number): Promise<Error | void>;
+  remove(commentId: string): Promise<Error | void>;
 }
 
 export declare class CommentRepository implements CommentDataHandler {
@@ -71,13 +62,6 @@ export declare class CommentRepository implements CommentDataHandler {
     userId: number,
     text: string
   ) => Promise<CommentData | void>;
-  updateGood(
-    commentId: string,
-    good: number,
-    callback: Callback
-  ): Promise<void | unknown[] | Callback>;
-  remove: (
-    commentId: string,
-    callback: Callback
-  ) => Promise<void | unknown[] | Callback>;
+  updateGood(commentId: string, good: number): Promise<Error | void>;
+  remove: (commentId: string) => Promise<Error | void>;
 }

@@ -22,24 +22,29 @@ export default class CommentController implements CommentHandler {
   };
 
   createComment = async (req: Request, res: Response, next: NextFunction) => {
-    let user: OutputUser | number | void = undefined;
     const { recipient }: { recipient?: string } = req.body;
+    let findUser = "";
     if (recipient) {
-      user = await this.userRepository.findByUsername(recipient);
-      switch (user) {
-        case 1:
-          return next(
-            new Error("createComment : from userRepository.findByUsername")
-          );
-        case undefined:
-          return res.status(409).json({ message: "Replied user not found" });
+      if (recipient === req.user?.username) {
+        findUser = req.user?.username;
+      } else {
+        const result = await this.userRepository.findByUsername(recipient);
+        switch (result) {
+          case 1:
+            return next(
+              new Error("createComment : from userRepository.findByUsername")
+            );
+          case undefined:
+            return res.status(409).json({ message: "Replied user not found" });
+        }
+        findUser = (result as OutputUser).username;
       }
     }
     const comment = await this.commentRepository.create(
       req.user!.id,
       req.params.tweetId,
       req.body.text,
-      user ? (user as OutputUser).username : ""
+      findUser
     );
     if (!comment) {
       return next(new Error("createComment : from commentRepository.create"));
@@ -61,8 +66,7 @@ export default class CommentController implements CommentHandler {
   };
 
   deleteComment = async (req: Request, res: Response, next: NextFunction) => {
-    return await this.commentRepository.remove(req.params.commentId, (error) =>
-      error ? next(error) : res.sendStatus(204)
-    );
+    const error = await this.commentRepository.remove(req.params.commentId);
+    return error ? next(error) : res.sendStatus(204);
   };
 }

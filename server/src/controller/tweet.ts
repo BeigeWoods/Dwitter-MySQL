@@ -31,10 +31,9 @@ export default class TweetController implements TweetHandler {
       req.params.tweetId,
       req.user!.id
     );
-    if (!tweet) {
-      return res.status(404).json({ message: `Tweet not found` });
-    }
-    return res.status(200).json(tweet);
+    return tweet
+      ? res.status(200).json(tweet)
+      : res.status(404).json({ message: `Tweet not found` });
   };
 
   createTweet = async (req: Request, res: Response, next: NextFunction) => {
@@ -72,8 +71,7 @@ export default class TweetController implements TweetHandler {
   };
 
   deleteTweet = async (req: Request, res: Response, next: NextFunction) => {
-    return await this.tweetRepository.remove(req.params.tweetId, (error) =>
-      error ? next(error) : res.sendStatus(204)
-    );
+    const error = await this.tweetRepository.remove(req.params.tweetId);
+    return error ? next(error) : res.sendStatus(204);
   };
 }

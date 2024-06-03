@@ -1,6 +1,5 @@
 import { db } from "../db/database.js";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
-import { Callback } from "../__dwitter__.d.ts/data/callback";
 
 export default class CommentRepository implements CommentDataHandler {
   private readonly Select_Feild =
@@ -63,21 +62,22 @@ export default class CommentRepository implements CommentDataHandler {
         if (recipient) {
           await this.createReply(result[0].insertId, recipient);
         }
-        return this.getById(tweetId, result[0].insertId, userId);
+        return await this.getById(tweetId, result[0].insertId, userId);
       })
       .catch((error) => console.error("commentRepository.create\n", error));
   };
 
   createReply = async (commentId: string, username: string) => {
-    return await db
+    await db
       .execute(
         "INSERT INTO replies (commentId, username) \
         VALUES(?, ?)",
         [commentId, username]
       )
-      .catch((error) =>
-        console.error("commentRepository.createReply\n", error)
-      );
+      .catch((error) => {
+        console.error("commentRepository.createReply\n", error);
+        throw new Error(error);
+      });
   };
 
   update = async (
@@ -97,21 +97,21 @@ export default class CommentRepository implements CommentDataHandler {
       .catch((error) => console.error("commentRepository.update\n", error));
   };
 
-  updateGood = async (commentId: string, good: number, callback: Callback) => {
-    return await db
+  updateGood = async (commentId: string, good: number) => {
+    await db
       .execute("UPDATE comments SET good = ? WHERE id = ?", [good, commentId])
       .catch((error) => {
         console.error("commentRepository.updateGood\n", error);
-        return callback(error);
+        return error;
       });
   };
 
-  remove = async (commentId: string, callback: Callback) => {
-    return await db
+  remove = async (commentId: string) => {
+    await db
       .execute("DELETE FROM comments WHERE id = ?", [commentId])
       .catch((error) => {
         console.error("commentRepository.remove\n", error);
-        return callback(error);
+        return error;
       });
   };
 }

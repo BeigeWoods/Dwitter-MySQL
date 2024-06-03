@@ -1,5 +1,3 @@
-import { Callback } from "./callback";
-
 export type PasswordInfo = {
   password: string;
   newPassword: string;
@@ -32,20 +30,9 @@ export declare interface UserDataHandler {
   findByUsername(username: string): Promise<OutputUser | number | void>;
   findByUserEmail(email: string): Promise<OutputUser | number | void>;
   createUser(user: InputUserInfo): Promise<number | void>;
-  updateUser(
-    userId: number,
-    user: InputUserProf,
-    callback: Callback
-  ): Promise<Callback | unknown[] | void>;
-  updatePassword(
-    userId: number,
-    password: string,
-    callback: Callback
-  ): Promise<Callback | unknown[] | void>;
-  deleteUser(
-    userId: number,
-    callback: Callback
-  ): Promise<Callback | unknown[] | void>;
+  updateUser(userId: number, user: InputUserProf): Promise<Error | void>;
+  updatePassword(userId: number, password: string): Promise<Error | void>;
+  deleteUser(userId: number): Promise<Error | void>;
 }
 
 export declare class UserRepository implements UserDataHandler {
@@ -57,18 +44,7 @@ export declare class UserRepository implements UserDataHandler {
   findByUsername: (username: string) => Promise<OutputUser | number | void>;
   findByUserEmail: (email: string) => Promise<OutputUser | number | void>;
   createUser: (user: InputUserInfo) => Promise<number | void>;
-  updateUser: (
-    userId: number,
-    user: InputUserProf,
-    callback: Callback
-  ) => Promise<Callback | unknown[] | void>;
-  updatePassword: (
-    userId: number,
-    password: string,
-    callback: Callback
-  ) => Promise<Callback | unknown[] | void>;
-  deleteUser: (
-    userId: number,
-    callback: Callback
-  ) => Promise<Callback | unknown[] | void>;
+  updateUser: (userId: number, user: InputUserProf) => Promise<Error | void>;
+  updatePassword: (userId: number, password: string) => Promise<Error | void>;
+  deleteUser: (userId: number) => Promise<Error | void>;
 }

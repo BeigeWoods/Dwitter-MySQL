@@ -19,7 +19,7 @@ export default class AuthController implements AuthDataHandler {
   ) {}
 
   private async isDuplicateEmailOrUsername(email: string, username: string) {
-    let result: number | void | OutputUser;
+    let result: OutputUser | number | void;
     result = await this.userRepository.findByUserEmail(email);
     if (result) {
       return Number(result) ? 1 : email;
@@ -115,19 +115,15 @@ export default class AuthController implements AuthDataHandler {
             message: `${isDuplicate} already exists.`,
           });
     }
-    return await this.userRepository.updateUser(
-      req.user!.id,
-      {
-        username,
-        name,
-        email,
-        url,
-      },
-      (error) =>
-        error
-          ? next(error)
-          : res.status(201).json({ username, name, email, url })
-    );
+    const error = await this.userRepository.updateUser(req.user!.id, {
+      username,
+      name,
+      email,
+      url,
+    });
+    return error
+      ? next(error)
+      : res.status(201).json({ username, name, email, url });
   };
 
   updatePassword = async (req: Request, res: Response, next: NextFunction) => {
@@ -153,20 +149,19 @@ export default class AuthController implements AuthDataHandler {
       newPassword + this.config.bcrypt.randomWords,
       this.config.bcrypt.saltRounds
     );
-    return await this.userRepository.updatePassword(
+    const error = await this.userRepository.updatePassword(
       req.user!.id,
-      hashedNewPw,
-      (error) => (error ? next(error) : res.sendStatus(204))
+      hashedNewPw
     );
+    return error ? next(error) : res.sendStatus(204);
   };
 
   withdrawal = async (req: Request, res: Response, next: NextFunction) => {
-    return await this.userRepository.deleteUser(req.user!.id, (error) => {
-      if (error) {
-        return next(error);
-      }
-      this.tokenController.setToken(res, "");
-      return res.sendStatus(204);
-    });
+    const error = await this.userRepository.deleteUser(req.user!.id);
+    if (error) {
+      return next(error);
+    }
+    this.tokenController.setToken(res, "");
+    return res.sendStatus(204);
   };
 }

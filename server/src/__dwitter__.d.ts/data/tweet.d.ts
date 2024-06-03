@@ -1,4 +1,3 @@
-import { Callback } from "./callback";
 import { UserProfile } from "./user";
 
 export declare type InputTweetContents = {
@@ -25,10 +24,7 @@ export declare interface TweetDataHandler {
     userId: number,
     username: string
   ): Promise<OutputTweet[] | void>;
-  getById(
-    tweetId: string | number,
-    userId: number
-  ): Promise<OutputTweet | void>;
+  getById(tweetId: string, userId: number): Promise<OutputTweet | void>;
   create(
     userId: number,
     text?: string,
@@ -40,15 +36,8 @@ export declare interface TweetDataHandler {
     userId: number,
     tweetContents: InputTweetContents
   ): Promise<OutputTweet | void>;
-  updateGood(
-    tweetId: string,
-    good: number,
-    callback: Callback
-  ): Promise<Callback | unknown[] | void>;
-  remove(
-    tweetId: string,
-    callback: Callback
-  ): Promise<Callback | unknown[] | void>;
+  updateGood(tweetId: string, good: number): Promise<Error | void>;
+  remove(tweetId: string): Promise<Error | void>;
 }
 
 export declare class TweetRepository implements TweetDataHandler {
@@ -66,10 +55,7 @@ export declare class TweetRepository implements TweetDataHandler {
     userId: number,
     username: string
   ) => Promise<OutputTweet[] | void>;
-  getById: (
-    tweetId: string | number,
-    userId: number
-  ) => Promise<OutputTweet | void>;
+  getById: (tweetId: string, userId: number) => Promise<OutputTweet | void>;
   create: (
     userId: number,
     text?: string,
@@ -81,13 +67,6 @@ export declare class TweetRepository implements TweetDataHandler {
     userId: number,
     tweetContents: InputTweetContents
   ) => Promise<OutputTweet | void>;
-  updateGood(
-    tweetId: string,
-    good: number,
-    callback: Callback
-  ): Promise<Callback | unknown[] | void>;
-  remove: (
-    tweetId: string,
-    callback: Callback
-  ) => Promise<Callback | unknown[] | void>;
+  updateGood(tweetId: string, good: number): Promise<Error | void>;
+  remove: (tweetId: string) => Promise<Error | void>;
 }

@@ -3,7 +3,6 @@ import {
   InputTweetContents,
   TweetDataHandler,
 } from "../__dwitter__.d.ts/data/tweet";
-import { Callback } from "../__dwitter__.d.ts/data/callback";
 
 export default class TweetRepository implements TweetDataHandler {
   private readonly Select_Feild =
@@ -74,7 +73,7 @@ export default class TweetRepository implements TweetDataHandler {
       );
   };
 
-  getById = async (tweetId: string | number, userId: number) => {
+  getById = async (tweetId: string, userId: number) => {
     return await db
       .execute(
         `${this.Select_Feild}
@@ -121,21 +120,21 @@ export default class TweetRepository implements TweetDataHandler {
       .catch((error) => console.error("tweetRepository.update\n", error));
   };
 
-  updateGood = async (tweetId: string, good: number, callback: Callback) => {
-    return await db
+  updateGood = async (tweetId: string, good: number) => {
+    await db
       .execute("UPDATE tweets SET good = ? WHERE id = ?", [good, tweetId])
       .catch((error) => {
         console.error("tweetRepository.updateGood\n", error);
-        return callback(error);
+        return error;
       });
   };
 
-  remove = async (tweetId: string, callback: Callback) => {
-    return await db
+  remove = async (tweetId: string) => {
+    await db
       .execute("DELETE FROM tweets WHERE id = ?", [tweetId])
       .catch((error) => {
         console.error("tweetRepository.remove\n", error);
-        return callback(error);
+        return error;
       });
   };
 }

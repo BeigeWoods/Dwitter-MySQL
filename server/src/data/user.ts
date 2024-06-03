@@ -4,7 +4,6 @@ import {
   InputUserProf,
   UserDataHandler,
 } from "../__dwitter__.d.ts/data/user";
-import { Callback } from "../__dwitter__.d.ts/data/callback";
 
 export default class UserRepository implements UserDataHandler {
   constructor() {}
@@ -86,41 +85,33 @@ export default class UserRepository implements UserDataHandler {
       .catch((error) => console.error("userRepository.createUser\n", error));
   };
 
-  updateUser = async (
-    userId: number,
-    user: InputUserProf,
-    callback: Callback
-  ) => {
-    return await db
+  updateUser = async (userId: number, user: InputUserProf) => {
+    await db
       .execute(
         `UPDATE users SET ${this.handleUpdateQuery(user)} WHERE id = ?`,
         [...this.handleUpdateValues(user), userId]
       )
       .catch((error) => {
         console.error("userRepository.updateUser\n", error);
-        return callback(error);
+        return error;
       });
   };
 
-  updatePassword = async (
-    userId: number,
-    password: string,
-    callback: Callback
-  ) => {
-    return await db
+  updatePassword = async (userId: number, password: string) => {
+    await db
       .execute("UPDATE users SET password = ? WHERE id = ?", [password, userId])
       .catch((error) => {
         console.error("userRepository.updatePassword\n", error);
-        return callback(error);
+        return error;
       });
   };
 
-  deleteUser = async (userId: number, callback: Callback) => {
-    return await db
+  deleteUser = async (userId: number) => {
+    await db
       .execute("DELETE FROM users WHERE id = ?", [userId])
       .catch((error) => {
         console.error("userRepository.deleteUser\n", error);
-        return callback(error);
+        return error;
       });
   };
 }
