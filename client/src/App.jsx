@@ -1,31 +1,32 @@
 import { Switch, Route, useHistory } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 import Header from "./components/Header";
 import AllTweets from "./pages/AllTweets";
 import MyTweets from "./pages/MyTweets";
-import { useAuth } from "./context/AuthContext";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
 import Login from "./pages/Login";
 
-function App({ tweetService, authService, commentService }) {
+function App({ tweetService, commentService }) {
   const history = useHistory();
-  const { user, logout, withdrawal } = useAuth();
+  const { user, getUser, updateUser, changePassword, withdrawal, logout } =
+    useAuth();
 
-  const onAllTweets = () => {
+  const toAllTweets = () => {
     history.push("/");
   };
-
-  const onMyTweets = () => {
-    history.push(`/${user.username}`);
+  const toProfile = () => {
+    history.push("/auth/profile");
   };
-
-  const onLogout = () => {
-    if (window.confirm("Do you want to log out?")) {
+  const toChangePassword = () => {
+    history.push("/auth/change-password");
+  };
+  const toLogout = () => {
+    if (window.confirm("Do you want to sign out?")) {
       logout().then(() => history.push("/"));
     }
   };
-
-  const onWithdrawal = () => {
+  const toWithdrawal = () => {
     if (window.confirm("Do you want to leave us?")) {
       withdrawal().then(() => history.push("/"));
     }
@@ -35,9 +36,9 @@ function App({ tweetService, authService, commentService }) {
     <div className="app">
       <Header
         username={user.username}
-        onLogout={onLogout}
-        onAllTweets={onAllTweets}
-        onMyTweets={onMyTweets}
+        toProfile={toProfile}
+        toLogout={toLogout}
+        toAllTweets={toAllTweets}
       />
       <Switch>
         (
@@ -55,10 +56,18 @@ function App({ tweetService, authService, commentService }) {
             />
           </Route>
           <Route exact path="/auth/profile">
-            <Profile onWithdrawal={onWithdrawal} authService={authService} />
+            <Profile
+              onGetUser={getUser}
+              onUpdateUser={updateUser}
+              toChangePassword={toChangePassword}
+              toWithdrawal={toWithdrawal}
+            />
           </Route>
           <Route exact path="/auth/change-password">
-            <ChangePassword authService={authService} />
+            <ChangePassword
+              onChangePassword={changePassword}
+              toProfile={toProfile}
+            />
           </Route>
           <Route path="/github_oauth">
             <Login />

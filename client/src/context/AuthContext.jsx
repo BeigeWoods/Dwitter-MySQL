@@ -41,7 +41,7 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
   }, [authService]);
 
   const signUp = useCallback(
-    async (username, password, name, email, url) =>
+    (username, password, name, email, url) =>
       authService
         .signup(username, password, name, email, url)
         .then((user) => setUser(user)),
@@ -49,13 +49,13 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
   );
 
   const logIn = useCallback(
-    async (username, password) =>
+    (username, password) =>
       authService.login(username, password).then((user) => setUser(user)),
     [authService]
   );
 
   const githubStart = useCallback(
-    async () =>
+    () =>
       authService
         .githubStart()
         .then((value) => window.location.assign(value))
@@ -64,7 +64,7 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
   );
 
   const githubLogin = useCallback(
-    async (query) =>
+    (query) =>
       authService
         .githubLogin(query)
         .then((user) => setUser(user))
@@ -73,27 +73,46 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
     [authService, history]
   );
 
+  const getUser = useCallback(() => authService.getUser(), [authService]);
+
+  const updateUser = useCallback(
+    (username, name, email, url) =>
+      authService.updateUser(username, name, email, url).then((update) => {
+        if (update.username) {
+          user.username = update.username;
+          setUser(user);
+        }
+        return update;
+      }),
+    [authService, user]
+  );
+
+  const changePassword = useCallback(
+    (password, newPassword, checkPassword) =>
+      authService.password(password, newPassword, checkPassword),
+    [authService]
+  );
+
   const logout = useCallback(
-    async () => authService.logout().then(() => setUser(undefined)),
+    () => authService.logout().then(() => setUser(undefined)),
     [authService]
   );
 
   const withdrawal = useCallback(
-    async () => authService.withdrawal().then(() => setUser(undefined)),
+    () => authService.withdrawal().then(() => setUser(undefined)),
     [authService]
   );
 
   const context = useMemo(
     () => ({
       user,
-      signUp,
-      logIn,
-      githubStart,
-      githubLogin,
-      logout,
+      getUser,
+      updateUser,
+      changePassword,
       withdrawal,
+      logout,
     }),
-    [user, signUp, logIn, githubStart, githubLogin, logout, withdrawal]
+    [user, getUser, updateUser, changePassword, withdrawal, logout]
   );
 
   return (

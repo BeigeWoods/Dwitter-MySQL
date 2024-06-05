@@ -33,11 +33,7 @@ root.render(
         authService={authService}
         authErrorEventBus={authErrorEventBus}
       >
-        <App
-          tweetService={tweetService}
-          authService={authService}
-          commentService={commentService}
-        />
+        <App tweetService={tweetService} commentService={commentService} />
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>

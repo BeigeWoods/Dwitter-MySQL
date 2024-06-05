@@ -1,27 +1,18 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router";
 import Banner from "../components/Banner";
 import { UserForm, UserInput, Submit } from "../css/authForm";
 
-const ChangePassword = ({ authService }) => {
+const ChangePassword = ({ onChangePassword, toProfile }) => {
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
-  const [text, setText] = useState("");
-  const [isAlert, setIsAlert] = useState(false);
-  const history = useHistory();
+  const [error, setError] = useState("");
 
   const onSubmit = (event) => {
     event.preventDefault();
-    authService
-      .password(password, newPassword, checkPassword)
-      .then(() => history.push("/auth/profile"))
-      .catch(setError);
-  };
-
-  const setError = (error) => {
-    setText(error.toString());
-    setIsAlert(true);
+    onChangePassword(password, newPassword, checkPassword)
+      .then(toProfile())
+      .catch(onError);
   };
 
   const onChange = (event) => {
@@ -40,9 +31,16 @@ const ChangePassword = ({ authService }) => {
     }
   };
 
+  const onError = (err) => {
+    setError(err.toString());
+    setTimeout(() => {
+      setError("");
+    }, 3000);
+  };
+
   return (
     <>
-      <Banner text={text} isAlert={isAlert} />
+      <Banner error={error} />
       <UserForm onSubmit={onSubmit}>
         <UserInput
           name="password"

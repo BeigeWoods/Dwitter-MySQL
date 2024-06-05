@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, check } from "express-validator";
 import { expressValidator } from "./validator.js";
 
 const user = {
@@ -47,6 +47,38 @@ const user = {
       .trim()
       .isEmail()
       .normalizeEmail(),
+  ],
+  profileContents: [
+    body("username", "Invaild username")
+      .optional({ values: "falsy" })
+      .trim()
+      .isLength({ min: 2 })
+      .withMessage("Username should be at least 2 characters"),
+    body("name", "Invalid name")
+      .optional({ values: "falsy" })
+      .trim()
+      .isLength({ min: 2 })
+      .withMessage("Password should be at least 2 characters"),
+    body("email", "Invaild email")
+      .optional({ values: "falsy" })
+      .trim()
+      .isEmail()
+      .normalizeEmail(),
+  ],
+  isAllEmpty: [
+    check("body").custom((value, { req }) => {
+      if (
+        !req.body.username &&
+        !req.body.name &&
+        !req.body.email &&
+        !req.body.url
+      ) {
+        throw new Error("Should provide at least one value");
+      }
+      return true;
+    }),
+  ],
+  avatarUrl: [
     body("url", "Invalid profile image url")
       .trim()
       .isURL()
@@ -81,10 +113,16 @@ export const userValidator = {
     ...user.username,
     ...user.password,
     ...user.userContents,
+    ...user.avatarUrl,
     expressValidator,
   ],
   login: [...user.username, ...user.password, expressValidator],
-  updateUser: [...user.username, ...user.userContents, expressValidator],
+  updateUser: [
+    ...user.profileContents,
+    ...user.avatarUrl,
+    ...user.isAllEmpty,
+    expressValidator,
+  ],
   updatePassword: [
     ...user.password,
     ...user.passwordContents,

@@ -1,5 +1,4 @@
-import React, { memo, useEffect, useState } from "react";
-import { useHistory } from "react-router";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Avatar from "../components/Avatar";
 import Banner from "../components/Banner";
@@ -27,51 +26,59 @@ const Withdrawal = styled.button`
   margin-top: 13px;
 `;
 
-const Profile = memo(({ onWithdrawal, authService }) => {
-  const [user, setUser] = useState(undefined);
+const Profile = ({
+  onGetUser,
+  onUpdateUser,
+  toChangePassword,
+  toWithdrawal,
+}) => {
+  const [profile, setProfile] = useState(undefined);
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [url, setURL] = useState("");
-  const [socialLogin, setSocialLogin] = useState(false);
-  const [text, setText] = useState("");
-  const [isAlert, setIsAlert] = useState(false);
-  const history = useHistory();
+  const [error, setError] = useState("");
 
-  useEffect(
-    () =>
-      authService
-        .getUser()
-        .then((user) => {
-          setUser(user);
-          setUsername(user.username);
-          setName(user.name);
-          setEmail(user.email);
-          setURL(user.url);
-          setSocialLogin(user.socialLogin);
-        })
-        .catch(setError),
-    [authService]
-  );
+  useEffect(() => {
+    onGetUser()
+      .then((value) => setProfile(value))
+      .catch(onError);
+  }, [onGetUser]);
 
   const onSubmit = (event) => {
     event.preventDefault();
     if (
-      username !== user.username &&
-      name !== user.name &&
-      email !== user.email &&
-      url !== user.url
-    ) {
-      authService
-        .updateUser(
-          username === user.username ? "" : username,
-          name === user.name ? "" : name,
-          email === user.email ? "" : email,
-          url === user.url ? "" : url
-        )
-        .then((user) => setUser(user))
-        .catch(setError);
-    }
+      username !== profile.username ||
+      name !== profile.name ||
+      email !== profile.email ||
+      url !== profile.url
+    )
+      onUpdateUser(
+        username === profile.username ? "" : username,
+        name === profile.name ? "" : name,
+        email === profile.email ? "" : email,
+        url === profile.url ? "" : url
+      )
+        .then((update) => {
+          if (update.username) {
+            profile.username = update.username;
+            setUsername("");
+          }
+          if (update.name) {
+            profile.name = update.name;
+            setName("");
+          }
+          if (update.email) {
+            profile.email = update.email;
+            setEmail("");
+          }
+          if (update.url) {
+            profile.url = update.url;
+            setURL("");
+          }
+          setProfile(profile);
+        })
+        .catch(onError);
   };
 
   const onChange = (event) => {
@@ -91,86 +98,78 @@ const Profile = memo(({ onWithdrawal, authService }) => {
     }
   };
 
-  const setError = (error) => {
-    setText(error.toString());
-    setIsAlert(true);
-  };
-
-  const onChangePW = () => {
-    history.push("/auth/change-password");
+  const onError = (error) => {
+    setError(error.toString());
+    setTimeout(() => {
+      setError("");
+    }, 3000);
   };
 
   return (
     <>
-      <Banner text={text} isAlert={isAlert} />
-      <Avatar url={url} name={name} isTweet={false} />
-      {user && (
+      <Banner text={error} />
+      {profile && (
         <>
+          <Avatar url={profile.url} name={profile.name} isTweet={false} />
           <UserForm onSubmit={onSubmit}>
             <Title>
-              Username: <Span>{user.username}</Span>
+              Username: <Span>{profile.username}</Span>
             </Title>
             <UserInput
               name="username"
               type="username"
-              defaultValue={username}
+              defaultValue={profile.username}
               onChange={onChange}
               required
             />
-            <Title>
-              Name: <Span>{user.name}</Span>
-            </Title>
-            {socialLogin ? (
-              ""
-            ) : (
-              <UserInput
-                name="name"
-                type="name"
-                defaultValue={name}
-                onChange={onChange}
-                required
-              />
-            )}
-            <Title>
-              Email: <Span>{user.email}</Span>
-            </Title>
-            {socialLogin ? (
-              ""
-            ) : (
-              <UserInput
-                name="email"
-                type="email"
-                defaultValue={email}
-                onChange={onChange}
-                required
-              />
+            {!profile.socialLogin && (
+              <>
+                <Title>
+                  Name: <Span>{profile.name}</Span>
+                </Title>
+                <UserInput
+                  name="name"
+                  type="name"
+                  defaultValue={profile.name}
+                  onChange={onChange}
+                  required
+                />
+                <Title>
+                  Email: <Span>{profile.email}</Span>
+                </Title>
+                <UserInput
+                  name="email"
+                  type="email"
+                  defaultValue={profile.email}
+                  onChange={onChange}
+                  required
+                />
+              </>
             )}
             <Title>
               Image Url:
               <Span>
-                {user.url.length > 50
-                  ? `${user.url.substring(0, 50)}...`
-                  : user.url}
+                {profile.url.length > 50
+                  ? `${profile.url.substring(0, 50)}...`
+                  : profile.url}
               </Span>
             </Title>
             <UserInput
               name="url"
               type="url"
-              defaultValue={user.url}
+              defaultValue={profile.url}
               onChange={onChange}
             />
             <Submit type="submit">Submit</Submit>
           </UserForm>
-          {socialLogin ? (
-            ""
-          ) : (
-            <Password onClick={onChangePW}>Change Password →</Password>
+          {!profile.socialLogin && (
+            <Password onClick={toChangePassword}>Change Password →</Password>
           )}
         </>
       )}
-      <Withdrawal onClick={onWithdrawal}>Withdrawal</Withdrawal>
+      <Withdrawal onClick={toWithdrawal}>Withdrawal</Withdrawal>
     </>
   );
-});
+};
 
 export default Profile;
