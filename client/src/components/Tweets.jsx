@@ -6,16 +6,16 @@ import TweetCard from "./TweetCard";
 import { useAuth } from "../context/AuthContext";
 
 const Tweets = memo(({ tweetService, commentService, username, addable }) => {
-  const [tweets, setTweets] = useState([]);
-  const [error, setError] = useState("");
   const history = useHistory();
   const { user } = useAuth();
+  const [tweets, setTweets] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     tweetService
       .getTweets(username)
       .then((tweets) => setTweets([...tweets]))
-      .catch((error) => onError(error));
+      .catch(onError);
 
     const stopSync = tweetService.onSync((tweet) => onCreated(tweet));
     return () => stopSync();
@@ -31,7 +31,7 @@ const Tweets = memo(({ tweetService, commentService, username, addable }) => {
       .then(
         setTweets((tweets) => tweets.filter((tweet) => tweet.id !== tweetId))
       )
-      .catch((error) => onError(error));
+      .catch(onError);
 
   const onUpdate = (tweetId, text, video, image) =>
     tweetService
@@ -41,11 +41,9 @@ const Tweets = memo(({ tweetService, commentService, username, addable }) => {
           tweets.map((item) => (item.id === updated.id ? updated : item))
         )
       )
-      .catch((error) => onError(error));
+      .catch(onError);
 
-  const onUsernameClick = (tweet) => history.push(`/${tweet.username}`);
-
-  const onChangeForGood = (tweet, update) => {
+  const changeForGood = (tweet, update) => {
     tweet.good = update.good;
     tweet.clicked = update.clicked;
     return tweet;
@@ -54,17 +52,19 @@ const Tweets = memo(({ tweetService, commentService, username, addable }) => {
   const onClickGoodTweet = (tweetId, good, clicked) =>
     tweetService
       .clickGood(tweetId, good, clicked)
-      .then((updated) =>
+      .then((update) =>
         setTweets((tweets) =>
           tweets.map((item) =>
-            item.id === updated.id ? onChangeForGood(item, updated) : item
+            item.id === update.id ? changeForGood(item, update) : item
           )
         )
       )
-      .catch((error) => onError(error));
+      .catch(onError);
 
-  const onError = (error) => {
-    setError(error.toString());
+  const onUsernameClick = (tweet) => history.push(`/${tweet.username}`);
+
+  const onError = (err) => {
+    setError(err.toString());
     setTimeout(() => {
       setError("");
     }, 3000);
@@ -75,19 +75,19 @@ const Tweets = memo(({ tweetService, commentService, username, addable }) => {
       {addable && (
         <NewTweetForm tweetService={tweetService} onError={onError} />
       )}
-      {error && <Banner text={error} isAlert={true} transient={true} />}
-      {tweets.length === 0 && <p className="tweets-empty">No Tweets Yet</p>}
+      <Banner error={error} />
+      {!tweets.length && <p className="tweets-empty">No Tweets Yet</p>}
       <ul className="tweets">
         {tweets.map((tweet) => (
           <TweetCard
             key={tweet.id}
             tweet={tweet}
             owner={tweet.username === user.username}
+            commentService={commentService}
+            onUsernameClick={onUsernameClick}
             onDelete={onDelete}
             onUpdate={onUpdate}
-            onUsernameClick={onUsernameClick}
             onClickGoodTweet={onClickGoodTweet}
-            commentService={commentService}
             onError={onError}
           />
         ))}
@@ -95,4 +95,5 @@ const Tweets = memo(({ tweetService, commentService, username, addable }) => {
     </>
   );
 });
+
 export default Tweets;

@@ -13,7 +13,7 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
     commentService
       .getComments(tweetId)
       .then((comments) => setComments([...comments]))
-      .catch((error) => onError(error));
+      .catch(onError);
 
     const stopSync = commentService.onSync((comment) => onCreated(comment));
     return () => stopSync();
@@ -31,7 +31,7 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
           comments.filter((comment) => comment.id !== id)
         )
       )
-      .catch((error) => onError(error));
+      .catch(onError);
 
   const onUpdate = (tweetId, id, text) =>
     commentService
@@ -41,7 +41,7 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
           comments.map((item) => (item.id === updated.id ? updated : item))
         )
       )
-      .catch((error) => onError(error));
+      .catch(onError);
 
   const onChangeForGood = (comment, update) => {
     comment.good = update.good;
@@ -59,7 +59,7 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
           )
         );
       })
-      .catch((error) => onError(error));
+      .catch(onError);
 
   const onClickReply = (recipient) => {
     setRecipient(recipient);
@@ -75,7 +75,7 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
           onClickReply={onClickReply}
           onError={onError}
         />
-        {comments.length === 0 && <EmptyCard>No Comments Yet</EmptyCard>}
+        {!comments.length && <EmptyCard>No Comments Yet</EmptyCard>}
         <Folder>
           {comments.map((comment) => (
             <CommentCard
@@ -87,6 +87,7 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
               onUpdate={onUpdate}
               onClickGoodComment={onClickGoodComment}
               onClickReply={onClickReply}
+              onError={onError}
             />
           ))}
         </Folder>

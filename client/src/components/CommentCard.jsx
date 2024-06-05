@@ -25,6 +25,7 @@ const CommentCard = memo(
     onUpdate,
     onClickGoodComment,
     onClickReply,
+    onError,
   }) => {
     const {
       id,
@@ -66,6 +67,7 @@ const CommentCard = memo(
               comment={comment}
               onUpdate={onUpdate}
               onClose={onClose}
+              onError={onError}
             />
           )}
           {owner && (
@@ -89,4 +91,5 @@ const CommentCard = memo(
     );
   }
 );
+
 export default CommentCard;

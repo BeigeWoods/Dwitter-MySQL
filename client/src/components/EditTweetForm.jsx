@@ -10,7 +10,7 @@ import {
   VideoInput,
 } from "../css/tweetForm";
 
-const EditTweetForm = ({ tweet, onUpdate, onClose }) => {
+const EditTweetForm = ({ tweet, onUpdate, onClose, onError }) => {
   const [text, setText] = useState(tweet.text);
   const [video, setVideo] = useState(tweet.video);
   const [image, setImage] = useState(tweet.image);
@@ -25,7 +25,7 @@ const EditTweetForm = ({ tweet, onUpdate, onClose }) => {
         video === tweet.video ? "" : video,
         image === tweet.image ? "" : image,
         tweet.image
-      );
+      ).catch(onError);
     }
     onClose();
   };

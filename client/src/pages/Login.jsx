@@ -37,29 +37,30 @@ const Login = ({ onSignUp, onLogin, onGithubStart, onGithubLogin }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [url, setURL] = useState("");
-  const [text, setText] = useState("");
-  const [isAlert, setIsAlert] = useState(false);
+  const [error, setError] = useState("");
   const history = useHistory();
 
   useEffect(() => {
     const query = history.location.search;
     if (query.includes("code")) {
-      onGithubLogin(query).catch(setError);
+      onGithubLogin(query).catch(onError);
     }
   });
 
   const onSubmit = (event) => {
     event.preventDefault();
     if (signup) {
-      onSignUp(username, password, name, email, url).catch(setError);
+      onSignUp(username, password, name, email, url).catch(onError);
     } else {
-      onLogin(username, password).catch(setError);
+      onLogin(username, password).catch(onError);
     }
   };
 
-  const setError = (error) => {
-    setText(error.toString());
-    setIsAlert(true);
+  const onError = (err) => {
+    setError(err.toString());
+    setTimeout(() => {
+      setError("");
+    }, 3000);
   };
 
   const onChange = (event) => {
@@ -85,7 +86,7 @@ const Login = ({ onSignUp, onLogin, onGithubStart, onGithubLogin }) => {
 
   return (
     <>
-      <Banner text={text} isAlert={isAlert} />
+      <Banner error={error} />
       <UserForm onSubmit={onSubmit}>
         <UserInput
           name="username"

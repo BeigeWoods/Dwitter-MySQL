@@ -51,9 +51,9 @@ const TweetCard = memo(
       good,
       clicked,
     } = tweet;
+    const [commenting, setCommenting] = useState(false);
     const [editing, setEditing] = useState(false);
     const onClose = () => setEditing(false);
-    const [commenting, setCommenting] = useState(false);
 
     return (
       <li className="tweet">
@@ -109,7 +109,12 @@ const TweetCard = memo(
           )}
         </section>
         {editing && (
-          <EditTweetForm tweet={tweet} onUpdate={onUpdate} onClose={onClose} />
+          <EditTweetForm
+            tweet={tweet}
+            onUpdate={onUpdate}
+            onClose={onClose}
+            onError={onError}
+          />
         )}
         {commenting && (
           <Comments
@@ -122,4 +127,5 @@ const TweetCard = memo(
     );
   }
 );
+
 export default TweetCard;

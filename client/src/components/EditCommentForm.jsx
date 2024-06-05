@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { CommentForm, CommentSubmit, CommentCancle } from "../css/comment";
 
-const EditCommentForm = ({ tweetId, comment, onUpdate, onClose }) => {
+const EditCommentForm = ({ tweetId, comment, onUpdate, onClose, onError }) => {
   const [text, setText] = useState(comment.text);
 
   const onSubmit = async (event) => {
     event.preventDefault();
     if (text !== comment.text) {
-      onUpdate(tweetId, comment.id, text);
+      onUpdate(tweetId, comment.id, text).catch(onError);
     }
     onClose();
   };
