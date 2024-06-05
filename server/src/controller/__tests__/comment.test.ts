@@ -134,32 +134,22 @@ describe("Comment Controller", () => {
   describe("deleteComment", () => {
     test("calls next middleware when DB returns error by callback", async () => {
       request = httpMocks.createRequest(mockComment.reqOptions(commentId));
-      mockedCommentRepository.remove.mockImplementation((commentId, callback) =>
-        Promise.resolve(callback(new Error("Error")))
-      );
+      mockedCommentRepository.remove.mockResolvedValueOnce(new Error("Error"));
 
       await commentController.deleteComment(request, response, next);
 
-      expect(mockedCommentRepository.remove).toHaveBeenCalledWith(
-        commentId,
-        expect.any(Function)
-      );
+      expect(mockedCommentRepository.remove).toHaveBeenCalledWith(commentId);
       expect(next).toHaveBeenCalled();
       expect(response.statusCode).not.toBe(204);
     });
 
     test("returns status 204 when succeeds to deleting", async () => {
       request = httpMocks.createRequest(mockComment.reqOptions(commentId));
-      mockedCommentRepository.remove.mockImplementation((commentId, callback) =>
-        Promise.resolve(callback(undefined))
-      );
+      mockedCommentRepository.remove.mockResolvedValueOnce(undefined);
 
       await commentController.deleteComment(request, response, next);
 
-      expect(mockedCommentRepository.remove).toHaveBeenCalledWith(
-        commentId,
-        expect.any(Function)
-      );
+      expect(mockedCommentRepository.remove).toHaveBeenCalledWith(commentId);
       expect(next).not.toHaveBeenCalled();
       expect(response.statusCode).toBe(204);
     });

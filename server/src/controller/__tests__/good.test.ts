@@ -15,12 +15,12 @@ describe("GoodController", () => {
     mockedGoodRepository
   );
   const userId = 1,
-    tweetId = 2,
-    commentId = 3;
+    tweetId = "2",
+    commentId = "3";
   const reqOptions = (
     isTweet: boolean,
-    good: number,
-    clicked: number
+    good: string,
+    clicked: string
   ): httpMocks.RequestOptions => ({
     user: { id: 1 },
     params: isTweet ? { tweetId } : { commentId },
@@ -37,7 +37,7 @@ describe("GoodController", () => {
 
   describe("goodTweet", () => {
     test("calls next middleware when DB returns error at switching 'unclicked' to 'clicked'", async () => {
-      request = httpMocks.createRequest(reqOptions(true, 0, 0));
+      request = httpMocks.createRequest(reqOptions(true, "0", "0"));
       mockedGoodRepository.clickTweet.mockResolvedValue(new Error("No"));
 
       await goodMiddleware.goodTweet(request, response, next);
@@ -52,12 +52,19 @@ describe("GoodController", () => {
       expect(response.statusCode).not.toBe(201);
     });
 
+    test("what if number of good is clicked is zero", async () => {
+      request = httpMocks.createRequest(reqOptions(true, "0", String(userId)));
+
+      await goodMiddleware.goodTweet(request, response, next);
+
+      expect(mockedGoodRepository.unClickTweet).not.toHaveBeenCalled();
+      expect(mockedGoodRepository.clickTweet).toHaveBeenCalled();
+    });
+
     test("switches 'clicked' to 'unclicked' when user click the good button", async () => {
-      request = httpMocks.createRequest(reqOptions(true, 1, 1));
+      request = httpMocks.createRequest(reqOptions(true, "1", String(userId)));
       mockedGoodRepository.unClickTweet.mockResolvedValue(undefined);
-      mockedTweetRepository.updateGood.mockImplementation(
-        (tweetId, good, callback) => Promise.resolve(callback(undefined))
-      );
+      mockedTweetRepository.updateGood.mockResolvedValueOnce(undefined);
 
       await goodMiddleware.goodTweet(request, response, next);
 
@@ -66,15 +73,11 @@ describe("GoodController", () => {
         tweetId
       );
       expect(mockedGoodRepository.clickTweet).not.toHaveBeenCalled();
-      expect(mockedTweetRepository.updateGood).toHaveBeenCalledWith(
-        tweetId,
-        0,
-        expect.any(Function)
-      );
+      expect(mockedTweetRepository.updateGood).toHaveBeenCalledWith(tweetId, 0);
       expect(next).not.toHaveBeenCalled();
       expect(response.statusCode).toBe(201);
       expect(response._getJSONData()).toMatchObject({
-        id: tweetId,
+        id: Number(tweetId),
         good: 0,
         clicked: 0,
       });
@@ -83,7 +86,7 @@ describe("GoodController", () => {
 
   describe("goodComment", () => {
     test("calls next middleware when DB returns error at switching 'unclicked' to 'clicked'", async () => {
-      request = httpMocks.createRequest(reqOptions(false, 0, 0));
+      request = httpMocks.createRequest(reqOptions(false, "0", "0"));
       mockedGoodRepository.clickComment.mockResolvedValue(new Error("No"));
 
       await goodMiddleware.goodComment(request, response, next);
@@ -99,11 +102,10 @@ describe("GoodController", () => {
     });
 
     test("calls next middleware when DB returns error at switching 'clicked' to 'unclicked'", async () => {
-      request = httpMocks.createRequest(reqOptions(false, 1, 1));
+      request = httpMocks.createRequest(reqOptions(false, "1", String(userId)));
       mockedGoodRepository.unClickComment.mockResolvedValue(undefined);
-      mockedCommentRepository.updateGood.mockImplementation(
-        (commentId, good, callback) =>
-          Promise.resolve(callback(new Error("No")))
+      mockedCommentRepository.updateGood.mockResolvedValueOnce(
+        new Error("Error")
       );
 
       await goodMiddleware.goodComment(request, response, next);
@@ -115,19 +117,16 @@ describe("GoodController", () => {
       expect(mockedGoodRepository.clickComment).not.toHaveBeenCalled();
       expect(mockedCommentRepository.updateGood).toHaveBeenCalledWith(
         commentId,
-        0,
-        expect.any(Function)
+        0
       );
       expect(next).toHaveBeenCalled();
       expect(response.statusCode).not.toBe(201);
     });
 
     test("switches 'unclicked' to 'clicked' when user unclick the good button", async () => {
-      request = httpMocks.createRequest(reqOptions(false, 0, 0));
+      request = httpMocks.createRequest(reqOptions(false, "0", "0"));
       mockedGoodRepository.clickComment.mockResolvedValue(undefined);
-      mockedCommentRepository.updateGood.mockImplementation(
-        (commentId, good, callback) => Promise.resolve(callback(undefined))
-      );
+      mockedCommentRepository.updateGood.mockResolvedValueOnce(undefined);
 
       await goodMiddleware.goodComment(request, response, next);
 
@@ -138,15 +137,14 @@ describe("GoodController", () => {
       );
       expect(mockedCommentRepository.updateGood).toHaveBeenCalledWith(
         commentId,
-        1,
-        expect.any(Function)
+        1
       );
       expect(next).not.toHaveBeenCalled();
       expect(response.statusCode).toBe(201);
       expect(response._getJSONData()).toMatchObject({
-        id: commentId,
+        id: Number(commentId),
         good: 1,
-        clicked: 1,
+        clicked: userId,
       });
     });
   });

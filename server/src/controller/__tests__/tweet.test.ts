@@ -144,32 +144,22 @@ describe("Tweet Controller", () => {
   describe("deleteTweet", () => {
     test("calls next middleware when DB returns error at deleting tweet", async () => {
       request = httpMocks.createRequest(mockTweet.reqOptions(tweetId));
-      mockedTweetRepository.remove.mockImplementation((tweetId, callback) =>
-        Promise.resolve(callback(new Error("Error")))
-      );
+      mockedTweetRepository.remove.mockResolvedValueOnce(new Error("Error"));
 
       await tweetController.deleteTweet(request, response, next);
 
-      expect(mockedTweetRepository.remove).toHaveBeenCalledWith(
-        tweetId,
-        expect.any(Function)
-      );
+      expect(mockedTweetRepository.remove).toHaveBeenCalledWith(tweetId);
       expect(next).toHaveBeenCalled();
       expect(response.statusCode).not.toBe(204);
     });
 
     test("returns status 204 when tweetId is provided", async () => {
       request = httpMocks.createRequest(mockTweet.reqOptions(tweetId));
-      mockedTweetRepository.remove.mockImplementation((tweetId, callback) =>
-        Promise.resolve(callback(undefined))
-      );
+      mockedTweetRepository.remove.mockResolvedValueOnce(undefined);
 
       await tweetController.deleteTweet(request, response, next);
 
-      expect(mockedTweetRepository.remove).toHaveBeenCalledWith(
-        tweetId,
-        expect.any(Function)
-      );
+      expect(mockedTweetRepository.remove).toHaveBeenCalledWith(tweetId);
       expect(next).not.toHaveBeenCalled();
       expect(response.statusCode).toBe(204);
     });
