@@ -21,7 +21,9 @@ export default class HttpClient {
     try {
       data = await res.json();
     } catch (error) {
-      console.error(error);
+      if (res.status !== 204) {
+        console.error(error);
+      }
     }
 
     if (res.status > 299 || res.status < 200) {

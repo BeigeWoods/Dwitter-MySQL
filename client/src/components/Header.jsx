@@ -1,10 +1,9 @@
-import React, { memo } from "react";
+import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { useHistory } from "react-router";
 import styled from "styled-components";
 
-// Style
 const PageHeader = styled.header`
   display: flex;
   justify-content: space-between;
@@ -48,31 +47,30 @@ const Button = styled.button`
   font-size: 17px;
 `;
 
-// Component
-const Header = memo(({ username, onLogout, onMyTweets, onAllTweets }) => {
+const Header = ({ username, toAllTweets, toProfile, toLogout }) => {
   const history = useHistory();
-  const onProfile = () => {
-    history.push("/auth/profile");
+  const toMyTweets = () => {
+    history.push(`/${username}`);
   };
   return (
     <PageHeader>
       <Logo>
         <Image src="./img/logo.png" alt="Dwitter Logo" />
-        <Title onClick={onAllTweets}>Dwitter</Title>
-        {username && <Username onClick={onMyTweets}>@{username}</Username>}
+        <Title onClick={toAllTweets}>Dwitter</Title>
+        {username && <Username onClick={toMyTweets}>@{username}</Username>}
       </Logo>
       {username && (
         <Menu>
-          <Button onClick={onProfile}>
+          <Button onClick={toProfile}>
             <FontAwesomeIcon icon={faUser} />
           </Button>
-          <Button onClick={onLogout}>
+          <Button onClick={toLogout}>
             <FontAwesomeIcon icon={faSignOutAlt} />
           </Button>
         </Menu>
       )}
     </PageHeader>
   );
-});
+};
 
 export default Header;
