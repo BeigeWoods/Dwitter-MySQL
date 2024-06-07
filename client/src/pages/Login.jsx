@@ -1,36 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
-import styled from "styled-components";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import Banner from "../components/Banner";
-import { UserForm, UserInput, Submit } from "../css/authForm";
+import { authForm } from "../css/forms";
+import { login } from "../css/pages";
 
-const GithubLogin = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 10px 80px;
-  padding: 5px;
-  background-color: var(--color-black);
-  border-radius: 20px;
-  text-decoration-line: none;
-`;
-
-const GithubButton = styled.button`
-  display: grid;
-  grid-template-columns: auto auto;
-  grid-column-gap: 10px;
-  color: var(--color-white);
-  font-size: 1.2rem;
-  font-weight: bold;
-`;
-
-const CheckSignup = styled.div`
-  margin-top: 8px;
-`;
-
-const Login = ({ onSignUp, onLogin, onGithubStart, onGithubLogin }) => {
+const Login = ({ onSignUp, onLogin, onGithubLogin }) => {
   const [signup, setSignup] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -38,14 +13,6 @@ const Login = ({ onSignUp, onLogin, onGithubStart, onGithubLogin }) => {
   const [email, setEmail] = useState("");
   const [url, setURL] = useState("");
   const [error, setError] = useState("");
-  const history = useHistory();
-
-  useEffect(() => {
-    const query = history.location.search;
-    if (query.includes("code")) {
-      onGithubLogin(query).catch(onError);
-    }
-  });
 
   const onSubmit = (event) => {
     event.preventDefault();
@@ -87,8 +54,8 @@ const Login = ({ onSignUp, onLogin, onGithubStart, onGithubLogin }) => {
   return (
     <>
       <Banner error={error} />
-      <UserForm onSubmit={onSubmit}>
-        <UserInput
+      <authForm.Form onSubmit={onSubmit}>
+        <authForm.Input
           name="username"
           type="text"
           placeholder="Id"
@@ -96,7 +63,7 @@ const Login = ({ onSignUp, onLogin, onGithubStart, onGithubLogin }) => {
           onChange={onChange}
           required
         />
-        <UserInput
+        <authForm.Input
           name="password"
           type="password"
           placeholder="Password"
@@ -105,7 +72,7 @@ const Login = ({ onSignUp, onLogin, onGithubStart, onGithubLogin }) => {
           required
         />
         {signup && (
-          <UserInput
+          <authForm.Input
             name="name"
             type="text"
             placeholder="Name"
@@ -115,7 +82,7 @@ const Login = ({ onSignUp, onLogin, onGithubStart, onGithubLogin }) => {
           />
         )}
         {signup && (
-          <UserInput
+          <authForm.Input
             name="email"
             type="email"
             placeholder="Email"
@@ -125,7 +92,7 @@ const Login = ({ onSignUp, onLogin, onGithubStart, onGithubLogin }) => {
           />
         )}
         {signup && (
-          <UserInput
+          <authForm.Input
             name="url"
             type="url"
             placeholder="Profile Image URL"
@@ -133,7 +100,7 @@ const Login = ({ onSignUp, onLogin, onGithubStart, onGithubLogin }) => {
             onChange={onChange}
           />
         )}
-        <CheckSignup>
+        <login.CheckSignup>
           <input
             name="signup"
             id="signup"
@@ -142,15 +109,17 @@ const Login = ({ onSignUp, onLogin, onGithubStart, onGithubLogin }) => {
             checked={signup}
           />
           <label htmlFor="signup"> Create a new account?</label>
-        </CheckSignup>
-        <Submit type="submit">{signup ? "Sign Up" : "Sign In"}</Submit>
-      </UserForm>
-      <GithubLogin>
-        <GithubButton onClick={onGithubStart}>
+        </login.CheckSignup>
+        <authForm.Submit type="submit">
+          {signup ? "Sign Up" : "Sign In"}
+        </authForm.Submit>
+      </authForm.Form>
+      <login.GithubLogin>
+        <login.GithubButton onClick={onGithubLogin}>
           <FontAwesomeIcon icon={faGithub} className="github-icon" />
           <span>Github Login</span>
-        </GithubButton>
-      </GithubLogin>
+        </login.GithubButton>
+      </login.GithubLogin>
     </>
   );
 };

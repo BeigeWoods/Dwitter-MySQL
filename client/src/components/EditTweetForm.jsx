@@ -1,14 +1,7 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
-import {
-  EditAttachmentButton,
-  ImageDesc,
-  ImageInput,
-  RemoveImage,
-  TweetEditForm,
-  VideoInput,
-} from "../css/tweetForm";
+import { tweetForm } from "../css/forms";
 
 const EditTweetForm = ({ tweet, onUpdate, onClose, onError }) => {
   const [text, setText] = useState(tweet.text);
@@ -45,12 +38,12 @@ const EditTweetForm = ({ tweet, onUpdate, onClose, onError }) => {
     }
   };
 
-  const showMediaInput = () => (show ? setShow(false) : setShow(true));
+  const showMediaInput = () => setShow(show ? false : true);
 
   const removeImage = () => setImage("No Image");
 
   return (
-    <TweetEditForm
+    <tweetForm.Edit.Form
       className="edit-tweet-form"
       current={show}
       onSubmit={onSubmit}
@@ -66,7 +59,7 @@ const EditTweetForm = ({ tweet, onUpdate, onClose, onError }) => {
       />
       {show && (
         <>
-          <VideoInput
+          <tweetForm.Video
             type="text"
             placeholder="Write Youtube Video Url"
             name="video"
@@ -75,13 +68,13 @@ const EditTweetForm = ({ tweet, onUpdate, onClose, onError }) => {
             onChange={onChange}
             className="tweet-input"
           />
-          <ImageDesc>
+          <tweetForm.Image.Url>
             {tweet.image ? tweet.image.substring(0, 32) : "No Image"}...
-          </ImageDesc>
-          <RemoveImage type="button" onClick={removeImage}>
+          </tweetForm.Image.Url>
+          <tweetForm.Image.Remove type="button" onClick={removeImage}>
             X
-          </RemoveImage>
-          <ImageInput
+          </tweetForm.Image.Remove>
+          <tweetForm.Image.Input
             type="file"
             id="image"
             name="image"
@@ -90,16 +83,16 @@ const EditTweetForm = ({ tweet, onUpdate, onClose, onError }) => {
           />
         </>
       )}
-      <EditAttachmentButton type="button" onClick={showMediaInput}>
+      <tweetForm.Edit.Submit type="button" onClick={showMediaInput}>
         <FontAwesomeIcon icon={faPaperclip} />
-      </EditAttachmentButton>
+      </tweetForm.Edit.Submit>
       <button type="submit" className="form-btn-update">
         Update
       </button>
       <button type="button" className="form-btn-cancel" onClick={onClose}>
         Cancel
       </button>
-    </TweetEditForm>
+    </tweetForm.Edit.Form>
   );
 };
 

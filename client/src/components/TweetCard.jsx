@@ -2,31 +2,10 @@ import React, { memo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComment } from "@fortawesome/free-solid-svg-icons";
 import parseDate from "../util/date";
-import styled from "styled-components";
 import Avatar from "./Avatar";
 import EditTweetForm from "./EditTweetForm";
 import Comments from "./Comments";
-
-const Youtube = styled.iframe`
-  width: 369px;
-  height: 224px;
-  margin-top: 10px;
-`;
-
-const Image = styled.div`
-  margin: 10px 0 10px 0;
-`;
-
-const Button = styled.button`
-  color: var(--color-blue);
-`;
-
-const Attention = styled.div`
-  grid-column: 1/3;
-  display: grid;
-  grid-template-columns: 40px auto;
-  justify-items: start;
-`;
+import { tweetContent } from "../css/contents";
 
 const TweetCard = memo(
   ({
@@ -70,7 +49,7 @@ const TweetCard = memo(
             <span className="tweet-date"> · {parseDate(createdAt)}</span>
             {text && <p>{text}</p>}
             {image && (
-              <Image>
+              <tweetContent.Image>
                 <img
                   // src={`${process.env.REACT_APP_BASE_URL}/${image}`} // 로컬
                   src={`${image}`} // aws s3
@@ -78,22 +57,26 @@ const TweetCard = memo(
                   width="100%"
                   height="100%"
                 />
-              </Image>
+              </tweetContent.Image>
             )}
             {video && (
               <div>
-                <Youtube src={video}></Youtube>
+                <tweetContent.Youtube src={video}></tweetContent.Youtube>
               </div>
             )}
           </div>
-          <Attention>
-            <Button onClick={() => onClickGoodTweet(id, good, clicked)}>
+          <tweetContent.Attention>
+            <tweetContent.Button
+              onClick={() => onClickGoodTweet(id, good, clicked)}
+            >
               {clicked ? "♥︎" : "♡"} {good}
-            </Button>
-            <Button onClick={() => setCommenting(commenting ? false : true)}>
+            </tweetContent.Button>
+            <tweetContent.Button
+              onClick={() => setCommenting(commenting ? false : true)}
+            >
               <FontAwesomeIcon icon={faComment} />
-            </Button>
-          </Attention>
+            </tweetContent.Button>
+          </tweetContent.Attention>
           {owner && (
             <div className="tweet-action">
               <button className="tweet-action-btn" onClick={() => onDelete(id)}>

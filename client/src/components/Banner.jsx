@@ -1,14 +1,8 @@
 import React from "react";
-import styled from "styled-components";
+import { banner } from "../css/components";
 
-const PageBanner = styled.p`
-  background-color: var(--color-red);
-  margin: 8px;
-  padding: 8px;
-  font-size: 1rem;
-  font-weight: bold;
-`;
-
-const Banner = ({ error }) => <>{error && <PageBanner>{error}</PageBanner>}</>;
+const Banner = ({ error }) => (
+  <>{error && <banner.Banner>{error}</banner.Banner>}</>
+);
 
 export default Banner;

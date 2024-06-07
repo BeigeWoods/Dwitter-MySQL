@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
-import {
-  AttachmentButton,
-  ImageInput,
-  TweetForm,
-  VideoInput,
-} from "../css/tweetForm";
+import { tweetForm } from "../css/forms";
 
 const NewTweetForm = ({ tweetService, onError }) => {
   const [text, setText] = useState("");
@@ -42,11 +37,11 @@ const NewTweetForm = ({ tweetService, onError }) => {
     }
   };
 
-  const showMediaInput = () => (show ? setShow(false) : setShow(true));
+  const showMediaInput = () => setShow(show ? false : true);
 
   return (
     <>
-      <TweetForm current={show} onSubmit={onSubmit}>
+      <tweetForm.Form current={show} onSubmit={onSubmit}>
         <input
           type="text"
           name="text"
@@ -58,7 +53,7 @@ const NewTweetForm = ({ tweetService, onError }) => {
         />
         {show && (
           <>
-            <VideoInput
+            <tweetForm.Video
               type="text"
               placeholder="Write Youtube Video Url"
               name="video"
@@ -67,7 +62,7 @@ const NewTweetForm = ({ tweetService, onError }) => {
               onChange={onChange}
               className="tweet-input"
             />
-            <ImageInput
+            <tweetForm.Image.Input
               type="file"
               id="image"
               name="image"
@@ -76,13 +71,13 @@ const NewTweetForm = ({ tweetService, onError }) => {
             />
           </>
         )}
-        <AttachmentButton type="button" current={show} onClick={showMediaInput}>
+        <tweetForm.Submit type="button" current={show} onClick={showMediaInput}>
           <FontAwesomeIcon icon={faPaperclip} />
-        </AttachmentButton>
+        </tweetForm.Submit>
         <button type="submit" className="form-btn">
           Post
         </button>
-      </TweetForm>
+      </tweetForm.Form>
     </>
   );
 };

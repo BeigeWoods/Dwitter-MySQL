@@ -1,30 +1,8 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 import Avatar from "../components/Avatar";
 import Banner from "../components/Banner";
-import { UserForm, UserInput, Submit } from "../css/authForm";
-
-const Title = styled.span`
-  color: #485460;
-`;
-
-const Span = styled.span`
-  color: black;
-`;
-
-const Password = styled.button`
-  height: 25px;
-  font-size: 15px;
-  color: black;
-  margin-top: 15px;
-`;
-
-const Withdrawal = styled.button`
-  height: 25px;
-  font-size: 15px;
-  color: var(--color-red);
-  margin-top: 13px;
-`;
+import { authForm } from "../css/forms";
+import { profile } from "../css/pages";
 
 const Profile = ({
   onGetUser,
@@ -32,7 +10,7 @@ const Profile = ({
   toChangePassword,
   toWithdrawal,
 }) => {
-  const [profile, setProfile] = useState(undefined);
+  const [user, setUser] = useState(undefined);
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -41,42 +19,42 @@ const Profile = ({
 
   useEffect(() => {
     onGetUser()
-      .then((value) => setProfile(value))
+      .then((value) => setUser(value))
       .catch(onError);
   }, [onGetUser]);
 
   const onSubmit = (event) => {
     event.preventDefault();
     if (
-      username !== profile.username ||
-      name !== profile.name ||
-      email !== profile.email ||
-      url !== profile.url
+      username !== user.username ||
+      name !== user.name ||
+      email !== user.email ||
+      url !== user.url
     )
       onUpdateUser(
-        username === profile.username ? "" : username,
-        name === profile.name ? "" : name,
-        email === profile.email ? "" : email,
-        url === profile.url ? "" : url
+        username === user.username ? "" : username,
+        name === user.name ? "" : name,
+        email === user.email ? "" : email,
+        url === user.url ? "" : url
       )
         .then((update) => {
           if (update.username) {
-            profile.username = update.username;
+            user.username = update.username;
             setUsername("");
           }
           if (update.name) {
-            profile.name = update.name;
+            user.name = update.name;
             setName("");
           }
           if (update.email) {
-            profile.email = update.email;
+            user.email = update.email;
             setEmail("");
           }
           if (update.url) {
-            profile.url = update.url;
+            user.url = update.url;
             setURL("");
           }
-          setProfile(profile);
+          setUser(user);
         })
         .catch(onError);
   };
@@ -108,66 +86,68 @@ const Profile = ({
   return (
     <>
       <Banner text={error} />
-      {profile && (
+      {user && (
         <>
-          <Avatar url={profile.url} name={profile.name} isTweet={false} />
-          <UserForm onSubmit={onSubmit}>
-            <Title>
-              Username: <Span>{profile.username}</Span>
-            </Title>
-            <UserInput
+          <Avatar url={user.url} name={user.name} isTweet={false} />
+          <authForm.Form onSubmit={onSubmit}>
+            <profile.Title>
+              Username: <profile.Span>{user.username}</profile.Span>
+            </profile.Title>
+            <authForm.Input
               name="username"
               type="username"
-              defaultValue={profile.username}
+              defaultValue={user.username}
               onChange={onChange}
               required
             />
-            {!profile.socialLogin && (
+            {!user.socialLogin && (
               <>
-                <Title>
-                  Name: <Span>{profile.name}</Span>
-                </Title>
-                <UserInput
+                <profile.Title>
+                  Name: <profile.Span>{user.name}</profile.Span>
+                </profile.Title>
+                <authForm.Input
                   name="name"
                   type="name"
-                  defaultValue={profile.name}
+                  defaultValue={user.name}
                   onChange={onChange}
                   required
                 />
-                <Title>
-                  Email: <Span>{profile.email}</Span>
-                </Title>
-                <UserInput
+                <profile.Title>
+                  Email: <profile.Span>{user.email}</profile.Span>
+                </profile.Title>
+                <authForm.Input
                   name="email"
                   type="email"
-                  defaultValue={profile.email}
+                  defaultValue={user.email}
                   onChange={onChange}
                   required
                 />
               </>
             )}
-            <Title>
+            <profile.Title>
               Image Url:
-              <Span>
-                {profile.url.length > 50
-                  ? `${profile.url.substring(0, 50)}...`
-                  : profile.url}
-              </Span>
-            </Title>
-            <UserInput
+              <profile.Span>
+                {user.url.length > 50
+                  ? `${user.url.substring(0, 50)}...`
+                  : user.url}
+              </profile.Span>
+            </profile.Title>
+            <authForm.Input
               name="url"
               type="url"
-              defaultValue={profile.url}
+              defaultValue={user.url}
               onChange={onChange}
             />
-            <Submit type="submit">Submit</Submit>
-          </UserForm>
-          {!profile.socialLogin && (
-            <Password onClick={toChangePassword}>Change Password →</Password>
+            <authForm.Submit type="submit">Submit</authForm.Submit>
+          </authForm.Form>
+          {!user.socialLogin && (
+            <profile.Password onClick={toChangePassword}>
+              Change Password →
+            </profile.Password>
           )}
         </>
       )}
-      <Withdrawal onClick={toWithdrawal}>Withdrawal</Withdrawal>
+      <profile.Withdrawal onClick={toWithdrawal}>Withdrawal</profile.Withdrawal>
     </>
   );
 };

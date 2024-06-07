@@ -2,7 +2,7 @@ import React, { memo, useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import NewCommentForm from "./NewCommentForm";
 import CommentCard from "./CommentCard";
-import { EmptyCard, Container, Folder } from "../css/comment";
+import { commentContent } from "../css/contents";
 
 const Comments = memo(({ tweetId, commentService, onError }) => {
   const [comments, setComments] = useState([]);
@@ -67,7 +67,7 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
 
   return (
     <>
-      <Container>
+      <commentContent.Container>
         <NewCommentForm
           tweetId={tweetId}
           commentService={commentService}
@@ -75,8 +75,10 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
           onClickReply={onClickReply}
           onError={onError}
         />
-        {!comments.length && <EmptyCard>No Comments Yet</EmptyCard>}
-        <Folder>
+        {!comments.length && (
+          <commentContent.Empty>No Comments Yet</commentContent.Empty>
+        )}
+        <commentContent.Folder>
           {comments.map((comment) => (
             <CommentCard
               key={comment.id}
@@ -90,8 +92,8 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
               onError={onError}
             />
           ))}
-        </Folder>
-      </Container>
+        </commentContent.Folder>
+      </commentContent.Container>
     </>
   );
 });

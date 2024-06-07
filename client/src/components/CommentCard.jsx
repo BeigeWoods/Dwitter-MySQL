@@ -1,20 +1,8 @@
 import React, { memo, useState } from "react";
 import parseDate from "../util/date";
-import styled from "styled-components";
 import Avatar from "./Avatar";
 import EditCommentForm from "./EditCommentForm";
-import { Card, Username } from "../css/comment";
-
-const Button = styled.button`
-  color: var(--color-blue);
-`;
-
-const Attention = styled.div`
-  grid-column: 1/3;
-  display: grid;
-  grid-template-columns: 40px auto;
-  justify-items: start;
-`;
+import { commentContent } from "../css/contents";
 
 const CommentCard = memo(
   ({
@@ -42,25 +30,29 @@ const CommentCard = memo(
     const onClose = () => setEditing(false);
 
     return (
-      <Card>
+      <commentContent.Card>
         <section className="tweet-container">
           <Avatar url={url} name={name} isTweet={true} />
           <div className="tweet-body">
             <span className="tweet-name">{username}</span>
-            {recipient && <Username>@{recipient}</Username>}
+            {recipient && (
+              <commentContent.Username>@{recipient}</commentContent.Username>
+            )}
             <span className="tweet-date"> · {parseDate(createdAt)}</span>
             {text && <p>{text}</p>}
           </div>
-          <Attention>
-            <Button
+          <commentContent.Attention>
+            <commentContent.Button
               onClick={() => {
                 onClickGoodComment(id, good, clicked);
               }}
             >
               {clicked ? "♥︎" : "♡"} {good}
-            </Button>
-            <Button onClick={() => onClickReply(username)}>reply</Button>
-          </Attention>
+            </commentContent.Button>
+            <commentContent.Button onClick={() => onClickReply(username)}>
+              reply
+            </commentContent.Button>
+          </commentContent.Attention>
           {editing && (
             <EditCommentForm
               tweetId={tweetId}
@@ -87,7 +79,7 @@ const CommentCard = memo(
             </div>
           )}
         </section>
-      </Card>
+      </commentContent.Card>
     );
   }
 );

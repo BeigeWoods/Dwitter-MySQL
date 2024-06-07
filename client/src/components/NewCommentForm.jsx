@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CommentCancle, CommentForm, CommentSubmit } from "../css/comment";
+import { commentForm } from "../css/forms";
 
 const NewCommentForm = ({
   tweetId,
@@ -34,7 +34,7 @@ const NewCommentForm = ({
 
   return (
     <>
-      <CommentForm
+      <commentForm.Form
         cancle={recipient ? true : false}
         isEdit={false}
         onSubmit={onSubmit}
@@ -49,13 +49,13 @@ const NewCommentForm = ({
           autoFocus
           onChange={onChange}
         />
-        <CommentSubmit type="submit">►</CommentSubmit>
+        <commentForm.Submit type="submit">►</commentForm.Submit>
         {recipient && (
-          <CommentCancle type="button" onClick={() => onClickReply("")}>
+          <commentForm.Cancle type="button" onClick={() => onClickReply("")}>
             X
-          </CommentCancle>
+          </commentForm.Cancle>
         )}
-      </CommentForm>
+      </commentForm.Form>
     </>
   );
 };

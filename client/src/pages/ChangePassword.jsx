@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Banner from "../components/Banner";
-import { UserForm, UserInput, Submit } from "../css/authForm";
+import { authForm } from "../css/forms";
 
 const ChangePassword = ({ onChangePassword, toProfile }) => {
   const [password, setPassword] = useState("");
@@ -41,8 +41,8 @@ const ChangePassword = ({ onChangePassword, toProfile }) => {
   return (
     <>
       <Banner error={error} />
-      <UserForm onSubmit={onSubmit}>
-        <UserInput
+      <authForm.Form onSubmit={onSubmit}>
+        <authForm.Input
           name="password"
           type="password"
           placeholder="Old Password"
@@ -50,7 +50,7 @@ const ChangePassword = ({ onChangePassword, toProfile }) => {
           onChange={onChange}
           required
         />
-        <UserInput
+        <authForm.Input
           name="newPassword"
           type="password"
           placeholder="New Password"
@@ -58,7 +58,7 @@ const ChangePassword = ({ onChangePassword, toProfile }) => {
           onChange={onChange}
           required
         />
-        <UserInput
+        <authForm.Input
           name="checkPassword"
           type="password"
           placeholder="Check new Password"
@@ -66,8 +66,8 @@ const ChangePassword = ({ onChangePassword, toProfile }) => {
           onChange={onChange}
           required
         />
-        <Submit type="submit">Submit</Submit>
-      </UserForm>
+        <authForm.Submit type="submit">Submit</authForm.Submit>
+      </authForm.Form>
     </>
   );
 };
