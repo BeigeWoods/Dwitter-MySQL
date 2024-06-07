@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { Config } from "./__dwitter__.d.ts/config";
+import Config from "./__dwitter__.d.ts/config";
 dotenv.config();
 
 function required(key: string) {
@@ -10,9 +10,8 @@ function required(key: string) {
   return value;
 }
 
-export const config: Config = {
+const config: Config = {
   cors: {
-    baseUri: required("BASE_URI"),
     allowedOrigin: required("ALLOWED_ORIGIN"),
   },
   jwt: {
@@ -34,9 +33,15 @@ export const config: Config = {
     plainToken: required("CSRF_SECRET_KEY"),
     saltRounds: Number(required("CSRF_SALT_ROUNDS")),
   },
-  ghOauth: {
-    clientId: required("GH_CLIENT_ID"),
-    clientSecret: required("GH_CLIENT_SECRETS"),
+  oauth: {
+    state: {
+      plain: required("OAUTH_STATE"),
+      saltRounds: Number(required("OAUTH_STATE_SALT_ROUNDS")),
+    },
+    github: {
+      clientId: required("GH_CLIENT_ID"),
+      clientSecret: required("GH_CLIENT_SECRETS"),
+    },
   },
   awsS3: {
     region: required("AWS_S3_REGION"),
@@ -44,3 +49,5 @@ export const config: Config = {
     secret: required("AWS_S3_SECRET"),
   },
 };
+
+export default config;

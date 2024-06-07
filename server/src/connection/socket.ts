@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import jwt, { VerifyErrors } from "jsonwebtoken";
-import { config } from "../config.js";
+import config from "../config.js";
 import { ExtendedError } from "socket.io/dist/namespace";
 import { HttpSocket } from "../__dwitter__.d.ts/connection/socket";
 

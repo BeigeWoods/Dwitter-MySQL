@@ -9,7 +9,7 @@ import {
   UserDataHandler,
 } from "../../__dwitter__.d.ts/data/user";
 import { TokenHandler } from "../../__dwitter__.d.ts/controller/auth/token";
-import { Config } from "../../__dwitter__.d.ts/config";
+import Config from "../../__dwitter__.d.ts/config";
 
 export default class AuthController implements AuthDataHandler {
   constructor(

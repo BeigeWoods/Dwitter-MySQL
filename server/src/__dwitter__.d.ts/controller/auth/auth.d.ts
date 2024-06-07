@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { Config } from "../../config";
+import Config from "../../config";
 import { UserDataHandler } from "../../data/user";
 import { TokenHandler } from "./token";
 

@@ -1,4 +1,4 @@
-import { db } from "../db/database.js";
+import db from "../db/database.js";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
 
 export default class CommentRepository implements CommentDataHandler {

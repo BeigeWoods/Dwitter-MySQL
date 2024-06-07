@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { Config } from "../__dwitter__.d.ts/config";
+import Config from "../__dwitter__.d.ts/config";
 import { UserDataHandler } from "../__dwitter__.d.ts/data/user";
 import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth";
 

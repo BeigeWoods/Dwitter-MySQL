@@ -1,6 +1,5 @@
-export declare type Config = {
+declare type Config = {
   cors: {
-    baseUri: string;
     allowedOrigin: string;
   };
   jwt: {
@@ -22,9 +21,15 @@ export declare type Config = {
     plainToken: string;
     saltRounds: number;
   };
-  ghOauth: {
-    clientId: string;
-    clientSecret: string;
+  oauth: {
+    state: {
+      plain: string;
+      saltRounds: number;
+    };
+    github: {
+      clientId: string;
+      clientSecret: string;
+    };
   };
   awsS3: {
     id: string;
@@ -32,3 +37,5 @@ export declare type Config = {
     region: string;
   };
 };
+
+export default Config;

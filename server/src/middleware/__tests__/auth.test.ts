@@ -3,7 +3,7 @@ import faker from "faker";
 import { NextFunction } from "express";
 import { verify as verifying } from "jsonwebtoken";
 import AuthValidator from "../auth";
-import { config } from "../../config";
+import config from "../../config";
 import { mockedUserRepository } from "../../__mocked__/repository";
 import { mockUser } from "../../__mocked__/data";
 
