@@ -1,4 +1,4 @@
-import { db } from "../db/database.js";
+import db from "../db/database.js";
 import {
   InputUserInfo,
   InputUserProf,
@@ -33,10 +33,10 @@ export default class UserRepository implements UserDataHandler {
   private handleUpdateValues = (user: InputUserProf) => {
     const { username, name, email, url } = user;
     let result: string[] = [];
-    username ? result.push(username) : false;
-    name ? result.push(name) : false;
-    email ? result.push(email) : false;
-    url ? result.push(url) : false;
+    username && result.push(username);
+    name && result.push(name);
+    email && result.push(email);
+    url && result.push(url);
     return result;
   };
 

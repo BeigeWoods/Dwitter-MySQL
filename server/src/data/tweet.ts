@@ -1,4 +1,4 @@
-import { db } from "../db/database.js";
+import db from "../db/database.js";
 import {
   InputTweetContents,
   TweetDataHandler,
@@ -37,9 +37,9 @@ export default class TweetRepository implements TweetDataHandler {
   private handleUpdateValues = (tweet: InputTweetContents) => {
     const { text, video, image } = tweet;
     let result: string[] = [];
-    text ? result.push(text) : false;
-    video ? result.push(video) : false;
-    image ? result.push(image) : false;
+    text && result.push(text);
+    video && result.push(video);
+    image && result.push(image);
     return result;
   };
 
