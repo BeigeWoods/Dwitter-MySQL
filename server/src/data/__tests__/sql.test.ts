@@ -1,4 +1,4 @@
-import { db } from "../../db/database";
+import db from "../../db/database";
 import UserRepository from "../user";
 
 describe("UserRepository", () => {
@@ -147,9 +147,9 @@ describe("UserRepository", () => {
         url: undefined,
       };
 
-      await userRepository.updateUser(userId, user, (error) =>
-        expect(error?.message).toBe([])
-      );
+      await userRepository
+        .updateUser(userId, user)
+        .catch((error) => expect(error?.message).toBe([]));
 
       await db
         .execute("SELECT username, name, email, url FROM users WHERE id = ?", [
