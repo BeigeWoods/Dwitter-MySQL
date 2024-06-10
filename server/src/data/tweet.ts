@@ -54,7 +54,10 @@ export default class TweetRepository implements TweetDataHandler {
         [userId]
       )
       .then((result: any[]) => result[0])
-      .catch((error) => console.error("tweetRepository.getAll\n", error));
+      .catch((error) => {
+        console.error("tweetRepository.getAll\n", error);
+        throw new Error(error);
+      });
   };
 
   getAllByUsername = async (userId: number, username: string) => {
@@ -68,9 +71,10 @@ export default class TweetRepository implements TweetDataHandler {
         [username, userId]
       )
       .then((result: any[]) => result[0])
-      .catch((error) =>
-        console.error("tweetRepository.getAllByUsername\n", error)
-      );
+      .catch((error) => {
+        console.error("tweetRepository.getAllByUsername\n", error);
+        throw new Error(error);
+      });
   };
 
   getById = async (tweetId: string, userId: number) => {
@@ -84,7 +88,10 @@ export default class TweetRepository implements TweetDataHandler {
         [tweetId, userId]
       )
       .then((result: any[]) => result[0][0])
-      .catch((error) => console.error("tweetRepository.getById\n", error));
+      .catch((error) => {
+        console.error("tweetRepository.getById\n", error);
+        throw new Error(error);
+      });
   };
 
   create = async (
@@ -102,7 +109,10 @@ export default class TweetRepository implements TweetDataHandler {
       .then(
         async (result: any[]) => await this.getById(result[0].insertId, userId)
       )
-      .catch((error) => console.error("tweetRepository.create\n", error));
+      .catch((error) => {
+        console.error("tweetRepository.create\n", error);
+        throw new Error(error);
+      });
   };
 
   update = async (
@@ -117,7 +127,10 @@ export default class TweetRepository implements TweetDataHandler {
         [...this.handleUpdateValues(tweet), new Date(), tweetId]
       )
       .then(async () => await this.getById(tweetId, userId))
-      .catch((error) => console.error("tweetRepository.update\n", error));
+      .catch((error) => {
+        console.error("tweetRepository.update\n", error);
+        throw new Error(error);
+      });
   };
 
   updateGood = async (tweetId: string, good: number) => {
@@ -125,7 +138,7 @@ export default class TweetRepository implements TweetDataHandler {
       .execute("UPDATE tweets SET good = ? WHERE id = ?", [good, tweetId])
       .catch((error) => {
         console.error("tweetRepository.updateGood\n", error);
-        return error;
+        throw new Error(error);
       });
   };
 
@@ -134,7 +147,7 @@ export default class TweetRepository implements TweetDataHandler {
       .execute("DELETE FROM tweets WHERE id = ?", [tweetId])
       .catch((error) => {
         console.error("tweetRepository.remove\n", error);
-        return error;
+        throw new Error(error);
       });
   };
 }

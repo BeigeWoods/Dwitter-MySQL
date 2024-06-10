@@ -12,7 +12,7 @@ export default class GoodRepository implements GoodDataHandler {
       ])
       .catch((error) => {
         console.error("goodRepository.clickTweet\n", error);
-        return error;
+        throw new Error(error);
       });
   };
 
@@ -24,7 +24,7 @@ export default class GoodRepository implements GoodDataHandler {
       ])
       .catch((error) => {
         console.error("goodRepository.unClickTweet\n", error);
-        return error;
+        throw new Error(error);
       });
   };
 
@@ -36,7 +36,7 @@ export default class GoodRepository implements GoodDataHandler {
       ])
       .catch((error) => {
         console.error("goodRepository.clickComment\n", error);
-        return error;
+        throw new Error(error);
       });
   };
 
@@ -48,7 +48,7 @@ export default class GoodRepository implements GoodDataHandler {
       ])
       .catch((error) => {
         console.error("goodRepository.unClickComment\n", error);
-        return error;
+        throw new Error(error);
       });
   };
 }

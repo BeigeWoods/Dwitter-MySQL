@@ -29,7 +29,10 @@ export default class CommentRepository implements CommentDataHandler {
         [tweetId, userId]
       )
       .then((result: any[]) => result[0])
-      .catch((error) => console.error("commentRepository.getAll\n", error));
+      .catch((error) => {
+        console.error("commentRepository.getAll\n", error);
+        throw new Error(error);
+      });
   };
 
   getById = async (tweetId: string, commentId: string, userId: number) => {
@@ -43,7 +46,10 @@ export default class CommentRepository implements CommentDataHandler {
         [commentId, tweetId, userId]
       )
       .then((result: any[]) => result[0][0])
-      .catch((error) => console.error("commentRepository.getById\n", error));
+      .catch((error) => {
+        console.error("commentRepository.getById\n", error);
+        throw new Error(error);
+      });
   };
 
   create = async (
@@ -64,7 +70,10 @@ export default class CommentRepository implements CommentDataHandler {
         }
         return await this.getById(tweetId, result[0].insertId, userId);
       })
-      .catch((error) => console.error("commentRepository.create\n", error));
+      .catch((error) => {
+        console.error("commentRepository.create\n", error);
+        throw new Error(error);
+      });
   };
 
   createReply = async (commentId: string, username: string) => {
@@ -94,7 +103,10 @@ export default class CommentRepository implements CommentDataHandler {
         [text, new Date(), commentId]
       )
       .then(async () => await this.getById(tweetId, commentId, userId))
-      .catch((error) => console.error("commentRepository.update\n", error));
+      .catch((error) => {
+        console.error("commentRepository.update\n", error);
+        throw new Error(error);
+      });
   };
 
   updateGood = async (commentId: string, good: number) => {
@@ -102,7 +114,7 @@ export default class CommentRepository implements CommentDataHandler {
       .execute("UPDATE comments SET good = ? WHERE id = ?", [good, commentId])
       .catch((error) => {
         console.error("commentRepository.updateGood\n", error);
-        return error;
+        throw new Error(error);
       });
   };
 
@@ -111,7 +123,7 @@ export default class CommentRepository implements CommentDataHandler {
       .execute("DELETE FROM comments WHERE id = ?", [commentId])
       .catch((error) => {
         console.error("commentRepository.remove\n", error);
-        return error;
+        throw new Error(error);
       });
   };
 }
