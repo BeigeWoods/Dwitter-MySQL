@@ -7,7 +7,7 @@ import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth";
 export default class AuthValidator implements AuthValidateHandler {
   private readonly AUTH_ERROR = { message: "Authentication Error" };
   constructor(
-    private config: Config,
+    private readonly config: Config,
     private userRepository: UserDataHandler
   ) {}
   isAuth = async (req: Request, res: Response, next: NextFunction) => {

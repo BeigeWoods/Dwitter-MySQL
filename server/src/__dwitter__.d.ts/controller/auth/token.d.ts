@@ -13,7 +13,7 @@ export declare interface TokenHandler {
 }
 
 export declare class TokenController implements TokenHandler {
-  private config;
+  private readonly config;
 
   constructor(config: Config);
 

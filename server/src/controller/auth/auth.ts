@@ -14,7 +14,7 @@ import Config from "../../__dwitter__.d.ts/config";
 
 export default class AuthController implements AuthDataHandler {
   constructor(
-    private config: Config,
+    private readonly config: Config,
     private userRepository: UserDataHandler,
     private tokenController: TokenHandler
   ) {}

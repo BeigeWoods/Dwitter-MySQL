@@ -41,7 +41,7 @@ export declare interface AuthDataHandler {
 }
 
 export declare class AuthController implements AuthDataHandler {
-  private config;
+  private readonly config;
   private userRepository;
   private tokenController;
 

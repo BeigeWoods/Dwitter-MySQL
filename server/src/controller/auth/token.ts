@@ -5,7 +5,7 @@ import Config from "../../__dwitter__.d.ts/config";
 import { TokenHandler } from "../../__dwitter__.d.ts/controller/auth/token";
 
 export default class TokenController implements TokenHandler {
-  constructor(private config: Config) {}
+  constructor(private readonly config: Config) {}
 
   createJwtToken = (id: number) => {
     return jwt.sign({ id }, this.config.jwt.secretKey, {
