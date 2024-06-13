@@ -62,10 +62,16 @@ export const mockComment = {
   }),
 };
 
-export const userData = {
-  login: "mr.smith",
-  name: "smith",
-  avatar_url: "https://",
+export const mockOauth = {
+  ownerData: {
+    login: "mr.smith",
+    name: "smith",
+    avatar_url: "https://",
+  },
+  emailData: [{ email: "@" }],
+  reqOptions: (
+    code: "code" | "null" | "undefined" | "error"
+  ): httpMocks.RequestOptions => ({
+    query: { state: "state", code },
+  }),
 };
-
-export const emailData = [{ email: "@" }];
