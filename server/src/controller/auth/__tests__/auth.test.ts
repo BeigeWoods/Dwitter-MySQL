@@ -7,75 +7,96 @@ describe("AuthController.isDuplicateEmailOrUsername", () => {
     username = "smith";
   const isDuplicateEmailOrUsername = jest.fn(
     async (email: string, username: string) => {
-      let result: number | void | OutputUser;
-      result = await mockedUserRepository.findByUserEmail(email);
+      let result: OutputUser;
+      result = (await mockedUserRepository.findByEmail(email).catch((error) => {
+        throw `isDuplicateEmailOrUsername < ${error}`;
+      })) as OutputUser;
       if (result) {
-        return Number(result) ? 1 : email;
+        return email;
       }
-      result = await mockedUserRepository.findByUsername(username);
+      result = (await mockedUserRepository
+        .findByUsername(username)
+        .catch((error) => {
+          throw `isDuplicateEmailOrUsername < ${error}`;
+        })) as OutputUser;
       if (result) {
-        return Number(result) ? 1 : username;
+        return username;
       }
-      return 0;
     }
   );
+  async function validateDuple(email: string, username: string) {
+    const isDuplicate = await isDuplicateEmailOrUsername(email, username).catch(
+      (error) => {
+        throw `Error! authController < ${error}`;
+      }
+    );
+    return isDuplicate && "status 409";
+  }
 
   describe("isDuplicateEmailOrUsername", () => {
-    test("returns 1 when DB has a issue at finding user by email", async () => {
-      mockedUserRepository.findByUserEmail.mockResolvedValueOnce(1);
+    test("occurs error when DB has a issue at finding user by email", async () => {
+      mockedUserRepository.findByEmail.mockRejectedValueOnce("Error");
 
-      const result = await isDuplicateEmailOrUsername(email, username);
+      const result = await isDuplicateEmailOrUsername(email, username).catch(
+        (error) => expect(error).toBe("isDuplicateEmailOrUsername < Error")
+      );
 
-      expect(mockedUserRepository.findByUserEmail).toHaveBeenCalled();
+      expect(mockedUserRepository.findByEmail).toHaveBeenCalled();
       expect(mockedUserRepository.findByUsername).not.toHaveBeenCalled();
-      expect(result).toBe(1);
+      expect(result).toBeUndefined();
     });
 
     test("returns username when username is duplicate", async () => {
+      mockedUserRepository.findByEmail.mockResolvedValueOnce(undefined);
       mockedUserRepository.findByUsername.mockResolvedValueOnce(mockUser(1));
 
-      const result = await isDuplicateEmailOrUsername(email, username);
+      const result = await isDuplicateEmailOrUsername(email, username).catch(
+        (error) => expect(error).toBeUndefined()
+      );
 
-      expect(mockedUserRepository.findByUserEmail).toHaveBeenCalled();
+      expect(mockedUserRepository.findByEmail).toHaveBeenCalled();
       expect(mockedUserRepository.findByUsername).toHaveBeenCalled();
       expect(result).toBe(username);
     });
 
-    test("returns 0 when email or username isn't duplicate", async () => {
-      const result = await isDuplicateEmailOrUsername(email, username);
+    test("returns nothing when email or username isn't duplicate", async () => {
+      mockedUserRepository.findByEmail.mockResolvedValueOnce(undefined);
+      mockedUserRepository.findByUsername.mockResolvedValueOnce(undefined);
 
-      expect(mockedUserRepository.findByUserEmail).toHaveBeenCalled();
+      const result = await isDuplicateEmailOrUsername(email, username).catch(
+        (error) => expect(error).toBeUndefined()
+      );
+
+      expect(mockedUserRepository.findByEmail).toHaveBeenCalled();
       expect(mockedUserRepository.findByUsername).toHaveBeenCalled();
-      expect(result).toBe(0);
+      expect(result).toBeUndefined();
     });
   });
 
-  describe("signUp and updateUser method using isDuplicateEmailOrUsername", () => {
-    async function method(email: string, username: string) {
-      const isDuplicate = await isDuplicateEmailOrUsername(email, username);
-      if (isDuplicate) {
-        return Number(isDuplicate) ? "next()" : "status 409";
-      }
-    }
+  describe("signUp and updateUser validateDuple using isDuplicateEmailOrUsername", () => {
+    test("returns 'next()' when validateDuple catches error", async () => {
+      mockedUserRepository.findByEmail.mockRejectedValueOnce("Error");
 
-    test("returns 'next()' when method receives 1", async () => {
-      mockedUserRepository.findByUserEmail.mockResolvedValueOnce(1);
-
-      const result = await method(email, username);
-
-      expect(result).toBe("next()");
+      await validateDuple(email, username).catch((error) =>
+        expect(error).toBe(
+          "Error! authController < isDuplicateEmailOrUsername < Error"
+        )
+      );
     });
 
-    test("returns 'status 409' when method receives email or username", async () => {
-      mockedUserRepository.findByUserEmail.mockResolvedValueOnce(mockUser(1));
+    test("returns 'status 409' when validateDuple receives email or username", async () => {
+      mockedUserRepository.findByEmail.mockResolvedValueOnce(mockUser(1));
 
-      const result = await method(email, username);
+      const result = await validateDuple(email, username);
 
       expect(result).toBe("status 409");
     });
 
-    test("returns undefined when method receives 0", async () => {
-      const result = await method(email, username);
+    test("returns undefined when validateDuple receives nothing", async () => {
+      mockedUserRepository.findByEmail.mockResolvedValueOnce(undefined);
+      mockedUserRepository.findByUsername.mockResolvedValueOnce(undefined);
+
+      const result = await validateDuple(email, username);
 
       expect(result).toBeUndefined();
     });

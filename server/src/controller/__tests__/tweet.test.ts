@@ -22,7 +22,6 @@ describe("Tweet Controller", () => {
 
   beforeEach(() => {
     response = httpMocks.createResponse();
-    next = jest.fn();
   });
 
   describe("getTweets", () => {
@@ -32,7 +31,6 @@ describe("Tweet Controller", () => {
 
       await tweetController.getTweets(request, response, next);
 
-      expect(next).not.toHaveBeenCalled();
       expect(response.statusCode).toBe(200);
       expect(response._getJSONData()).toEqual([mockTweet.tweet()]);
     });
@@ -53,7 +51,6 @@ describe("Tweet Controller", () => {
       );
       expect(response.statusCode).toBe(200);
       expect(response._getJSONData()).toEqual([mockTweet.tweet()]);
-      expect(next).not.toHaveBeenCalled();
     });
   });
 
@@ -61,7 +58,7 @@ describe("Tweet Controller", () => {
     test("returns status 404 when given tweetId doesn't exist", async () => {
       mockedTweetRepository.getById.mockResolvedValueOnce(undefined);
 
-      await tweetController.getTweet(request, response);
+      await tweetController.getTweet(request, response, next);
 
       expect(response.statusCode).toBe(404);
       expect(response._getJSONData()).toEqual({
@@ -73,7 +70,7 @@ describe("Tweet Controller", () => {
       request = httpMocks.createRequest(mockTweet.reqOptions(tweetId));
       mockedTweetRepository.getById.mockResolvedValueOnce(mockTweet.tweet());
 
-      await tweetController.getTweet(request, response);
+      await tweetController.getTweet(request, response, next);
 
       expect(response.statusCode).toBe(200);
       expect(response._getJSONData()).toEqual(mockTweet.tweet());
@@ -96,7 +93,6 @@ describe("Tweet Controller", () => {
         match,
         image
       );
-      expect(next).not.toHaveBeenCalled();
       expect(mockedSocket.emit).toHaveBeenCalledWith(
         "tweets",
         mockTweet.tweet()
@@ -107,9 +103,13 @@ describe("Tweet Controller", () => {
 
     test("will call next middleware if DB returns nothing when creates tweet for the given video", async () => {
       request = httpMocks.createRequest(mockTweet.reqOptions(NaN, "", video));
-      mockedTweetRepository.create.mockResolvedValueOnce(undefined);
+      mockedTweetRepository.create.mockRejectedValueOnce("Error");
 
-      await tweetController.createTweet(request, response, next);
+      await tweetController
+        .createTweet(request, response, next)
+        .catch((error) =>
+          expect(error).toBe("Error! tweetController.createTweet < Error")
+        );
 
       expect(mockedTweetRepository.create).toHaveBeenCalledWith(
         1,
@@ -117,7 +117,6 @@ describe("Tweet Controller", () => {
         match,
         ""
       );
-      expect(next).toHaveBeenCalled();
       expect(response.statusCode).not.toBe(201);
     });
   });
@@ -137,19 +136,21 @@ describe("Tweet Controller", () => {
         image,
       });
       expect(response.statusCode).toBe(200);
-      expect(next).not.toHaveBeenCalled();
     });
   });
 
   describe("deleteTweet", () => {
     test("calls next middleware when DB returns error at deleting tweet", async () => {
       request = httpMocks.createRequest(mockTweet.reqOptions(tweetId));
-      mockedTweetRepository.remove.mockResolvedValueOnce(new Error("Error"));
+      mockedTweetRepository.remove.mockRejectedValueOnce("Error");
 
-      await tweetController.deleteTweet(request, response, next);
+      await tweetController
+        .deleteTweet(request, response, next)
+        .catch((error) =>
+          expect(error).toBe("Error! tweetController.deleteTweet < Error")
+        );
 
       expect(mockedTweetRepository.remove).toHaveBeenCalledWith(tweetId);
-      expect(next).toHaveBeenCalled();
       expect(response.statusCode).not.toBe(204);
     });
 
@@ -160,7 +161,6 @@ describe("Tweet Controller", () => {
       await tweetController.deleteTweet(request, response, next);
 
       expect(mockedTweetRepository.remove).toHaveBeenCalledWith(tweetId);
-      expect(next).not.toHaveBeenCalled();
       expect(response.statusCode).toBe(204);
     });
   });

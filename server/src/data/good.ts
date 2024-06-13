@@ -11,8 +11,7 @@ export default class GoodRepository implements GoodDataHandler {
         tweetId,
       ])
       .catch((error) => {
-        console.error("goodRepository.clickTweet\n", error);
-        throw new Error(error);
+        throw `goodRepository.clickTweet\n ${error}`;
       });
   };
 
@@ -23,8 +22,7 @@ export default class GoodRepository implements GoodDataHandler {
         tweetId,
       ])
       .catch((error) => {
-        console.error("goodRepository.unClickTweet\n", error);
-        throw new Error(error);
+        throw `goodRepository.unClickTweet\n ${error}`;
       });
   };
 
@@ -35,8 +33,7 @@ export default class GoodRepository implements GoodDataHandler {
         commentId,
       ])
       .catch((error) => {
-        console.error("goodRepository.clickComment\n", error);
-        throw new Error(error);
+        throw `goodRepository.clickComment\n ${error}`;
       });
   };
 
@@ -47,8 +44,7 @@ export default class GoodRepository implements GoodDataHandler {
         commentId,
       ])
       .catch((error) => {
-        console.error("goodRepository.unClickComment\n", error);
-        throw new Error(error);
+        throw `goodRepository.unClickComment\n ${error}`;
       });
   };
 }

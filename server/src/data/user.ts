@@ -45,8 +45,7 @@ export default class UserRepository implements UserDataHandler {
       .execute("SELECT * FROM users WHERE id = ?", [userId])
       .then((result: any[]) => result[0][0])
       .catch((error) => {
-        console.error("userRepository.findById\n", error);
-        throw new Error(error);
+        throw `userRepository.findById\n ${error}`;
       });
   };
 
@@ -55,18 +54,16 @@ export default class UserRepository implements UserDataHandler {
       .execute("SELECT * FROM users WHERE username = ?", [username])
       .then((result: any[]) => result[0][0])
       .catch((error) => {
-        console.error("userRepository.findByUsername\n", error);
-        throw new Error(error);
+        throw `userRepository.findByUsername\n ${error}`;
       });
   };
 
-  findByUserEmail = async (email: string) => {
+  findByEmail = async (email: string) => {
     return await db
       .execute("SELECT * FROM users WHERE email = ?", [email])
       .then((result: any[]) => result[0][0])
       .catch((error) => {
-        console.error("userRepository.findByUserEmail\n", error);
-        throw new Error(error);
+        throw `userRepository.findByUserEmail\n ${error}`;
       });
   };
 
@@ -86,8 +83,7 @@ export default class UserRepository implements UserDataHandler {
       )
       .then((result: any[]) => result[0].insertId)
       .catch((error) => {
-        console.error("userRepository.createUser\n", error);
-        throw new Error(error);
+        throw `userRepository.createUser\n ${error}`;
       });
   };
 
@@ -98,8 +94,7 @@ export default class UserRepository implements UserDataHandler {
         [...this.handleUpdateValues(user), userId]
       )
       .catch((error) => {
-        console.error("userRepository.updateUser\n", error);
-        throw new Error(error);
+        throw `userRepository.updateUser\n ${error}`;
       });
   };
 
@@ -107,8 +102,7 @@ export default class UserRepository implements UserDataHandler {
     await db
       .execute("UPDATE users SET password = ? WHERE id = ?", [password, userId])
       .catch((error) => {
-        console.error("userRepository.updatePassword\n", error);
-        throw new Error(error);
+        throw `userRepository.updatePassword\n ${error}`;
       });
   };
 
@@ -116,8 +110,7 @@ export default class UserRepository implements UserDataHandler {
     await db
       .execute("DELETE FROM users WHERE id = ?", [userId])
       .catch((error) => {
-        console.error("userRepository.deleteUser\n", error);
-        throw new Error(error);
+        throw `userRepository.deleteUser\n ${error}`;
       });
   };
 }

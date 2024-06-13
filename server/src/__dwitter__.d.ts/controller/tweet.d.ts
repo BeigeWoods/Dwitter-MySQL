@@ -10,8 +10,9 @@ export declare interface TweetHandler {
   ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
   getTweet(
     req: Request,
-    res: Response
-  ): Promise<Response<any, Record<string, any>>>;
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
   createTweet(
     req: Request,
     res: Response,
@@ -44,8 +45,9 @@ export declare class TweetController implements TweetHandler {
   ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
   getTweet: (
     req: Request,
-    res: Response
-  ) => Promise<Response<any, Record<string, any>>>;
+    res: Response,
+    next: NextFunction
+  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
   createTweet: (
     req: Request,
     res: Response,

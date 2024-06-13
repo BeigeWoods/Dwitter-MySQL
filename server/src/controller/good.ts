@@ -1,3 +1,4 @@
+import "express-async-errors";
 import { NextFunction, Request, Response } from "express";
 import { GoodHandler } from "../__dwitter__.d.ts/controller/good";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
@@ -16,27 +17,33 @@ export default class GoodController implements GoodHandler {
     const { tweetId } = req.params;
     const clicked = Number(req.body.clicked);
     let good = Number(req.body.good);
-    let error: Error | void = undefined;
 
-    if (clicked && good > 0) {
+    if (clicked) {
+      if (!good) {
+        console.warn(
+          "Warn! goodController.goodTweet\n number of clicked good is 0"
+        );
+        return res.sendStatus(400);
+      }
       good -= 1;
-      error = await this.goodRepository.unClickTweet(userId, tweetId);
+      await this.goodRepository.unClickTweet(userId, tweetId).catch((error) => {
+        throw `Error! goodController.goodTweet < ${error}`;
+      });
     } else {
       good += 1;
-      error = await this.goodRepository.clickTweet(userId, tweetId);
+      await this.goodRepository.clickTweet(userId, tweetId).catch((error) => {
+        throw `Error! goodController.goodTweet < ${error}`;
+      });
     }
-    if (error) {
-      return next(error);
-    }
-    error = await this.tweetRepository.updateGood(tweetId, good);
+    await this.tweetRepository.updateGood(tweetId, good).catch((error) => {
+      throw `Error! goodController.goodTweet < ${error}`;
+    });
 
-    return error
-      ? next(error)
-      : res.status(201).json({
-          id: Number(tweetId),
-          good,
-          clicked: clicked ? 0 : userId,
-        });
+    return res.status(201).json({
+      id: Number(tweetId),
+      good,
+      clicked: clicked ? 0 : userId,
+    });
   };
 
   goodComment = async (req: Request, res: Response, next: NextFunction) => {
@@ -44,26 +51,37 @@ export default class GoodController implements GoodHandler {
     const { commentId } = req.params;
     const clicked = Number(req.body.clicked);
     let good = Number(req.body.good);
-    let error: Error | void = undefined;
 
-    if (clicked && good > 0) {
+    if (clicked) {
+      if (!good) {
+        console.warn(
+          "Warn! goodController.goodComment\n number of clicked good is 0"
+        );
+        return res.sendStatus(400);
+      }
       good -= 1;
-      error = await this.goodRepository.unClickComment(userId, commentId);
+      await this.goodRepository
+        .unClickComment(userId, commentId)
+        .catch((error) => {
+          throw `Error! goodController.goodComment < ${error}`;
+        });
     } else {
       good += 1;
-      error = await this.goodRepository.clickComment(userId, commentId);
-    }
-    if (error) {
-      return next(error);
-    }
-    error = await this.commentRepository.updateGood(commentId, good);
-
-    return error
-      ? next(error)
-      : res.status(201).json({
-          id: Number(commentId),
-          good,
-          clicked: clicked ? 0 : userId,
+      await this.goodRepository
+        .clickComment(userId, commentId)
+        .catch((error) => {
+          throw `Error! goodController.goodComment < ${error}`;
         });
+    }
+
+    await this.commentRepository.updateGood(commentId, good).catch((error) => {
+      throw `Error! goodController.goodComment < ${error}`;
+    });
+
+    return res.status(201).json({
+      id: Number(commentId),
+      good,
+      clicked: clicked ? 0 : userId,
+    });
   };
 }

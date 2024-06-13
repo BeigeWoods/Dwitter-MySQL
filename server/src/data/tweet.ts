@@ -55,8 +55,7 @@ export default class TweetRepository implements TweetDataHandler {
       )
       .then((result: any[]) => result[0])
       .catch((error) => {
-        console.error("tweetRepository.getAll\n", error);
-        throw new Error(error);
+        throw `tweetRepository.getAll\n ${error}`;
       });
   };
 
@@ -72,8 +71,7 @@ export default class TweetRepository implements TweetDataHandler {
       )
       .then((result: any[]) => result[0])
       .catch((error) => {
-        console.error("tweetRepository.getAllByUsername\n", error);
-        throw new Error(error);
+        throw `tweetRepository.getAllByUsername\n ${error}`;
       });
   };
 
@@ -89,8 +87,7 @@ export default class TweetRepository implements TweetDataHandler {
       )
       .then((result: any[]) => result[0][0])
       .catch((error) => {
-        console.error("tweetRepository.getById\n", error);
-        throw new Error(error);
+        throw `tweetRepository.getById\n ${error}`;
       });
   };
 
@@ -110,8 +107,7 @@ export default class TweetRepository implements TweetDataHandler {
         async (result: any[]) => await this.getById(result[0].insertId, userId)
       )
       .catch((error) => {
-        console.error("tweetRepository.create\n", error);
-        throw new Error(error);
+        throw `tweetRepository.create\n ${error}`;
       });
   };
 
@@ -128,8 +124,7 @@ export default class TweetRepository implements TweetDataHandler {
       )
       .then(async () => await this.getById(tweetId, userId))
       .catch((error) => {
-        console.error("tweetRepository.update\n", error);
-        throw new Error(error);
+        throw `tweetRepository.update\n ${error}`;
       });
   };
 
@@ -137,8 +132,7 @@ export default class TweetRepository implements TweetDataHandler {
     await db
       .execute("UPDATE tweets SET good = ? WHERE id = ?", [good, tweetId])
       .catch((error) => {
-        console.error("tweetRepository.updateGood\n", error);
-        throw new Error(error);
+        throw `tweetRepository.updateGood\n ${error}`;
       });
   };
 
@@ -146,8 +140,7 @@ export default class TweetRepository implements TweetDataHandler {
     await db
       .execute("DELETE FROM tweets WHERE id = ?", [tweetId])
       .catch((error) => {
-        console.error("tweetRepository.remove\n", error);
-        throw new Error(error);
+        throw `tweetRepository.remove\n ${error}`;
       });
   };
 }

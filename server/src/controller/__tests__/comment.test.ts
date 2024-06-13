@@ -26,7 +26,6 @@ describe("Comment Controller", () => {
 
   beforeEach(() => {
     response = httpMocks.createResponse();
-    next = jest.fn();
   });
 
   describe("getComments", () => {
@@ -44,7 +43,6 @@ describe("Comment Controller", () => {
       );
       expect(response.statusCode).toBe(200);
       expect(response._getJSONData()).toEqual([mockComment.comment]);
-      expect(next).not.toHaveBeenCalled();
     });
   });
 
@@ -53,6 +51,7 @@ describe("Comment Controller", () => {
       request = httpMocks.createRequest(
         mockComment.reqOptions(NaN, text, recipient)
       );
+      mockedUserRepository.findByUsername.mockResolvedValueOnce(undefined);
 
       await commentController.createComment(request, response, next);
 
@@ -118,6 +117,7 @@ describe("Comment Controller", () => {
       request = httpMocks.createRequest(
         mockComment.reqOptions(commentId, text, recipient)
       );
+      mockedCommentRepository.update.mockResolvedValueOnce();
 
       await commentController.updateComment(request, response, next);
 
@@ -127,19 +127,21 @@ describe("Comment Controller", () => {
         userId,
         text
       );
-      expect(next).toHaveBeenCalled();
     });
   });
 
   describe("deleteComment", () => {
     test("calls next middleware when DB returns error by callback", async () => {
       request = httpMocks.createRequest(mockComment.reqOptions(commentId));
-      mockedCommentRepository.remove.mockResolvedValueOnce(new Error("Error"));
+      mockedCommentRepository.remove.mockRejectedValueOnce("Error");
 
-      await commentController.deleteComment(request, response, next);
+      await commentController
+        .deleteComment(request, response, next)
+        .catch((error) =>
+          expect(error).toBe("Error! commentContoller.deleteComment < Error")
+        );
 
       expect(mockedCommentRepository.remove).toHaveBeenCalledWith(commentId);
-      expect(next).toHaveBeenCalled();
       expect(response.statusCode).not.toBe(204);
     });
 
@@ -150,7 +152,6 @@ describe("Comment Controller", () => {
       await commentController.deleteComment(request, response, next);
 
       expect(mockedCommentRepository.remove).toHaveBeenCalledWith(commentId);
-      expect(next).not.toHaveBeenCalled();
       expect(response.statusCode).toBe(204);
     });
   });

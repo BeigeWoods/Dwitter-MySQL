@@ -19,18 +19,23 @@ export default class TweetController implements TweetHandler {
   getTweets = async (req: Request, res: Response, next: NextFunction) => {
     const { username } = req.query;
     const data = await (username
-      ? this.tweetRepository.getAllByUsername(req.user!.id, username as string)
-      : this.tweetRepository.getAll(req.user!.id));
-    return data
-      ? res.status(200).json(data)
-      : next(new Error("getTweets : from tweetRepository.getAll(ByUsername)"));
+      ? this.tweetRepository
+          .getAllByUsername(req.user!.id, username as string)
+          .catch((error) => {
+            throw `Error! tweetController.getTweets < ${error}`;
+          })
+      : this.tweetRepository.getAll(req.user!.id).catch((error) => {
+          throw `Error! tweetController.getTweets < ${error}`;
+        }));
+    return res.status(200).json(data);
   };
 
-  getTweet = async (req: Request, res: Response) => {
-    const tweet = await this.tweetRepository.getById(
-      req.params.tweetId,
-      req.user!.id
-    );
+  getTweet = async (req: Request, res: Response, next: NextFunction) => {
+    const tweet = await this.tweetRepository
+      .getById(req.params.tweetId, req.user!.id)
+      .catch((error) => {
+        throw `Error! tweetController.getTweet < ${error}`;
+      });
     return tweet
       ? res.status(200).json(tweet)
       : res.status(404).json({ message: `Tweet not found` });
@@ -40,15 +45,16 @@ export default class TweetController implements TweetHandler {
     // const image = req.file ? req.file.path : "";
     const image = req.file?.location;
     const { text, video }: { text?: string; video?: string } = req.body;
-    const tweet = await this.tweetRepository.create(
-      req.user!.id,
-      text ? text : "",
-      video ? this.handleUrl(video) : "",
-      image ? image : ""
-    );
-    if (!tweet) {
-      return next(new Error("createTweet : from tweetRepository.create"));
-    }
+    const tweet = await this.tweetRepository
+      .create(
+        req.user!.id,
+        text ? text : "",
+        video ? this.handleUrl(video) : "",
+        image ? image : ""
+      )
+      .catch((error) => {
+        throw `Error! tweetController.createTweet < ${error}`;
+      });
     this.getSocketIO().emit("tweets", tweet);
     return res.status(201).json(tweet);
   };
@@ -56,22 +62,22 @@ export default class TweetController implements TweetHandler {
   updateTweet = async (req: Request, res: Response, next: NextFunction) => {
     // const image = req.file?.path;
     const { video }: { video?: string } = req.body;
-    const updated = await this.tweetRepository.update(
-      req.params.tweetId,
-      req.user!.id,
-      {
+    const updated = await this.tweetRepository
+      .update(req.params.tweetId, req.user!.id, {
         text: req.body.text,
         video: video ? this.handleUrl(video) : "",
         image: req.file?.location,
-      }
-    );
-    return updated
-      ? res.status(200).json(updated)
-      : next(new Error("updateTweet : from tweetRepository.update"));
+      })
+      .catch((error) => {
+        throw `Error! tweetController.updateTweet < ${error}`;
+      });
+    return res.status(200).json(updated);
   };
 
   deleteTweet = async (req: Request, res: Response, next: NextFunction) => {
-    const error = await this.tweetRepository.remove(req.params.tweetId);
-    return error ? next(error) : res.sendStatus(204);
+    await this.tweetRepository.remove(req.params.tweetId).catch((error) => {
+      throw `Error! tweetController.deleteTweet < ${error}`;
+    });
+    return res.sendStatus(204);
   };
 }
