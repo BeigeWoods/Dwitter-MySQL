@@ -1,7 +1,7 @@
 import httpMocks from "node-mocks-http";
 import faker from "faker";
 import { NextFunction } from "express";
-import { verify as verifying } from "jsonwebtoken";
+import { verify } from "jsonwebtoken";
 import AuthValidator from "../auth";
 import config from "../../config";
 import { mockedUserRepository } from "../../__mocked__/repository";
@@ -11,7 +11,7 @@ jest.mock("jsonwebtoken");
 
 describe("Auth Middleware", () => {
   const authMiddleware = new AuthValidator(config, mockedUserRepository);
-  const verify = verifying as jest.Mock;
+  const mockVerify = verify as jest.Mock;
   const userId = 1,
     headers = {
       headers: { Authorization: `Bearer ${faker.random.alphaNumeric(3)}` },
@@ -50,7 +50,7 @@ describe("Auth Middleware", () => {
 
     test("returns status 401 for the request with invalid JWT", async () => {
       request = httpMocks.createRequest(headers);
-      verify.mockImplementation((token, secret, callback) =>
+      mockVerify.mockImplementation((token, secret, callback) =>
         callback(new Error("Bad Token"), undefined)
       );
       const error = jest
@@ -67,7 +67,7 @@ describe("Auth Middleware", () => {
 
     test("returns status 401 when cannot find a user by id from the JWT", async () => {
       request = httpMocks.createRequest(headers);
-      verify.mockImplementation((token, secret, callback) =>
+      mockVerify.mockImplementation((token, secret, callback) =>
         callback(undefined, { id: userId })
       );
 
@@ -81,7 +81,7 @@ describe("Auth Middleware", () => {
 
     test("succeeds Authorization", async () => {
       request = httpMocks.createRequest(headers);
-      verify.mockImplementation((token, secret, callback) =>
+      mockVerify.mockImplementation((token, secret, callback) =>
         callback(undefined, { id: userId })
       );
       mockedUserRepository.findById.mockReturnValueOnce(

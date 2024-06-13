@@ -6,7 +6,7 @@ import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 export const mockedUserRepository: jest.Mocked<UserDataHandler> = {
   findById: jest.fn(),
   findByUsername: jest.fn(),
-  findByUserEmail: jest.fn(),
+  findByEmail: jest.fn(),
   updateUser: jest.fn(),
   updatePassword: jest.fn(),
   createUser: jest.fn(),

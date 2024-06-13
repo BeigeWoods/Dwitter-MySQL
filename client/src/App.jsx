@@ -16,10 +16,10 @@ function App({ tweetService, commentService }) {
     history.push("/");
   };
   const toProfile = () => {
-    history.push("/auth/profile");
+    history.push("/my/profile");
   };
   const toChangePassword = () => {
-    history.push("/auth/change-password");
+    history.push("/my/change-password");
   };
   const toLogout = () => {
     if (window.confirm("Do you want to sign out?")) {
@@ -55,7 +55,7 @@ function App({ tweetService, commentService }) {
               commentService={commentService}
             />
           </Route>
-          <Route exact path="/auth/profile">
+          <Route exact path="/my/profile">
             <Profile
               onGetUser={getUser}
               onUpdateUser={updateUser}
@@ -63,14 +63,11 @@ function App({ tweetService, commentService }) {
               toWithdrawal={toWithdrawal}
             />
           </Route>
-          <Route exact path="/auth/change-password">
+          <Route exact path="/my/change-password">
             <ChangePassword
               onChangePassword={changePassword}
               toProfile={toProfile}
             />
-          </Route>
-          <Route path="/github_oauth">
-            <Login />
           </Route>
         </>
         )

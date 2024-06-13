@@ -28,7 +28,7 @@ export declare type OutputUser = InputUserInfo & { id: number };
 export declare interface UserDataHandler {
   findById(userId: number): Promise<OutputUser | never | void>;
   findByUsername(username: string): Promise<OutputUser | never | void>;
-  findByUserEmail(email: string): Promise<OutputUser | never | void>;
+  findByEmail(email: string): Promise<OutputUser | never | void>;
   createUser(user: InputUserInfo): Promise<number | never | void>;
   updateUser(userId: number, user: InputUserProf): Promise<never | void>;
   updatePassword(userId: number, password: string): Promise<never | void>;
@@ -42,7 +42,7 @@ export declare class UserRepository implements UserDataHandler {
   private handleUpdateValues(user: InputUserProf): string[];
   findById: (userId: number) => Promise<OutputUser | never | void>;
   findByUsername: (username: string) => Promise<OutputUser | never | void>;
-  findByUserEmail: (email: string) => Promise<OutputUser | never | void>;
+  findByEmail: (email: string) => Promise<OutputUser | never | void>;
   createUser: (user: InputUserInfo) => Promise<number | never | void>;
   updateUser: (userId: number, user: InputUserProf) => Promise<never | void>;
   updatePassword: (userId: number, password: string) => Promise<never | void>;
