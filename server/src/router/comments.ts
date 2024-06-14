@@ -4,15 +4,15 @@ import {
   commentValidator,
   goodValidator,
 } from "../middleware/validation/content.js";
-import { AuthValidateHandler } from "../__dwitter__.d.ts/middleware/auth";
-import { CommentHandler } from "../__dwitter__.d.ts/controller/comments";
-import { GoodHandler } from "../__dwitter__.d.ts/controller/good";
+import AuthValidateHandler from "../__dwitter__.d.ts/middleware/auth";
+import CommentHandler from "../__dwitter__.d.ts/controller/comments";
+import GoodHandler from "../__dwitter__.d.ts/controller/good";
 
 export default function commentsRouter(
   authValidator: AuthValidateHandler,
   commentController: CommentHandler,
   goodController: GoodHandler
-): express.IRouter {
+) {
   const router = express.Router();
 
   router.get(

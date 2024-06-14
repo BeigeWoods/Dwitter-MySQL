@@ -1,6 +1,6 @@
 import "express-async-errors";
 import { NextFunction, Request, Response } from "express";
-import { GoodHandler } from "../__dwitter__.d.ts/controller/good";
+import GoodHandler from "../__dwitter__.d.ts/controller/good";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 import { GoodDataHandler } from "../__dwitter__.d.ts/data/good";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";

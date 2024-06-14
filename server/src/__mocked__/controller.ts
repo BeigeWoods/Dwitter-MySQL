@@ -2,7 +2,7 @@ import { CookieOptions, NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { MockResponse } from "node-mocks-http";
 import { UserForToken } from "../__dwitter__.d.ts/controller/auth/oauth";
-import { TokenHandler } from "../__dwitter__.d.ts/controller/auth/token";
+import TokenHandler from "../__dwitter__.d.ts/controller/auth/token";
 import { OutputUser, UserDataHandler } from "../__dwitter__.d.ts/data/user";
 import { mockOauth } from "./data";
 

@@ -1,7 +1,6 @@
 import httpMocks from "node-mocks-http";
 import { NextFunction } from "express";
 import GoodController from "../good";
-import { GoodHandler } from "../../__dwitter__.d.ts/controller/good";
 import {
   mockedGoodRepository,
   mockedTweetRepository,
@@ -9,7 +8,7 @@ import {
 } from "../../__mocked__/repository";
 
 describe("GoodController", () => {
-  const goodController: GoodHandler = new GoodController(
+  const goodController = new GoodController(
     mockedTweetRepository,
     mockedCommentRepository,
     mockedGoodRepository

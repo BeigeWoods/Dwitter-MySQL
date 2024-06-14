@@ -1,5 +1,5 @@
-import aws from "@aws-sdk/client-s3";
 import { NextFunction, Request, Response } from "express";
+import aws from "@aws-sdk/client-s3";
 import multer from "multer";
 import multerS3 from "multer-s3";
 import config from "../config.js";
@@ -12,7 +12,7 @@ const s3 = new aws.S3Client({
   region: config.awsS3.region,
 });
 
-export const multerUpload = multer({
+const multerUpload = multer({
   // dest: "uploads/",
   limits: {
     fileSize: 10000000,
@@ -29,19 +29,17 @@ export const multerUpload = multer({
 
 const upload = multerUpload.single("image");
 
-export const imageUploading = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const imageUploading = (req: Request, res: Response, next: NextFunction) => {
   upload(req, res, (err) => {
     if (err instanceof multer.MulterError) {
-      console.warn(err);
-      return res.status(409).json({ message: "failed to upload image" });
+      console.error("Error! imageUpload < multer\n", err);
+      return res.status(409).json({ message: "Failed to upload image" });
     } else if (err) {
-      console.warn(err);
-      return res.status(409).json({ message: "failed to upload image" });
+      console.error("Error! imageUpload < other than multer\n", err);
+      return res.status(409).json({ message: "Failed to upload image" });
     }
     next();
   });
 };
+
+export default imageUploading;

@@ -1,5 +1,5 @@
 import { body, check } from "express-validator";
-import { expressValidator } from "./validator.js";
+import expressValidator from "./validator.js";
 
 const user = {
   username: [
@@ -108,7 +108,7 @@ const user = {
   ],
 };
 
-export const userValidator = {
+const userValidator = {
   signUp: [
     ...user.username,
     ...user.password,
@@ -129,3 +129,5 @@ export const userValidator = {
     expressValidator,
   ],
 };
+
+export default userValidator;

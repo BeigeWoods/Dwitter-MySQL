@@ -1,6 +1,7 @@
+import "express-async-errors";
 import { NextFunction, Request, Response } from "express";
 import { Server } from "socket.io";
-import { TweetHandler } from "../__dwitter__.d.ts/controller/tweet";
+import TweetHandler from "../__dwitter__.d.ts/controller/tweet";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 
 export default class TweetController implements TweetHandler {

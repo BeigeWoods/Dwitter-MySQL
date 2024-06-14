@@ -1,8 +1,8 @@
 import "express-async-errors";
 import { NextFunction, Request, Response } from "express";
 import { Server } from "socket.io";
+import CommentHandler from "../__dwitter__.d.ts/controller/comments";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
-import { CommentHandler } from "../__dwitter__.d.ts/controller/comments";
 import { UserDataHandler, OutputUser } from "../__dwitter__.d.ts/data/user";
 
 export default class CommentController implements CommentHandler {

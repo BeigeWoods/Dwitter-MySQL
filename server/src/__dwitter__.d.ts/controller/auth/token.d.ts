@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Config from "../../config";
 
-export declare interface TokenHandler {
+declare interface TokenHandler {
   createJwtToken(id: number): string;
   setToken(res: Response, token: string): Response<any, Record<string, any>>;
   csrfToken(
@@ -29,3 +29,5 @@ export declare class TokenController implements TokenHandler {
   ) => Promise<Response<any, Record<string, any>> | NextFunction>;
   generateCSRFToken: () => Promise<string>;
 }
+
+export default TokenHandler;

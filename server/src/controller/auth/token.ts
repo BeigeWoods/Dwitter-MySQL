@@ -2,7 +2,7 @@ import { CookieOptions, NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Config from "../../__dwitter__.d.ts/config";
-import { TokenHandler } from "../../__dwitter__.d.ts/controller/auth/token";
+import TokenHandler from "../../__dwitter__.d.ts/controller/auth/token";
 
 export default class TokenController implements TokenHandler {
   constructor(private readonly config: Config) {}
@@ -31,10 +31,9 @@ export default class TokenController implements TokenHandler {
   };
 
   generateCSRFToken = async () => {
-    return await bcrypt
-      .hash(this.config.csrf.plainToken, this.config.csrf.saltRounds)
-      .catch((error) => {
-        throw `tokenController.generateCSRFToken\n ${error}`;
-      });
+    return await bcrypt.hash(
+      this.config.csrf.plainToken,
+      this.config.csrf.saltRounds
+    );
   };
 }

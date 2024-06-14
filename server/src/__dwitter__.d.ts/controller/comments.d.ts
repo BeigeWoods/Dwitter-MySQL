@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { CommentDataHandler } from "../data/comments";
 
-export declare interface CommentHandler {
+declare interface CommentHandler {
   getComments(
     req: Request,
     res: Response,
@@ -50,3 +50,5 @@ export declare class CommentController implements CommentHandler {
     next: NextFunction
   ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
 }
+
+export default CommentHandler;

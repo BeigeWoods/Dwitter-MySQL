@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import Config from "../../config";
 import { UserDataHandler } from "../../data/user";
-import { TokenHandler } from "./token";
+import TokenHandler from "./token";
 
-export declare interface AuthDataHandler {
+declare interface AuthDataHandler {
   signUp(
     req: Request,
     res: Response,
@@ -93,3 +93,5 @@ export declare class AuthController implements AuthDataHandler {
     next: NextFunction
   ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
 }
+
+export default AuthDataHandler;

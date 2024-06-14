@@ -2,7 +2,7 @@ import { TweetDataHandler } from "../data/tweet";
 import { NextFunction, Request, Response } from "express";
 import { Server } from "socket.io";
 
-export declare interface TweetHandler {
+declare interface TweetHandler {
   getTweets(
     req: Request,
     res: Response,
@@ -64,3 +64,5 @@ export declare class TweetController implements TweetHandler {
     next: NextFunction
   ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
 }
+
+export default TweetHandler;

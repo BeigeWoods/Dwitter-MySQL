@@ -1,10 +1,10 @@
-export type PasswordInfo = {
+export declare type PasswordInfo = {
   password: string;
   newPassword: string;
   checkPassword: string;
 };
 
-export type UserProfile = {
+export declare type UserProfile = {
   username: string;
   name: string;
   url?: string;

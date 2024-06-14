@@ -3,7 +3,7 @@ import { GoodDataHandler } from "../data/good";
 import { TweetDataHandler } from "../data/tweet";
 import { CommentDataHandler } from "../data/comments";
 
-export declare interface GoodHandler {
+declare interface GoodHandler {
   goodTweet(
     req: Request,
     res: Response,
@@ -38,3 +38,5 @@ export declare class GoodController {
     next: NextFunction
   ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
 }
+
+export default GoodHandler;
