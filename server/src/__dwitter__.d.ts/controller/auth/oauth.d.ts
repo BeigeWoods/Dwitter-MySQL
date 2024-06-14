@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import Config from "../../config";
-import { TokenHandler } from "./token";
+import TokenHandler from "./token";
 import { UserDataHandler } from "../../data/user";
 
 export type UserForToken = {
@@ -8,7 +8,7 @@ export type UserForToken = {
   username: string;
 };
 
-export declare interface GithubOauth {
+declare interface GithubOauthHandler {
   githubStart(
     req: Request,
     res: Response,
@@ -20,7 +20,7 @@ export declare interface GithubOauth {
   ): Promise<Response<any, Record<string, any>> | void>;
 }
 
-export declare class OauthController implements GithubOauth {
+export declare class OauthController implements GithubOauthHandler {
   private readonly config;
   private tokenController;
   private userRepository;
@@ -50,3 +50,5 @@ export declare class OauthController implements GithubOauth {
     res: Response
   ) => Promise<Response<any, Record<string, any>> | void>;
 }
+
+export default GithubOauthHandler;

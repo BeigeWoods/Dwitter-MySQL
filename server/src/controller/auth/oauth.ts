@@ -2,15 +2,14 @@ import "express-async-errors";
 import { CookieOptions, NextFunction, Request, Response } from "express";
 import fetch from "node-fetch";
 import bcrypt from "bcrypt";
-import { TokenHandler } from "../../__dwitter__.d.ts/controller/auth/token";
-import { OutputUser, UserDataHandler } from "../../__dwitter__.d.ts/data/user";
-import {
-  GithubOauth,
+import TokenHandler from "../../__dwitter__.d.ts/controller/auth/token";
+import GithubOauthHandler, {
   UserForToken,
 } from "../../__dwitter__.d.ts/controller/auth/oauth";
+import { OutputUser, UserDataHandler } from "../../__dwitter__.d.ts/data/user";
 import Config from "../../__dwitter__.d.ts/config";
 
-export default class OauthController implements GithubOauth {
+export default class OauthController implements GithubOauthHandler {
   constructor(
     private readonly config: Config,
     private tokenController: TokenHandler,
@@ -19,12 +18,11 @@ export default class OauthController implements GithubOauth {
 
   private setErrorMessage(res: Response) {
     const options: CookieOptions = {
-      maxAge: 5000,
       httpOnly: true,
       sameSite: "none",
       secure: true,
     };
-    return res.cookie("ouath", "Failed Github login", options);
+    return res.cookie("oauth", "Failed Github login", options);
   }
 
   private signUp = async (owner: any, email: any, exist: boolean) => {
@@ -182,8 +180,8 @@ export default class OauthController implements GithubOauth {
       }));
 
     isSuccess
-      ? this.setErrorMessage(res)
-      : this.tokenController.setToken(res, (user as UserForToken).token);
+      ? this.tokenController.setToken(res, (user as UserForToken).token)
+      : this.setErrorMessage(res);
     return res.redirect(this.config.cors.allowedOrigin);
   };
 }

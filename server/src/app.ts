@@ -10,7 +10,9 @@ import authRouter from "./router/auth.js";
 import config from "./config.js";
 import db from "./db/database.js";
 import { initSocket, getSocketIO } from "./connection/socket.js";
-import { csrfCheck } from "./middleware/csrf.js";
+import csrfCheck from "./middleware/csrf.js";
+import oauthMessageCheck from "./middleware/oauth.js";
+import imageUploading from "./middleware/multer.js";
 import TweetRepository from "./data/tweet.js";
 import TweetController from "./controller/tweet.js";
 import GoodRepository from "./data/good.js";
@@ -67,12 +69,18 @@ app.use(cookieParser());
 
 app.use(csrfCheck);
 app.use("/", [
-  tweetsRouter(authValidator, tweetController, goodContoller),
+  tweetsRouter(authValidator, tweetController, goodContoller, imageUploading),
   commentsRouter(authValidator, commentController, goodContoller),
 ]);
 app.use(
   "/auth",
-  authRouter(authValidator, authController, oauthController, tokenController)
+  authRouter(
+    authValidator,
+    authController,
+    oauthController,
+    tokenController,
+    oauthMessageCheck
+  )
 );
 
 app.use((res: Response) => {
