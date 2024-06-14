@@ -5,7 +5,7 @@ export default class HttpClient {
     this.getCsrfToken = getCsrfToken;
   }
 
-  async fetch(url, options, json = true, isnOauth = undefined) {
+  async fetch(url, options, json = true) {
     const contentType = json && { "Content-Type": "application/json" };
     const res = await fetch(`${this.baseURL}${url}`, {
       ...options,
@@ -13,7 +13,7 @@ export default class HttpClient {
         Accept: "application/json",
         ...contentType,
         ...options.headers,
-        "dwitter_csrf-token": isnOauth ? isnOauth : this.getCsrfToken(),
+        "dwitter_csrf-token": this.getCsrfToken(),
       },
       credentials: "include",
     });
@@ -21,9 +21,7 @@ export default class HttpClient {
     try {
       data = await res.json();
     } catch (error) {
-      if (res.status !== 204) {
-        console.error(error);
-      }
+      res.status !== 204 && console.error(error);
     }
 
     if (res.status > 299 || res.status < 200) {

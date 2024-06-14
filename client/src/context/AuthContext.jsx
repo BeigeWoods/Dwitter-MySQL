@@ -8,7 +8,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useHistory } from "react-router-dom";
 import Header from "../components/Header";
 import Login from "../pages/Login";
 
@@ -20,7 +19,6 @@ const csrfRef = createRef();
 export function AuthProvider({ authService, authErrorEventBus, children }) {
   const [user, setUser] = useState(undefined);
   const [csrfToken, setCsrfToken] = useState(undefined);
-  const history = useHistory();
 
   useImperativeHandle(tokenRef, () => (user ? user.token : undefined));
   useImperativeHandle(csrfRef, () => csrfToken);
@@ -54,23 +52,13 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
     [authService]
   );
 
-  const githubStart = useCallback(
+  const githubLogin = useCallback(
     () =>
       authService
-        .githubStart()
+        .githubLogin()
         .then((value) => window.location.assign(value))
         .catch(console.error),
     [authService]
-  );
-
-  const githubLogin = useCallback(
-    (query) =>
-      authService
-        .githubLogin(query)
-        .then((user) => setUser(user))
-        .catch((err) => console.error(err))
-        .finally(history.push("/")),
-    [authService, history]
   );
 
   const getUser = useCallback(() => authService.getUser(), [authService]);
@@ -125,7 +113,6 @@ export function AuthProvider({ authService, authErrorEventBus, children }) {
           <Login
             onSignUp={signUp}
             onLogin={logIn}
-            onGithubStart={githubStart}
             onGithubLogin={githubLogin}
           />
         </div>

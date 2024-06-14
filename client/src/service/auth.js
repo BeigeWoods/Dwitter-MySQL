@@ -1,5 +1,3 @@
-const bcrypt = require("bcryptjs");
-
 export default class AuthService {
   constructor(http) {
     this.http = http;
@@ -25,41 +23,10 @@ export default class AuthService {
     });
   }
 
-  async githubStart() {
-    const baseUrl = "https://github.com/login/oauth/authorize";
-    const state = bcrypt.hashSync(
-      process.env.REACT_APP_GH_STATE,
-      Number(process.env.REACT_APP_SALT)
-    );
-    if (!state) {
-      throw new Error("The problem of bcrypt");
-    }
-    const option = {
-      client_id: process.env.REACT_APP_GH_CLIENT_ID,
-      allow_signup: "false",
-      scope: "read:user user:email",
-      state,
-    };
-    const params = new URLSearchParams(option).toString();
-    return `${baseUrl}?${params}`;
-  }
-
-  async githubLogin(query) {
-    const code = new URLSearchParams(query).get("code");
-    const state = new URLSearchParams(query).get("state");
-    const result = bcrypt.compareSync(process.env.REACT_APP_GH_STATE, state);
-    if (!result) {
-      throw new Error("Github OAuth state doesn't validate.");
-    }
-    return await this.http.fetch(
-      "/auth/github",
-      {
-        method: "POST",
-        body: JSON.stringify({ code }),
-      },
-      true,
-      await this.csrfToken()
-    );
+  async githubLogin() {
+    return await this.http.fetch("/auth/o-github/start", {
+      method: "GET",
+    });
   }
 
   async me() {

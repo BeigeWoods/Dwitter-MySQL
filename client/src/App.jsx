@@ -5,7 +5,6 @@ import AllTweets from "./pages/AllTweets";
 import MyTweets from "./pages/MyTweets";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
-import Login from "./pages/Login";
 
 function App({ tweetService, commentService }) {
   const history = useHistory();
