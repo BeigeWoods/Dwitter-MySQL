@@ -71,17 +71,12 @@ export class mockedOauthController {
         throw "githubFinish : find user by email from login";
       })) as OutputUser;
 
-    if (byEmail) {
-      if (byUsername && byEmail.id !== byUsername.id) {
-        throw `githubFinish : unexpected discord from login\n
-          - [ id from username : ${byUsername.id}, id from email : ${byEmail.id} ]`;
-      }
-      return {
-        token: this.tokenController.createJwtToken(byEmail.id),
-        username: byEmail.username,
-      };
-    }
-    return await this.signUp(owner, email, byUsername ? true : false);
+    return byEmail
+      ? {
+          token: this.tokenController.createJwtToken(byEmail.id),
+          username: byEmail.username,
+        }
+      : await this.signUp(owner, email, byUsername ? true : false);
   };
 
   protected getUser = async (token: string) => {

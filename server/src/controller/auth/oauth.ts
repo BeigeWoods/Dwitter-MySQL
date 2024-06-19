@@ -57,18 +57,12 @@ export default class OauthController implements GithubOauthHandler {
         throw `Error! oauthController.githubFinish < login < ${error}`;
       })) as OutputUser;
 
-    if (byEmail) {
-      if (byUsername && byEmail.id !== byUsername.id) {
-        throw `Error! oauthController.githubFinish < login\n unexpected inconsistency\n
-          - owner: ${owner}, id : ${byUsername.id}\n
-          - email: ${email}, id : ${byEmail.id}`;
-      }
-      return {
-        token: this.tokenController.createJwtToken(byEmail.id),
-        username: byEmail.username,
-      };
-    }
-    return await this.signUp(owner, email, byUsername ? true : false);
+    return byEmail
+      ? {
+          token: this.tokenController.createJwtToken(byEmail.id),
+          username: byEmail.username,
+        }
+      : await this.signUp(owner, email, byUsername ? true : false);
   };
 
   protected getUser = async (token: string) => {
@@ -182,6 +176,6 @@ export default class OauthController implements GithubOauthHandler {
     isSuccess
       ? this.tokenController.setToken(res, (user as UserForToken).token)
       : this.setErrorMessage(res);
-    return res.redirect(this.config.cors.allowedOrigin);
+    return res.redirect(301, this.config.cors.allowedOrigin);
   };
 }

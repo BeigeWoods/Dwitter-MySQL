@@ -235,14 +235,18 @@ describe("OauthController", () => {
 
         await oauthController.githubFinish(request, response);
 
-        expect(error)
-          .toHaveBeenCalledWith(`githubFinish : unexpected discord from login\n
-          - [ id from username : 2, id from email : 1 ]`);
-        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(
-          response,
-          "error from login"
-        );
-        expect(mockedTokenController.setToken).not.toHaveBeenCalled();
+        // expect(error)
+        //   .toHaveBeenCalledWith(`githubFinish : unexpected discord from login\n
+        //   - [ id from username : 2, id from email : 1 ]`);
+        // expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(
+        //   response,
+        //   "error from login"
+        // );
+        // expect(mockedTokenController.setToken).not.toHaveBeenCalled();
+        // expect(hideMathods.signUp).not.toHaveBeenCalled();
+        expect(error).not.toHaveBeenCalled();
+        expect(hideMathods.setErrorMessage).not.toHaveBeenCalled();
+        expect(mockedTokenController.setToken).toHaveBeenCalled();
         expect(hideMathods.signUp).not.toHaveBeenCalled();
       });
     });
