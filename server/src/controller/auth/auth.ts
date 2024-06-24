@@ -1,7 +1,7 @@
 import "express-async-errors";
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
-import { AuthDataHandler } from "../../__dwitter__.d.ts/controller/auth/auth";
+import AuthDataHandler from "../../__dwitter__.d.ts/controller/auth/auth";
 import {
   InputUserInfo,
   InputUserProf,
@@ -9,7 +9,7 @@ import {
   PasswordInfo,
   UserDataHandler,
 } from "../../__dwitter__.d.ts/data/user";
-import { TokenHandler } from "../../__dwitter__.d.ts/controller/auth/token";
+import TokenHandler from "../../__dwitter__.d.ts/controller/auth/token";
 import Config from "../../__dwitter__.d.ts/config";
 
 export default class AuthController implements AuthDataHandler {
