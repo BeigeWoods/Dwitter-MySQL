@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import { Cookies } from "react-cookie";
 import Banner from "../components/Banner";
 import { authForm } from "../css/forms";
 import { login } from "../css/pages";
@@ -14,6 +15,16 @@ const Login = ({ onSignUp, onLogin, onGithubLogin }) => {
   const [url, setURL] = useState("");
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    const options = {
+      sameSite: "none",
+      secure: true,
+    };
+    const cookies = new Cookies();
+    const message = cookies.get("oauth");
+    message && onError(message).then(cookies.remove("oauth", options));
+  }, []);
+
   const onSubmit = (event) => {
     event.preventDefault();
     if (signup) {
@@ -23,7 +34,7 @@ const Login = ({ onSignUp, onLogin, onGithubLogin }) => {
     }
   };
 
-  const onError = (err) => {
+  const onError = async (err) => {
     setError(err.toString());
     setTimeout(() => {
       setError("");

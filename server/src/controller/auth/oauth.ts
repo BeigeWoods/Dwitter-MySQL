@@ -18,11 +18,10 @@ export default class OauthController implements GithubOauthHandler {
 
   private setErrorMessage(res: Response) {
     const options: CookieOptions = {
-      httpOnly: true,
       sameSite: "none",
       secure: true,
     };
-    return res.cookie("oauth", "Failed Github login", options);
+    return res.cookie("oauth", "Github login is failed", options);
   }
 
   private signUp = async (owner: any, email: any, exist: boolean) => {

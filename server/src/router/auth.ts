@@ -2,7 +2,6 @@ import express from "express";
 import "express-async-errors";
 import userValidator from "../middleware/validation/user.js";
 import AuthValidateHandler from "../__dwitter__.d.ts/middleware/auth";
-import GeneralMiddleware from "../__dwitter__.d.ts/middleware/general";
 import TokenHandler from "../__dwitter__.d.ts/controller/auth/token";
 import AuthDataHandler from "../__dwitter__.d.ts/controller/auth/auth";
 import GithubOauthHandler from "../__dwitter__.d.ts/controller/auth/oauth";
@@ -11,8 +10,7 @@ export default function authRouter(
   authValidator: AuthValidateHandler,
   authController: AuthDataHandler,
   oauthController: GithubOauthHandler,
-  tokenController: TokenHandler,
-  oauthMessageCheck: GeneralMiddleware
+  tokenController: TokenHandler
 ) {
   const router = express.Router();
 
@@ -28,7 +26,7 @@ export default function authRouter(
 
   router.get("/csrf-token", tokenController.csrfToken);
 
-  router.get("/me", oauthMessageCheck, authValidator.isAuth, authController.me);
+  router.get("/me", authValidator.isAuth, authController.me);
 
   router.get("/profile", authValidator.isAuth, authController.getUser);
 

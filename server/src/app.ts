@@ -11,7 +11,6 @@ import config from "./config.js";
 import db from "./db/database.js";
 import { initSocket, getSocketIO } from "./connection/socket.js";
 import csrfCheck from "./middleware/csrf.js";
-import oauthMessageCheck from "./middleware/oauth.js";
 import imageUploading from "./middleware/multer.js";
 import TweetRepository from "./data/tweet.js";
 import TweetController from "./controller/tweet.js";
@@ -74,13 +73,7 @@ app.use("/", [
 ]);
 app.use(
   "/auth",
-  authRouter(
-    authValidator,
-    authController,
-    oauthController,
-    tokenController,
-    oauthMessageCheck
-  )
+  authRouter(authValidator, authController, oauthController, tokenController)
 );
 
 app.use((res: Response) => {
