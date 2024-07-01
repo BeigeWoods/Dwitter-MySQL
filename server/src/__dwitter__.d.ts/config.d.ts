@@ -32,9 +32,10 @@ declare type Config = {
     };
   };
   awsS3: {
+    bucket: string;
+    region: string;
     id: string;
     secret: string;
-    region: string;
   };
 };
 

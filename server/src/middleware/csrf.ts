@@ -6,18 +6,19 @@ import config from "../config.js";
 const csrfCheck = async (req: Request, res: Response, next: NextFunction) => {
   const CSRF_ERROR = { message: "Failed CSRF check" };
 
-  if (
-    (req.method === "GET" && req.path !== "/profile") ||
-    req.method === "OPTIONS" ||
-    req.method === "HEAD"
-  ) {
-    return next();
-  }
+  const what: { [key: string]: { [key: string]: boolean } } = {
+    GET: { "/profile": true, "/me": true },
+    OPTIONS: {},
+    HEAD: {},
+  };
+
+  if (what[req.method] && !what[req.method][req.path]) return next();
 
   const csrfHeader = req.get("dwitter_csrf-token");
   if (!csrfHeader) {
     console.warn(
-      'Warn! csrfCheck\n missing required "dwitter_csrf-token" header : ',
+      "Warn! csrfCheck",
+      "missing required 'dwitter_csrf-token' header : ",
       req.headers.origin
     );
     return res.status(403).json(CSRF_ERROR);
@@ -27,18 +28,17 @@ const csrfCheck = async (req: Request, res: Response, next: NextFunction) => {
     .then((valid) => {
       if (!valid) {
         console.warn(
-          `Warn! csrfCheck < validateCsrfToken\n 
-          the value of 'dwitter_csrf-token' doesn't validate.\n
-          - request origin : ${req.headers.origin}\n
-          - dwitter_csrf-token : ${csrfHeader}`
+          "Warn! csrfCheck < validateCsrfToken\n",
+          "the value of 'dwitter_csrf-token' doesn't validate.\n",
+          `- request origin : ${req.headers.origin}\n`,
+          `- dwitter_csrf-token : ${csrfHeader}`
         );
         return res.status(403).json(CSRF_ERROR);
       }
       next();
     })
     .catch((error) => {
-      throw `Error! csrfCheck < validateCsrfToken\n
-        ${error}`;
+      throw `Error! csrfCheck < validateCsrfToken\n ${error}`;
     });
 };
 

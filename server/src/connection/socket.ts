@@ -15,13 +15,10 @@ class httpSocket implements HttpSocket {
 
     this.io.use((socket: Socket, next: (error?: ExtendedError) => void) => {
       const token: string = socket.handshake.auth.token;
-      if (!token) {
-        return next(new Error("Authentication error"));
-      }
+      if (!token) return next(new Error("Authentication error"));
+
       jwt.verify(token, config.jwt.secretKey, (error: VerifyErrors | null) => {
-        if (error) {
-          return next(new Error("Authentication error"));
-        }
+        if (error) return next(new Error("Authentication error"));
         next();
       });
     });
@@ -34,14 +31,10 @@ class httpSocket implements HttpSocket {
 
 let socket: HttpSocket;
 export function initSocket(server: Express.Application) {
-  if (!socket) {
-    socket = new httpSocket(server);
-  }
+  if (!socket) socket = new httpSocket(server);
 }
 
 export function getSocketIO() {
-  if (!socket) {
-    throw new Error("Please call init first");
-  }
+  if (!socket) throw new Error("Please call init first");
   return socket.io;
 }

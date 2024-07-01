@@ -4,9 +4,7 @@ dotenv.config();
 
 function required(key: string) {
   const value = process.env[key];
-  if (!value) {
-    throw new Error(`Key ${key} is undefined`);
-  }
+  if (!value) throw new Error(`Key ${key} is undefined`);
   return value;
 }
 
@@ -44,6 +42,7 @@ const config: Config = {
     },
   },
   awsS3: {
+    bucket: required("AWS_S3_BUCKET"),
     region: required("AWS_S3_REGION"),
     id: required("AWS_S3_ID"),
     secret: required("AWS_S3_SECRET"),

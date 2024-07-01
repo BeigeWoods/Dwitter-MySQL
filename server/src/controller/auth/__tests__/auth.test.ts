@@ -11,17 +11,14 @@ describe("AuthController.isDuplicateEmailOrUsername", () => {
       result = (await mockedUserRepository.findByEmail(email).catch((error) => {
         throw `isDuplicateEmailOrUsername < ${error}`;
       })) as OutputUser;
-      if (result) {
-        return email;
-      }
+      if (result) return email;
+
       result = (await mockedUserRepository
         .findByUsername(username)
         .catch((error) => {
           throw `isDuplicateEmailOrUsername < ${error}`;
         })) as OutputUser;
-      if (result) {
-        return username;
-      }
+      if (result) return username;
     }
   );
   async function validateDuple(email: string, username: string) {

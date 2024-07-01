@@ -24,17 +24,14 @@ export default class AuthController implements AuthDataHandler {
     result = (await this.userRepository.findByEmail(email).catch((error) => {
       throw `isDuplicateEmailOrUsername < ${error}`;
     })) as OutputUser;
-    if (result) {
-      return email;
-    }
+    if (result) return email;
+
     result = (await this.userRepository
       .findByUsername(username)
       .catch((error) => {
         throw `isDuplicateEmailOrUsername < ${error}`;
       })) as OutputUser;
-    if (result) {
-      return username;
-    }
+    if (result) return username;
   }
 
   signUp = async (req: Request, res: Response, next: NextFunction) => {
@@ -46,11 +43,10 @@ export default class AuthController implements AuthDataHandler {
     ).catch((error) => {
       throw `Error! authController.signUp < ${error}`;
     });
-    if (isDuplicate) {
+    if (isDuplicate)
       return res.status(409).json({
         message: `${isDuplicate} already exists.`,
       });
-    }
 
     const hashedPw = await bcrypt.hash(
       password + this.config.bcrypt.randomWords,
@@ -81,9 +77,8 @@ export default class AuthController implements AuthDataHandler {
       .catch((error) => {
         throw `Error! authController.login < ${error}`;
       });
-    if (!user) {
+    if (!user)
       return res.status(400).json({ message: "Invalid user or password" });
-    }
 
     const isSamePw = await bcrypt
       .compare(
@@ -93,9 +88,8 @@ export default class AuthController implements AuthDataHandler {
       .catch((error) => {
         throw `Error! authController.login < bcrypt.compare\n ${error}`;
       });
-    if (!isSamePw) {
+    if (!isSamePw)
       return res.status(400).json({ message: "Invalid user or password" });
-    }
 
     const token = this.tokenController.createJwtToken((user as OutputUser).id);
     this.tokenController.setToken(res, token);
@@ -126,11 +120,11 @@ export default class AuthController implements AuthDataHandler {
     ).catch((error) => {
       throw `Error! authController.updateUser < ${error}`;
     });
-    if (isDuplicate) {
+    if (isDuplicate)
       return res.status(409).json({
         message: `${isDuplicate} already exists.`,
       });
-    }
+
     await this.userRepository
       .updateUser(req.user!.id, {
         username,
@@ -146,23 +140,20 @@ export default class AuthController implements AuthDataHandler {
 
   updatePassword = async (req: Request, res: Response, next: NextFunction) => {
     const { password, newPassword, checkPassword }: PasswordInfo = req.body;
-    if (req.user!.socialLogin) {
-      return res.sendStatus(403);
-    }
+    if (req.user!.socialLogin) return res.sendStatus(403);
 
-    if (password === newPassword) {
+    if (password === newPassword)
       return res
         .status(400)
         .json({ message: "Do not use the old password again" });
-    }
+
     const isSamePw = await bcrypt
       .compare(password + this.config.bcrypt.randomWords, req.user!.password)
       .catch((error) => {
         throw `Error! authController.updatePassword < bcrypt.compare\n ${error}`;
       });
-    if (!isSamePw || newPassword !== checkPassword) {
+    if (!isSamePw || newPassword !== checkPassword)
       return res.status(400).json({ message: "Incorrect password" });
-    }
 
     const hashedNewPw = await bcrypt.hash(
       newPassword + this.config.bcrypt.randomWords,

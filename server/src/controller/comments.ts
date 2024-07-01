@@ -25,19 +25,19 @@ export default class CommentController implements CommentHandler {
     const { recipient }: { recipient?: string } = req.body;
     let findUser = "";
     if (recipient) {
-      if (recipient === req.user?.username) {
-        findUser = req.user?.username;
-      }
+      if (recipient === req.user?.username) findUser = req.user?.username;
+
       const result = await this.userRepository
         .findByUsername(recipient)
         .catch((error) => {
           throw `Error! commentContoller.createComment < ${error}`;
         });
-      if (!result) {
+      if (!result)
         return res.status(409).json({ message: "Replied user not found" });
-      }
+
       findUser = (result as OutputUser).username;
     }
+
     const comment = await this.commentRepository
       .create(req.user!.id, req.params.tweetId, req.body.text, findUser)
       .catch((error) => {

@@ -20,18 +20,10 @@ export default class TweetRepository implements TweetDataHandler {
   private handleUpdateQuery = (tweet: InputTweetContents) => {
     const { text, video, image } = tweet;
     let result = "";
-    result = text ? result + "text = ?," : result;
-    result = video
-      ? result
-        ? result + " video = ?,"
-        : result + "video = ?,"
-      : result;
-    result = image
-      ? result
-        ? result + " image = ?,"
-        : result + "image = ?,"
-      : result;
-    return result;
+    if (text) result += " text = ?,";
+    if (video) result += " video = ?,";
+    if (image) result += " image = ?,";
+    return result?.trim();
   };
 
   private handleUpdateValues = (tweet: InputTweetContents) => {
@@ -46,10 +38,10 @@ export default class TweetRepository implements TweetDataHandler {
   getAll = async (userId: number) => {
     return await db
       .execute(
-        `${this.Select_Feild}\
-          FROM (${this.With_User}
-                WHERE T.userId = U.id) J\
-        ${this.With_Good}
+        `${this.Select_Feild} \
+        FROM (${this.With_User} \
+        WHERE T.userId = U.id) J \
+        ${this.With_Good} \
         ${this.Order_By}`,
         [userId]
       )
@@ -62,10 +54,10 @@ export default class TweetRepository implements TweetDataHandler {
   getAllByUsername = async (userId: number, username: string) => {
     return await db
       .execute(
-        `${this.Select_Feild}
-          FROM (${this.With_User}
-                WHERE T.userId = U.id AND U.username = ?) J
-        ${this.With_Good}
+        `${this.Select_Feild} \
+        FROM (${this.With_User} \
+        WHERE T.userId = U.id AND U.username = ?) J \
+        ${this.With_Good} \
         ${this.Order_By}`,
         [username, userId]
       )
@@ -78,10 +70,10 @@ export default class TweetRepository implements TweetDataHandler {
   getById = async (tweetId: string, userId: number) => {
     return await db
       .execute(
-        `${this.Select_Feild}
-          FROM (${this.With_User}
-                WHERE T.userId = U.id AND T.id = ?) J
-        ${this.With_Good}
+        `${this.Select_Feild} \
+        FROM (${this.With_User} \
+        WHERE T.userId = U.id AND T.id = ?) J \
+        ${this.With_Good} \
         ${this.Order_By}`,
         [tweetId, userId]
       )

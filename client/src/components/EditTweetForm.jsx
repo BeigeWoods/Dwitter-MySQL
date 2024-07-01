@@ -11,7 +11,7 @@ const EditTweetForm = ({ tweet, onUpdate, onClose, onError }) => {
 
   const onSubmit = (event) => {
     event.preventDefault();
-    if (text !== tweet.text || video !== tweet.video || image !== tweet.image) {
+    if (text !== tweet.text || video !== tweet.video || image !== tweet.image)
       onUpdate(
         tweet.id,
         text === tweet.text ? "" : text,
@@ -19,7 +19,6 @@ const EditTweetForm = ({ tweet, onUpdate, onClose, onError }) => {
         image === tweet.image ? "" : image,
         tweet.image
       ).catch(onError);
-    }
     onClose();
   };
 

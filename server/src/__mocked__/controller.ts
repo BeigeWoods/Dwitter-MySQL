@@ -105,9 +105,8 @@ export class mockedOauthController {
       throw `githubFinish : getUser\n ${error}`;
     });
 
-    if (!result[0] || !result[1]) {
+    if (!result[0] || !result[1])
       throw "githubFinish : getUser\n doesn't exist data";
-    }
     return result;
   };
 
@@ -133,9 +132,8 @@ export class mockedOauthController {
       throw `githubFinish : getToken\n ${error}`;
     })) as any;
 
-    if (!result || !result.access_token) {
+    if (!result || !result.access_token)
       throw `githubFinish : getToken\n doesn't exist token`;
-    }
     return result.access_token;
   };
 

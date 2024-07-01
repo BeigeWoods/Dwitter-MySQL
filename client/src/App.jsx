@@ -21,14 +21,12 @@ function App({ tweetService, commentService }) {
     history.push("/my/change-password");
   };
   const toLogout = () => {
-    if (window.confirm("Do you want to sign out?")) {
+    if (window.confirm("Do you want to sign out?"))
       logout().then(() => history.push("/"));
-    }
   };
   const toWithdrawal = () => {
-    if (window.confirm("Do you want to leave us?")) {
+    if (window.confirm("Do you want to leave us?"))
       withdrawal().then(() => history.push("/"));
-    }
   };
 
   return (

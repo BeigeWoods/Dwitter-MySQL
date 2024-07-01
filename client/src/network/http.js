@@ -28,9 +28,7 @@ export default class HttpClient {
       const message =
         data && data.message ? data.message : "Something went wrong! 🤪";
       const error = new Error(message);
-      if (res.status === 401) {
-        this.authErrorEventBus.notify(error);
-      }
+      if (res.status === 401) this.authErrorEventBus.notify(error);
       throw error;
     }
     return data;

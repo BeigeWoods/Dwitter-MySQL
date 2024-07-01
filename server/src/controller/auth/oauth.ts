@@ -18,10 +18,11 @@ export default class OauthController implements GithubOauthHandler {
 
   private setErrorMessage(res: Response) {
     const options: CookieOptions = {
+      httpOnly: true,
       sameSite: "none",
       secure: true,
     };
-    return res.cookie("oauth", "Github login is failed", options);
+    return res.cookie("oauth", "Failed Github login", options);
   }
 
   private signUp = async (owner: any, email: any, exist: boolean) => {
@@ -82,10 +83,8 @@ export default class OauthController implements GithubOauthHandler {
       throw `Error! oauthController.githubFinish < getUser\n The problem of fetch\n ${error}`;
     });
 
-    if (!result[0] || !result[1]) {
-      throw `Error! oauthController.githubFinish < getUser\n
-        doesn't exist data in ${result}`;
-    }
+    if (!result[0] || !result[1])
+      throw `Error! oauthController.githubFinish < getUser\n doesn't exist data in ${result}`;
     return result;
   };
 
@@ -110,8 +109,7 @@ export default class OauthController implements GithubOauthHandler {
       });
 
     if (!result || !result.access_token) {
-      throw `Error! oauthController.githubFinish < getToken\n
-        doesn't exist token in ${result}`;
+      throw `Error! oauthController.githubFinish < getToken\n doesn't exist token in ${result}`;
     }
     return result.access_token;
   };
@@ -142,13 +140,15 @@ export default class OauthController implements GithubOauthHandler {
         .compare(this.config.oauth.state.plain, req.query.state as string)
         .catch((error) => {
           console.error(
-            `Error! oauthController.githubFinish < bcrypt.compare\n ${error}`
+            "Error! oauthController.githubFinish < bcrypt.compare\n",
+            error
           );
         });
       if (!validate) {
         isSuccess = false;
         console.warn(
-          `Warn! oauthController.githubFinish\n a state of query from Github doesn't validate.`
+          "Warn! oauthController.githubFinish\n",
+          "a state of query from Github doesn't validate."
         );
       }
       token =
