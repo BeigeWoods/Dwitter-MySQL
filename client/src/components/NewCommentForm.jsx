@@ -48,6 +48,7 @@ const NewCommentForm = ({
           value={text}
           autoFocus
           onChange={onChange}
+          required
         />
         <commentForm.Submit type="submit">►</commentForm.Submit>
         {recipient && (

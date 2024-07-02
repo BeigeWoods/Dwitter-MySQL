@@ -31,6 +31,7 @@ const EditCommentForm = ({ tweetId, comment, onUpdate, onClose, onError }) => {
         value={text}
         autoFocus
         onChange={onChange}
+        required
       />
       <commentForm.Submit type="submit">►</commentForm.Submit>
       <commentForm.Cancle type="button" onClick={onClose}>

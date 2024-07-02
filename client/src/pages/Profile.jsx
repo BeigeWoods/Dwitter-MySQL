@@ -25,18 +25,8 @@ const Profile = ({
 
   const onSubmit = (event) => {
     event.preventDefault();
-    if (
-      username !== user.username ||
-      name !== user.name ||
-      email !== user.email ||
-      url !== user.url
-    )
-      onUpdateUser(
-        username === user.username ? "" : username,
-        name === user.name ? "" : name,
-        email === user.email ? "" : email,
-        url === user.url ? "" : url
-      )
+    if (username || name || email || url)
+      onUpdateUser(username, name, email, url)
         .then((update) => {
           if (update.username) {
             user.username = update.username;
@@ -61,17 +51,17 @@ const Profile = ({
 
   const onChange = (event) => {
     const {
-      target: { name, value },
+      target: { index, value },
     } = event;
-    switch (name) {
+    switch (index) {
       case "username":
-        return setUsername(value);
+        return setUsername(value !== user.username ? value : "");
       case "name":
-        return setName(value);
+        return setName(value !== user.name ? value : "");
       case "email":
-        return setEmail(value);
+        return setEmail(value !== user.email ? value : "");
       case "url":
-        return setURL(value);
+        return setURL(value !== user.url ? value : "");
       default:
     }
   };
@@ -94,33 +84,23 @@ const Profile = ({
               Username: <profile.Span>{user.username}</profile.Span>
             </profile.Title>
             <authForm.Input
-              name="username"
+              index="username"
               type="username"
-              defaultValue={user.username}
               onChange={onChange}
-              required
             />
             {!user.socialLogin && (
               <>
                 <profile.Title>
                   Name: <profile.Span>{user.name}</profile.Span>
                 </profile.Title>
-                <authForm.Input
-                  name="name"
-                  type="name"
-                  defaultValue={user.name}
-                  onChange={onChange}
-                  required
-                />
+                <authForm.Input index="name" type="name" onChange={onChange} />
                 <profile.Title>
                   Email: <profile.Span>{user.email}</profile.Span>
                 </profile.Title>
                 <authForm.Input
-                  name="email"
+                  index="email"
                   type="email"
-                  defaultValue={user.email}
                   onChange={onChange}
-                  required
                 />
               </>
             )}
@@ -132,12 +112,7 @@ const Profile = ({
                   : user.url}
               </profile.Span>
             </profile.Title>
-            <authForm.Input
-              name="url"
-              type="url"
-              defaultValue={user.url}
-              onChange={onChange}
-            />
+            <authForm.Input index="url" type="url" onChange={onChange} />
             <authForm.Submit type="submit">Submit</authForm.Submit>
           </authForm.Form>
           {!user.socialLogin && (

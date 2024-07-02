@@ -11,15 +11,16 @@ const NewTweetForm = ({ tweetService, onError }) => {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    tweetService
-      .postTweet(text, video, image)
-      .then(() => {
-        setText("");
-        setVideo("");
-        setImage("");
-        setShow(false);
-      })
-      .catch(onError);
+    if (text || video || image)
+      tweetService
+        .postTweet(text, video, image)
+        .then(() => {
+          setText("");
+          setVideo("");
+          setImage("");
+          setShow(false);
+        })
+        .catch(onError);
   };
 
   const onChange = (event) => {
