@@ -6,13 +6,14 @@ import config from "../config.js";
 const csrfCheck = async (req: Request, res: Response, next: NextFunction) => {
   const CSRF_ERROR = { message: "Failed CSRF check" };
 
-  const what: { [key: string]: { [key: string]: boolean } } = {
+  const sortOutToCheck: { [key: string]: { [key: string]: boolean } } = {
     GET: { "/profile": true, "/me": true },
     OPTIONS: {},
     HEAD: {},
   };
 
-  if (what[req.method] && !what[req.method][req.path]) return next();
+  if (sortOutToCheck[req.method] && !sortOutToCheck[req.method][req.path])
+    return next();
 
   const csrfHeader = req.get("dwitter_csrf-token");
   if (!csrfHeader) {
