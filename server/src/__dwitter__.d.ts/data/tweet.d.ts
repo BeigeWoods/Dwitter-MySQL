@@ -27,9 +27,7 @@ export declare interface TweetDataHandler {
   getById(tweetId: string, userId: number): Promise<OutputTweet | never | void>;
   create(
     userId: number,
-    text?: string,
-    video?: string,
-    image?: string
+    tweetContents: InputTweetContents
   ): Promise<OutputTweet | never | void>;
   update(
     tweetId: string,
@@ -48,8 +46,8 @@ export declare class TweetRepository implements TweetDataHandler {
 
   constructor();
 
-  private handleUpdateQuery(tweet: InputTweetContents): string;
-  private handleUpdateValues(tweet: InputTweetContents): string[];
+  private handleUpdateQuery(tweetContents: InputTweetContents): string;
+  private handleUpdateValues(tweetContents: InputTweetContents): string[];
   getAll: (userId: number) => Promise<OutputTweet[] | never | void>;
   getAllByUsername: (
     userId: number,
@@ -61,9 +59,7 @@ export declare class TweetRepository implements TweetDataHandler {
   ) => Promise<OutputTweet | never | void>;
   create: (
     userId: number,
-    text?: string,
-    video?: string,
-    image?: string
+    tweetContents: InputTweetContents
   ) => Promise<OutputTweet | never | void>;
   update: (
     tweetId: string,

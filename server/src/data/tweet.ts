@@ -17,8 +17,8 @@ export default class TweetRepository implements TweetDataHandler {
 
   constructor() {}
 
-  private handleUpdateQuery = (tweet: InputTweetContents) => {
-    const { text, video, image } = tweet;
+  private handleUpdateQuery = (tweetContents: InputTweetContents) => {
+    const { text, video, image } = tweetContents;
     let result = "";
     if (text) result += " text = ?,";
     if (video) result += " video = ?,";
@@ -26,8 +26,8 @@ export default class TweetRepository implements TweetDataHandler {
     return result?.trim();
   };
 
-  private handleUpdateValues = (tweet: InputTweetContents) => {
-    const { text, video, image } = tweet;
+  private handleUpdateValues = (tweetContents: InputTweetContents) => {
+    const { text, video, image } = tweetContents;
     let result: string[] = [];
     text && result.push(text);
     video && result.push(video);
@@ -83,17 +83,20 @@ export default class TweetRepository implements TweetDataHandler {
       });
   };
 
-  create = async (
-    userId: number,
-    text?: string,
-    video?: string,
-    image?: string
-  ) => {
+  create = async (userId: number, tweetContents: InputTweetContents) => {
     return await db
       .execute(
         "INSERT INTO tweets(text, video, image, good, userId, createdAt, updatedAt) \
         VALUES(?, ?, ?, ?, ?, ?, ?)",
-        [text, video, image, 0, userId, new Date(), new Date()]
+        [
+          tweetContents.text,
+          tweetContents.video,
+          tweetContents.image,
+          0,
+          userId,
+          new Date(),
+          new Date(),
+        ]
       )
       .then(
         async (result: any[]) => await this.getById(result[0].insertId, userId)
@@ -106,13 +109,15 @@ export default class TweetRepository implements TweetDataHandler {
   update = async (
     tweetId: string,
     userId: number,
-    tweet: InputTweetContents
+    tweetContents: InputTweetContents
   ) => {
     return await db
       .execute(
         `UPDATE tweets \
-        SET ${this.handleUpdateQuery(tweet)} updatedAt = ? WHERE id = ?`,
-        [...this.handleUpdateValues(tweet), new Date(), tweetId]
+        SET ${this.handleUpdateQuery(
+          tweetContents
+        )} updatedAt = ? WHERE id = ?`,
+        [...this.handleUpdateValues(tweetContents), new Date(), tweetId]
       )
       .then(async () => await this.getById(tweetId, userId))
       .catch((error) => {
