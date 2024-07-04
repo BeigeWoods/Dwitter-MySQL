@@ -11,6 +11,8 @@ const user = {
       .withMessage("Invalid username_X")
       .bail()
       .trim()
+      .isString()
+      .bail()
       .isLength({ min: 2 })
       .withMessage("Username should be at least 2 characters"),
   ],
@@ -23,6 +25,8 @@ const user = {
       .withMessage("Invalid password_X")
       .bail()
       .trim()
+      .isString()
+      .bail()
       .isLength({ min: 4 })
       .withMessage("Password should be at least 4 characters"),
   ],
@@ -35,6 +39,8 @@ const user = {
       .withMessage("Invalid name_X")
       .bail()
       .trim()
+      .isString()
+      .bail()
       .isLength({ min: 2 })
       .withMessage("Password should be at least 2 characters"),
     body("email", "Invaild email")
@@ -52,11 +58,15 @@ const user = {
     body("username", "Invaild username")
       .optional({ values: "falsy" })
       .trim()
+      .isString()
+      .bail()
       .isLength({ min: 2 })
       .withMessage("Username should be at least 2 characters"),
     body("name", "Invalid name")
       .optional({ values: "falsy" })
       .trim()
+      .isString()
+      .bail()
       .isLength({ min: 2 })
       .withMessage("Password should be at least 2 characters"),
     body("email", "Invaild email")
@@ -72,17 +82,16 @@ const user = {
         !req.body.name &&
         !req.body.email &&
         !req.body.url
-      ) {
-        throw new Error("Should provide at least one value");
-      }
+      )
+        throw "Should provide at least one value";
       return true;
     }),
   ],
   avatarUrl: [
     body("url", "Invalid profile image url")
+      .optional({ values: "falsy" })
       .trim()
-      .isURL()
-      .optional({ values: "falsy" }),
+      .isURL(),
   ],
   passwordContents: [
     body("newPassword", "Invalid new password")
@@ -93,6 +102,8 @@ const user = {
       .withMessage("Invalid new password_X")
       .bail()
       .trim()
+      .isString()
+      .bail()
       .isLength({ min: 4 })
       .withMessage("Password should be at least 4 characters"),
     body("checkPassword", "Invalid check password")
@@ -103,6 +114,8 @@ const user = {
       .withMessage("Invalid check password_X")
       .bail()
       .trim()
+      .isString()
+      .bail()
       .isLength({ min: 4 })
       .withMessage("Password should be at least 4 characters"),
   ],

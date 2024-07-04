@@ -11,7 +11,6 @@ import config from "./config.js";
 import db from "./db/database.js";
 import { initSocket, getSocketIO } from "./connection/socket.js";
 import csrfCheck from "./middleware/csrf.js";
-import imageUploading from "./middleware/multer.js";
 import TweetRepository from "./data/tweet.js";
 import TweetController from "./controller/tweet.js";
 import GoodRepository from "./data/good.js";
@@ -68,7 +67,7 @@ app.use(cookieParser());
 
 app.use(csrfCheck);
 app.use("/", [
-  tweetsRouter(authValidator, tweetController, goodContoller, imageUploading),
+  tweetsRouter(authValidator, tweetController, goodContoller),
   commentsRouter(authValidator, commentController, goodContoller),
 ]);
 app.use(
@@ -76,9 +75,7 @@ app.use(
   authRouter(authValidator, authController, oauthController, tokenController)
 );
 
-app.use((res: Response) => {
-  return res.status(404).json({ message: "Bad Access" });
-});
+app.use((res: Response) => res.status(404).json({ message: "Bad Access" }));
 app.use((err: Error | unknown, res: Response) => {
   console.error("Something go wrong\n", err);
   return res.status(500).json({ message: "Sorry, Something wrong" });
