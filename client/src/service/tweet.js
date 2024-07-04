@@ -11,11 +11,11 @@ export default class TweetService {
     });
   }
 
-  async postTweet(text, video, image) {
+  async postTweet(text, video, newImage) {
     const data = new FormData();
     data.append("text", text);
     data.append("video", video);
-    data.append("image", image);
+    data.append("newImage", newImage);
     return this.http.fetch(
       `/`,
       {
@@ -26,10 +26,11 @@ export default class TweetService {
     );
   }
 
-  async updateTweet(tweetId, text, video, image) {
+  async updateTweet(tweetId, text, video, newImage, image) {
     const data = new FormData();
     data.append("text", text);
     data.append("video", video);
+    data.append("newImage", newImage);
     data.append("image", image);
     return this.http.fetch(
       `/${tweetId}`,
@@ -52,9 +53,10 @@ export default class TweetService {
     );
   }
 
-  async deleteTweet(tweetId) {
+  async deleteTweet(tweetId, image) {
     return this.http.fetch(`/${tweetId}`, {
       method: "DELETE",
+      body: JSON.stringify({ image }),
     });
   }
 

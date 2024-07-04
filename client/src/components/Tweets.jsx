@@ -25,17 +25,17 @@ const Tweets = memo(({ tweetService, commentService, username, addable }) => {
     setTweets((tweets) => [tweet, ...tweets]);
   };
 
-  const onDelete = (tweetId) =>
+  const onDelete = (tweetId, image) =>
     tweetService
-      .deleteTweet(tweetId)
-      .then(
+      .deleteTweet(tweetId, image)
+      .then(() =>
         setTweets((tweets) => tweets.filter((tweet) => tweet.id !== tweetId))
       )
       .catch(onError);
 
-  const onUpdate = (tweetId, text, video, image) =>
+  const onUpdate = (tweetId, text, video, newImage, image) =>
     tweetService
-      .updateTweet(tweetId, text, video, image)
+      .updateTweet(tweetId, text, video, newImage, image)
       .then((updated) =>
         setTweets((tweets) =>
           tweets.map((item) => (item.id === updated.id ? updated : item))

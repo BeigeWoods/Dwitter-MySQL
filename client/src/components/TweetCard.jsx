@@ -79,7 +79,10 @@ const TweetCard = memo(
           </tweetContent.Attention>
           {owner && (
             <div className="tweet-action">
-              <button className="tweet-action-btn" onClick={() => onDelete(id)}>
+              <button
+                className="tweet-action-btn"
+                onClick={() => onDelete(id, image && image)}
+              >
                 x
               </button>
               <button

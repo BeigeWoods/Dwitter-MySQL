@@ -17,7 +17,7 @@ const EditTweetForm = ({ tweet, onUpdate, onClose, onError }) => {
         text === tweet.text ? "" : text,
         video === tweet.video ? "" : video,
         image === tweet.image ? "" : image,
-        tweet.image
+        image === tweet.image ? "" : tweet.image
       ).catch(onError);
     onClose();
   };

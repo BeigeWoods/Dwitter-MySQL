@@ -4,16 +4,15 @@ import {
   goodValidator,
   tweetValidator,
 } from "../middleware/validation/content.js";
+import handleFormData from "../middleware/formData.js";
 import AuthValidateHandler from "../__dwitter__.d.ts/middleware/auth";
-import GeneralMiddleware from "../__dwitter__.d.ts/middleware/general";
 import TweetHandler from "../__dwitter__.d.ts/controller/tweet";
 import GoodHandler from "../__dwitter__.d.ts/controller/good";
 
 export default function tweetsRouter(
   authValidator: AuthValidateHandler,
   tweetController: TweetHandler,
-  goodController: GoodHandler,
-  imageUploading: GeneralMiddleware
+  goodController: GoodHandler
 ) {
   const router = express.Router();
   router.get(
@@ -33,7 +32,7 @@ export default function tweetsRouter(
   router.post(
     "/",
     authValidator.isAuth,
-    imageUploading,
+    handleFormData,
     tweetValidator.creation,
     tweetController.createTweet
   );
@@ -41,7 +40,7 @@ export default function tweetsRouter(
   router.put(
     "/:tweetId",
     authValidator.isAuth,
-    imageUploading,
+    handleFormData,
     tweetValidator.update,
     tweetController.updateTweet
   );
@@ -49,7 +48,7 @@ export default function tweetsRouter(
   router.delete(
     "/:tweetId",
     authValidator.isAuth,
-    tweetValidator.tweetId,
+    tweetValidator.delete,
     tweetController.deleteTweet
   );
 

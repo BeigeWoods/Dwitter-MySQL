@@ -1,5 +1,6 @@
 import { body, check, param, query } from "express-validator";
 import expressValidator from "./validator.js";
+import config from "../../config.js";
 
 const content = {
   tweetId: [
@@ -36,6 +37,7 @@ const content = {
       .withMessage("Invalid username_X")
       .bail()
       .trim()
+      .isString()
       .isLength({ min: 2 }),
   ],
   recipient: [
@@ -48,21 +50,36 @@ const content = {
       .withMessage("Invalid reply_X")
       .bail()
       .trim()
+      .isString()
       .isLength({ min: 2 }),
   ],
   tweetContents: [
     body("text", "Invalid text")
       .optional({ values: "falsy" })
+      .default("")
       .trim()
+      .isString()
+      .bail()
       .isLength({ min: 1 })
       .withMessage("Text should be at least 1 characters"),
     body("video", "Invalid video")
       .optional({ values: "falsy" })
+      .default("")
       .trim()
       .matches(
-        /((?:\bhttp(?:s)?\b\:\/\/)?(?:\bwww\b\.)?(?:\byoutube\b\.\bcom\b\/(?:\bwatch\b\?v\=|\bembed\b\/))\b[a-zA-Z0-9-_]{11}\b)|((?:\bhttp(?:s)?\b\:\/\/)?(?:\bwww\b\.)?(?:\byoutu\b\.\bbe\b\/\b)\b[a-zA-Z0-9-_]{11}\b)/
+        /(https\:\/\/(www\.)?)?((youtube\.com\/(watch\?v\=|embed\/))|(youtu\.be\/))[a-zA-Z0-9-_]{11}/
       )
       .withMessage("Invalid youtube video url"),
+  ],
+  existingImage: [
+    body("image", "Invalid image")
+      .optional({ values: "falsy" })
+      .trim()
+      .matches(
+        RegExp(
+          `https:\/\/${config.awsS3.bucket}.s3.${config.awsS3.region}.amazonaws.com\/\\d{13}_`
+        )
+      ),
   ],
   commentContent: [
     body("text", "Invalid text")
@@ -72,18 +89,18 @@ const content = {
       .exists({ values: "falsy" })
       .withMessage("Invalid text_X")
       .bail()
-      .isString()
       .trim()
+      .isString()
+      .bail()
       .isLength({ min: 1 })
       .withMessage("Text should be at least 1 characters"),
   ],
   isAllEmpty: [
     check("body").custom((value, { req }) => {
-      const image =
+      const newImage =
         req.file && "location" in req.file ? req.file.location : false;
-      if (!req.body.text && !req.body.video && !image) {
-        throw new Error("Should provide at least one value");
-      }
+      if (!req.body.text && !req.body.video && !newImage)
+        throw "Should provide at least one value";
       return true;
     }),
   ],
@@ -118,9 +135,11 @@ export const tweetValidator = {
   update: [
     ...content.tweetId,
     ...content.tweetContents,
+    ...content.existingImage,
     ...content.isAllEmpty,
     expressValidator,
   ],
+  delete: [...content.tweetId, ...content.existingImage, expressValidator],
 };
 
 export const commentValidator = {
