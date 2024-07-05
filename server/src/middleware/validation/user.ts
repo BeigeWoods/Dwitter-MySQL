@@ -1,28 +1,28 @@
 import { body, check } from "express-validator";
 import expressValidator from "./validator.js";
 
-const user = {
-  username: [
-    body("username", "Invaild username")
+const about = {
+  name: (title: string, capital: string) => [
+    body(title, `Invaild ${title}`)
       .notEmpty()
-      .withMessage("Invalid username_0")
+      .withMessage(`Invalid ${title}_0`)
       .bail()
       .exists({ values: "falsy" })
-      .withMessage("Invalid username_X")
+      .withMessage(`Invalid ${title}_X`)
       .bail()
       .trim()
       .isString()
       .bail()
       .isLength({ min: 2 })
-      .withMessage("Username should be at least 2 characters"),
+      .withMessage(`${capital} should be at least 2 characters`),
   ],
-  password: [
-    body("password", "Invaild password")
+  password: (title: string, subtitle = title) => [
+    body(title, `Invaild ${subtitle}`)
       .notEmpty()
-      .withMessage("Invalid password_0")
+      .withMessage(`Invalid ${subtitle}_0`)
       .bail()
       .exists({ values: "falsy" })
-      .withMessage("Invalid password_X")
+      .withMessage(`Invalid ${subtitle}_X`)
       .bail()
       .trim()
       .isString()
@@ -30,19 +30,22 @@ const user = {
       .isLength({ min: 4 })
       .withMessage("Password should be at least 4 characters"),
   ],
-  userContents: [
-    body("name", "Invalid name")
-      .notEmpty()
-      .withMessage("Invalid name_0")
-      .bail()
-      .exists({ values: "falsy" })
-      .withMessage("Invalid name_X")
-      .bail()
+  nameOfProfile: (title: string, capital: string) => [
+    body(title, `Invaild ${title}`)
+      .optional({ values: "falsy" })
       .trim()
       .isString()
       .bail()
       .isLength({ min: 2 })
-      .withMessage("Password should be at least 2 characters"),
+      .withMessage(`${capital} should be at least 2 characters`),
+  ],
+};
+
+const user = {
+  username: about.name("username", "Username"),
+  password: about.password("password"),
+  userContents: [
+    ...about.name("name", "Name"),
     body("email", "Invaild email")
       .notEmpty()
       .withMessage("Invalid email_0")
@@ -55,25 +58,19 @@ const user = {
       .normalizeEmail(),
   ],
   profileContents: [
-    body("username", "Invaild username")
-      .optional({ values: "falsy" })
-      .trim()
-      .isString()
-      .bail()
-      .isLength({ min: 2 })
-      .withMessage("Username should be at least 2 characters"),
-    body("name", "Invalid name")
-      .optional({ values: "falsy" })
-      .trim()
-      .isString()
-      .bail()
-      .isLength({ min: 2 })
-      .withMessage("Password should be at least 2 characters"),
+    ...about.nameOfProfile("username", "Username"),
+    ...about.nameOfProfile("name", "Name"),
     body("email", "Invaild email")
       .optional({ values: "falsy" })
       .trim()
       .isEmail()
       .normalizeEmail(),
+  ],
+  avatarUrl: [
+    body("url", "Invalid profile image url")
+      .optional({ values: "falsy" })
+      .trim()
+      .isURL(),
   ],
   isAllEmpty: [
     check("body").custom((value, { req }) => {
@@ -87,37 +84,9 @@ const user = {
       return true;
     }),
   ],
-  avatarUrl: [
-    body("url", "Invalid profile image url")
-      .optional({ values: "falsy" })
-      .trim()
-      .isURL(),
-  ],
   passwordContents: [
-    body("newPassword", "Invalid new password")
-      .notEmpty()
-      .withMessage("Invalid new password_0")
-      .bail()
-      .exists({ values: "falsy" })
-      .withMessage("Invalid new password_X")
-      .bail()
-      .trim()
-      .isString()
-      .bail()
-      .isLength({ min: 4 })
-      .withMessage("Password should be at least 4 characters"),
-    body("checkPassword", "Invalid check password")
-      .notEmpty()
-      .withMessage("Invalid check password_0")
-      .bail()
-      .exists({ values: "falsy" })
-      .withMessage("Invalid check password_X")
-      .bail()
-      .trim()
-      .isString()
-      .bail()
-      .isLength({ min: 4 })
-      .withMessage("Password should be at least 4 characters"),
+    ...about.password("newPassword", "new password"),
+    ...about.password("checkPassword", "check password"),
   ],
 };
 

@@ -2,31 +2,36 @@ import { body, check, param, query } from "express-validator";
 import expressValidator from "./validator.js";
 import config from "../../config.js";
 
+const about = {
+  id: (title: string) => [
+    param(`${title}Id`, `Invalid ${title}`)
+      .notEmpty()
+      .withMessage(`Invalid ${title}_0`)
+      .bail()
+      .exists({ values: "falsy" })
+      .withMessage(`Invalid ${title}_X`)
+      .bail()
+      .trim()
+      .isNumeric()
+      .isInt({ allow_leading_zeroes: false, min: 1 }),
+  ],
+  good: (title: string, subtitle = title) => [
+    body(title, `Invalid ${subtitle}`)
+      .notEmpty()
+      .withMessage(`Invalid ${subtitle}_0`)
+      .bail()
+      .exists({ values: "null" })
+      .withMessage(`Invalid ${subtitle}_X`)
+      .bail()
+      .trim()
+      .isNumeric()
+      .isInt({ allow_leading_zeroes: true, min: 0 }),
+  ],
+};
+
 const content = {
-  tweetId: [
-    param("tweetId", "Invalid tweet")
-      .notEmpty()
-      .withMessage("Invalid tweet_0")
-      .bail()
-      .exists({ values: "falsy" })
-      .withMessage("Invalid tweet_X")
-      .bail()
-      .trim()
-      .isNumeric()
-      .isInt({ allow_leading_zeroes: false, min: 1 }),
-  ],
-  commentId: [
-    param("commentId", "Invalid comment")
-      .notEmpty()
-      .withMessage("Invalid comment_0")
-      .bail()
-      .exists({ values: "falsy" })
-      .withMessage("Invalid comment_X")
-      .bail()
-      .trim()
-      .isNumeric()
-      .isInt({ allow_leading_zeroes: false, min: 1 }),
-  ],
+  tweetId: about.id("tweet"),
+  commentId: about.id("comment"),
   username: [
     query("username", "Invalid username")
       .if((value, { req }) => "username" in req.query!)
@@ -81,6 +86,15 @@ const content = {
         )
       ),
   ],
+  isAllEmpty: [
+    check("body").custom((value, { req }) => {
+      const newImage =
+        req.file && "location" in req.file ? req.file.location : false;
+      if (!req.body.text && !req.body.video && !newImage)
+        throw "Should provide at least one value";
+      return true;
+    }),
+  ],
   commentContent: [
     body("text", "Invalid text")
       .notEmpty()
@@ -95,36 +109,9 @@ const content = {
       .isLength({ min: 1 })
       .withMessage("Text should be at least 1 characters"),
   ],
-  isAllEmpty: [
-    check("body").custom((value, { req }) => {
-      const newImage =
-        req.file && "location" in req.file ? req.file.location : false;
-      if (!req.body.text && !req.body.video && !newImage)
-        throw "Should provide at least one value";
-      return true;
-    }),
-  ],
-  aboutGood: [
-    body("clicked", "Invalid to click good")
-      .notEmpty()
-      .withMessage("Invalid to click good_0")
-      .bail()
-      .exists({ values: "null" })
-      .withMessage("Invalid to click good_X")
-      .bail()
-      .trim()
-      .isNumeric()
-      .isInt({ allow_leading_zeroes: true, min: 0 }),
-    body("good", "Invalid good")
-      .notEmpty()
-      .withMessage("Invalid good_0")
-      .bail()
-      .exists({ values: "null" })
-      .withMessage("Invalid good_X")
-      .bail()
-      .trim()
-      .isNumeric()
-      .isInt({ allow_leading_zeroes: true, min: 0 }),
+  goodContents: [
+    ...about.good("clicked", "to click good"),
+    ...about.good("good"),
   ],
 };
 
@@ -160,6 +147,6 @@ export const commentValidator = {
 };
 
 export const goodValidator = {
-  tweet: [...content.tweetId, ...content.aboutGood, expressValidator],
-  comment: [...content.commentId, ...content.aboutGood, expressValidator],
+  tweet: [...content.tweetId, ...content.goodContents, expressValidator],
+  comment: [...content.commentId, ...content.goodContents, expressValidator],
 };
