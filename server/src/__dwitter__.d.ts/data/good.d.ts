@@ -1,15 +1,12 @@
-export declare interface GoodDataHandler {
-  clickTweet(userId: number, tweetId: string): Promise<never | void>;
-  unClickTweet(userId: number, tweetId: string): Promise<never | void>;
-  clickComment(userId: number, commentId: string): Promise<never | void>;
-  unClickComment(userId: number, commentId: string): Promise<never | void>;
-}
+declare type GoodDataHandler = {
+  tweet: {
+    click(userId: number, tweetId: string): Promise<void>;
+    unClick(userId: number, tweetId: string): Promise<void>;
+  };
+  comment: {
+    click(userId: number, commentId: string): Promise<void>;
+    unClick(userId: number, commentId: string): Promise<void>;
+  };
+};
 
-export declare class GoodRepository implements GoodDataHandler {
-  constructor();
-
-  clickTweet: (userId: number, tweetId: string) => Promise<never | void>;
-  unClickTweet: (userId: number, tweetId: string) => Promise<never | void>;
-  clickComment: (userId: number, commentId: string) => Promise<never | void>;
-  unClickComment: (userId: number, commentId: string) => Promise<never | void>;
-}
+export default GoodDataHandler;

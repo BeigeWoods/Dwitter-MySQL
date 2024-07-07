@@ -1,19 +1,17 @@
-import { NextFunction, Request, Response } from "express";
-import { GoodDataHandler } from "../data/good";
+import { Request, Response } from "express";
+import GoodDataHandler from "../data/good";
 import { TweetDataHandler } from "../data/tweet";
 import { CommentDataHandler } from "../data/comments";
 
 declare interface GoodHandler {
-  goodTweet(
+  tweet(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  goodComment: (
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
+  comment: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
 }
 
 export declare class GoodController {
@@ -27,16 +25,14 @@ export declare class GoodController {
     goodRepository: GoodDataHandler
   );
 
-  goodTweet: (
+  tweet: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  goodComment: (
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
+  comment: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
 }
 
 export default GoodHandler;

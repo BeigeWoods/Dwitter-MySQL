@@ -19,14 +19,14 @@ export default function tweetsRouter(
     "/",
     authValidator.isAuth,
     tweetValidator.username,
-    tweetController.getTweets
+    tweetController.getAll
   );
 
   router.get(
     "/:tweetId",
     authValidator.isAuth,
     tweetValidator.tweetId,
-    tweetController.getTweet
+    tweetController.getById
   );
 
   router.post(
@@ -34,7 +34,7 @@ export default function tweetsRouter(
     authValidator.isAuth,
     handleFormData,
     tweetValidator.creation,
-    tweetController.createTweet
+    tweetController.create
   );
 
   router.put(
@@ -42,21 +42,21 @@ export default function tweetsRouter(
     authValidator.isAuth,
     handleFormData,
     tweetValidator.update,
-    tweetController.updateTweet
+    tweetController.update
   );
 
   router.delete(
     "/:tweetId",
     authValidator.isAuth,
     tweetValidator.delete,
-    tweetController.deleteTweet
+    tweetController.delete
   );
 
   router.put(
     "/:tweetId/good",
     authValidator.isAuth,
     goodValidator.tweet,
-    goodController.goodTweet
+    goodController.tweet
   );
 
   return router;

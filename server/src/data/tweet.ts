@@ -1,4 +1,5 @@
 import db from "../db/database.js";
+import exceptHandler from "../exception/data.js";
 import {
   InputTweetContents,
   TweetDataHandler,
@@ -17,74 +18,56 @@ export default class TweetRepository implements TweetDataHandler {
 
   constructor() {}
 
-  private handleUpdateQuery = (tweetContents: InputTweetContents) => {
+  private handleUpdateQuery(tweetContents: InputTweetContents) {
     const { text, video, image } = tweetContents;
     let result = "";
     if (text) result += " text = ?,";
     if (video) result += " video = ?,";
     if (image) result += " image = ?,";
     return result?.trim();
-  };
+  }
 
-  private handleUpdateValues = (tweetContents: InputTweetContents) => {
+  private handleUpdateValues(tweetContents: InputTweetContents) {
     const { text, video, image } = tweetContents;
     let result: string[] = [];
     text && result.push(text);
     video && result.push(video);
     image && result.push(image);
     return result;
-  };
+  }
 
-  getAll = async (userId: number) => {
-    return await db
+  getAll = async (userId: number) =>
+    db
       .execute(
-        `${this.Select_Feild} \
-        FROM (${this.With_User} \
-        WHERE T.userId = U.id) J \
-        ${this.With_Good} \
-        ${this.Order_By}`,
+        `${this.Select_Feild} FROM (${this.With_User} WHERE T.userId = U.id) J \
+        ${this.With_Good} ${this.Order_By}`,
         [userId]
       )
       .then((result: any[]) => result[0])
-      .catch((error) => {
-        throw `tweetRepository.getAll\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).tweet("getAll"));
 
-  getAllByUsername = async (userId: number, username: string) => {
-    return await db
+  getAllByUsername = async (userId: number, username: string) =>
+    db
       .execute(
-        `${this.Select_Feild} \
-        FROM (${this.With_User} \
-        WHERE T.userId = U.id AND U.username = ?) J \
-        ${this.With_Good} \
-        ${this.Order_By}`,
+        `${this.Select_Feild} FROM (${this.With_User} WHERE T.userId = U.id AND U.username = ?) J \
+        ${this.With_Good} ${this.Order_By}`,
         [username, userId]
       )
       .then((result: any[]) => result[0])
-      .catch((error) => {
-        throw `tweetRepository.getAllByUsername\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).tweet("getAllByUsername"));
 
-  getById = async (tweetId: string, userId: number) => {
-    return await db
+  getById = async (tweetId: string, userId: number) =>
+    db
       .execute(
-        `${this.Select_Feild} \
-        FROM (${this.With_User} \
-        WHERE T.userId = U.id AND T.id = ?) J \
-        ${this.With_Good} \
-        ${this.Order_By}`,
+        `${this.Select_Feild} FROM (${this.With_User} WHERE T.userId = U.id AND T.id = ?) J \
+        ${this.With_Good} ${this.Order_By}`,
         [tweetId, userId]
       )
       .then((result: any[]) => result[0][0])
-      .catch((error) => {
-        throw `tweetRepository.getById\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).tweet("getById"));
 
-  create = async (userId: number, tweetContents: InputTweetContents) => {
-    return await db
+  create = async (userId: number, tweetContents: InputTweetContents) =>
+    db
       .execute(
         "INSERT INTO tweets(text, video, image, good, userId, createdAt, updatedAt) \
         VALUES(?, ?, ?, ?, ?, ?, ?)",
@@ -101,43 +84,32 @@ export default class TweetRepository implements TweetDataHandler {
       .then(
         async (result: any[]) => await this.getById(result[0].insertId, userId)
       )
-      .catch((error) => {
-        throw `tweetRepository.create\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).tweet("create"));
 
   update = async (
     tweetId: string,
     userId: number,
     tweetContents: InputTweetContents
-  ) => {
-    return await db
+  ) =>
+    db
       .execute(
-        `UPDATE tweets \
-        SET ${this.handleUpdateQuery(
+        `UPDATE tweets SET ${this.handleUpdateQuery(
           tweetContents
         )} updatedAt = ? WHERE id = ?`,
         [...this.handleUpdateValues(tweetContents), new Date(), tweetId]
       )
       .then(async () => await this.getById(tweetId, userId))
-      .catch((error) => {
-        throw `tweetRepository.update\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).tweet("update"));
 
-  updateGood = async (tweetId: string, good: number) => {
+  async updateGood(tweetId: string, good: number) {
     await db
       .execute("UPDATE tweets SET good = ? WHERE id = ?", [good, tweetId])
-      .catch((error) => {
-        throw `tweetRepository.updateGood\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).tweet("updateGood"));
+  }
 
-  remove = async (tweetId: string) => {
+  async delete(tweetId: string) {
     await db
       .execute("DELETE FROM tweets WHERE id = ?", [tweetId])
-      .catch((error) => {
-        throw `tweetRepository.remove\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).tweet("delete"));
+  }
 }

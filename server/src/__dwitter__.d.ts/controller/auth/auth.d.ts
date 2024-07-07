@@ -1,19 +1,17 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import Config from "../../config";
 import { UserDataHandler } from "../../data/user";
 import TokenHandler from "./token";
 
 declare interface AuthDataHandler {
-  signUp(
+  signup(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
   login(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
   logout(
     req: Request,
     res: Response
@@ -25,19 +23,16 @@ declare interface AuthDataHandler {
   ): Promise<Response<any, Record<string, any>>>;
   updateUser(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
   updatePassword(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
   withdrawal(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
 }
 
 export declare class AuthController implements AuthDataHandler {
@@ -55,16 +50,14 @@ export declare class AuthController implements AuthDataHandler {
     email: string,
     username: string
   ): Promise<string | number>;
-  signUp: (
+  signup: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
   login: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
   logout: (
     req: Request,
     res: Response
@@ -79,19 +72,16 @@ export declare class AuthController implements AuthDataHandler {
   ) => Promise<Response<any, Record<string, any>>>;
   updateUser: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
   updatePassword: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
   withdrawal: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
 }
 
 export default AuthDataHandler;

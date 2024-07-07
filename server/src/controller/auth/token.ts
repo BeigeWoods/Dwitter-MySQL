@@ -24,16 +24,11 @@ export default class TokenController implements TokenHandler {
   };
 
   csrfToken = async (req: Request, res: Response, next: NextFunction) => {
-    const csrfToken = await this.generateCSRFToken().catch((error) =>
-      next(`Error! tokenController.csrfToken < ${error}`)
-    );
+    const csrfToken = await bcrypt
+      .hash(this.config.csrf.plainToken, this.config.csrf.saltRounds)
+      .catch((error) =>
+        next(`## tokenController.csrfToken < bcrypt.hash ##\n ${error}`)
+      );
     return res.status(200).json({ csrfToken });
-  };
-
-  generateCSRFToken = async () => {
-    return await bcrypt.hash(
-      this.config.csrf.plainToken,
-      this.config.csrf.saltRounds
-    );
   };
 }

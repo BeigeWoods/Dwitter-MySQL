@@ -9,7 +9,6 @@ declare interface TokenHandler {
     res: Response,
     next: NextFunction
   ): Promise<Response<any, Record<string, any>> | NextFunction>;
-  generateCSRFToken(): Promise<string>;
 }
 
 export declare class TokenController implements TokenHandler {
@@ -27,7 +26,6 @@ export declare class TokenController implements TokenHandler {
     res: Response,
     next: NextFunction
   ) => Promise<Response<any, Record<string, any>> | NextFunction>;
-  generateCSRFToken: () => Promise<string>;
 }
 
 export default TokenHandler;

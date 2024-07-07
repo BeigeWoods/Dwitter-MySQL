@@ -19,23 +19,23 @@ declare type OutputTweet = UserProfile & {
 };
 
 export declare interface TweetDataHandler {
-  getAll(userId: number): Promise<OutputTweet[] | never | void>;
+  getAll(userId: number): Promise<OutputTweet[] | void>;
   getAllByUsername(
     userId: number,
     username: string
-  ): Promise<OutputTweet[] | never | void>;
-  getById(tweetId: string, userId: number): Promise<OutputTweet | never | void>;
+  ): Promise<OutputTweet[] | void>;
+  getById(tweetId: string, userId: number): Promise<OutputTweet | void>;
   create(
     userId: number,
     tweetContents: InputTweetContents
-  ): Promise<OutputTweet | never | void>;
+  ): Promise<OutputTweet | void>;
   update(
     tweetId: string,
     userId: number,
     tweetContents: InputTweetContents
-  ): Promise<OutputTweet | never | void>;
-  updateGood(tweetId: string, good: number): Promise<never | void>;
-  remove(tweetId: string): Promise<never | void>;
+  ): Promise<OutputTweet | void>;
+  updateGood(tweetId: string, good: number): Promise<void>;
+  delete(tweetId: string): Promise<void>;
 }
 
 export declare class TweetRepository implements TweetDataHandler {
@@ -48,24 +48,21 @@ export declare class TweetRepository implements TweetDataHandler {
 
   private handleUpdateQuery(tweetContents: InputTweetContents): string;
   private handleUpdateValues(tweetContents: InputTweetContents): string[];
-  getAll: (userId: number) => Promise<OutputTweet[] | never | void>;
+  getAll: (userId: number) => Promise<OutputTweet[] | void>;
   getAllByUsername: (
     userId: number,
     username: string
-  ) => Promise<OutputTweet[] | never | void>;
-  getById: (
-    tweetId: string,
-    userId: number
-  ) => Promise<OutputTweet | never | void>;
+  ) => Promise<OutputTweet[] | void>;
+  getById: (tweetId: string, userId: number) => Promise<OutputTweet | void>;
   create: (
     userId: number,
     tweetContents: InputTweetContents
-  ) => Promise<OutputTweet | never | void>;
+  ) => Promise<OutputTweet | void>;
   update: (
     tweetId: string,
     userId: number,
     tweetContents: InputTweetContents
-  ) => Promise<OutputTweet | never | void>;
-  updateGood(tweetId: string, good: number): Promise<never | void>;
-  remove: (tweetId: string) => Promise<never | void>;
+  ) => Promise<OutputTweet | void>;
+  updateGood(tweetId: string, good: number): Promise<void>;
+  delete: (tweetId: string) => Promise<void>;
 }

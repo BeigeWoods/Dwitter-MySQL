@@ -1,6 +1,7 @@
 import "express-async-errors";
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import bcrypt from "bcrypt";
+import exceptHandler from "../../exception/controller.js";
 import AuthDataHandler from "../../__dwitter__.d.ts/controller/auth/auth";
 import {
   InputUserInfo,
@@ -21,28 +22,22 @@ export default class AuthController implements AuthDataHandler {
 
   private async isDuplicateEmailOrUsername(email: string, username: string) {
     let result: OutputUser;
-    result = (await this.userRepository.findByEmail(email).catch((error) => {
-      throw `isDuplicateEmailOrUsername < ${error}`;
-    })) as OutputUser;
+    result = (await this.userRepository.findByEmail(email)) as OutputUser;
     if (result) return email;
 
-    result = (await this.userRepository
-      .findByUsername(username)
-      .catch((error) => {
-        throw `isDuplicateEmailOrUsername < ${error}`;
-      })) as OutputUser;
+    result = (await this.userRepository.findByUsername(username)) as OutputUser;
     if (result) return username;
   }
 
-  signUp = async (req: Request, res: Response, next: NextFunction) => {
+  signup = async (req: Request, res: Response) => {
     const { username, password, name, email, url }: InputUserInfo = req.body;
 
     const isDuplicate = await this.isDuplicateEmailOrUsername(
       email,
       username
-    ).catch((error) => {
-      throw `Error! authController.signUp < ${error}`;
-    });
+    ).catch((error) =>
+      exceptHandler.auth(["signup", "isDuplicateEmailOrUsername"], error, true)
+    );
     if (isDuplicate)
       return res.status(409).json({
         message: `${isDuplicate} already exists.`,
@@ -53,7 +48,7 @@ export default class AuthController implements AuthDataHandler {
       this.config.bcrypt.saltRounds
     );
     const userId = await this.userRepository
-      .createUser({
+      .create({
         username,
         password: hashedPw,
         name,
@@ -61,22 +56,18 @@ export default class AuthController implements AuthDataHandler {
         url,
         socialLogin: false,
       })
-      .catch((error) => {
-        throw `Error! authController.signUp < ${error}`;
-      });
+      .catch((error) => exceptHandler.auth("signup", error));
 
     const token = this.tokenController.createJwtToken(userId!);
     this.tokenController.setToken(res, token);
     return res.status(201).json({ token, username });
   };
 
-  login = async (req: Request, res: Response, next: NextFunction) => {
+  login = async (req: Request, res: Response) => {
     const { username, password }: InputUserInfo = req.body;
     const user = await this.userRepository
       .findByUsername(username)
-      .catch((error) => {
-        throw `Error! authController.login < ${error}`;
-      });
+      .catch((error) => exceptHandler.auth("login", error));
     if (!user)
       return res.status(400).json({ message: "Invalid user or password" });
 
@@ -85,9 +76,9 @@ export default class AuthController implements AuthDataHandler {
         password + this.config.bcrypt.randomWords,
         (user as OutputUser).password
       )
-      .catch((error) => {
-        throw `Error! authController.login < bcrypt.compare\n ${error}`;
-      });
+      .catch((error) =>
+        exceptHandler.auth(["login", "bcrypt.compare"], error, true)
+      );
     if (!isSamePw)
       return res.status(400).json({ message: "Invalid user or password" });
 
@@ -112,33 +103,29 @@ export default class AuthController implements AuthDataHandler {
     return res.status(200).json({ username, name, email, url, socialLogin });
   };
 
-  updateUser = async (req: Request, res: Response, next: NextFunction) => {
+  updateUser = async (req: Request, res: Response) => {
     const { username, name, email, url }: InputUserProf = req.body;
     const isDuplicate = await this.isDuplicateEmailOrUsername(
       email!,
       username!
-    ).catch((error) => {
-      throw `Error! authController.updateUser < ${error}`;
-    });
+    ).catch((error) => exceptHandler.auth("updateUser", error));
     if (isDuplicate)
       return res.status(409).json({
         message: `${isDuplicate} already exists.`,
       });
 
     await this.userRepository
-      .updateUser(req.user!.id, {
+      .update(req.user!.id, {
         username,
         name,
         email,
         url,
       })
-      .catch((error) => {
-        throw `Error! authController.updateUser < ${error}`;
-      });
+      .catch((error) => exceptHandler.auth("updateUser", error));
     return res.status(201).json({ username, name, email, url });
   };
 
-  updatePassword = async (req: Request, res: Response, next: NextFunction) => {
+  updatePassword = async (req: Request, res: Response) => {
     const { password, newPassword, checkPassword }: PasswordInfo = req.body;
     if (req.user!.socialLogin) return res.sendStatus(403);
 
@@ -149,28 +136,30 @@ export default class AuthController implements AuthDataHandler {
 
     const isSamePw = await bcrypt
       .compare(password + this.config.bcrypt.randomWords, req.user!.password)
-      .catch((error) => {
-        throw `Error! authController.updatePassword < bcrypt.compare\n ${error}`;
-      });
+      .catch((error) =>
+        exceptHandler.auth(["updatePassword", "bcrypt.compare"], error, true)
+      );
     if (!isSamePw || newPassword !== checkPassword)
       return res.status(400).json({ message: "Incorrect password" });
 
-    const hashedNewPw = await bcrypt.hash(
-      newPassword + this.config.bcrypt.randomWords,
-      this.config.bcrypt.saltRounds
-    );
+    const hashedNewPw = await bcrypt
+      .hash(
+        newPassword + this.config.bcrypt.randomWords,
+        this.config.bcrypt.saltRounds
+      )
+      .catch((error) =>
+        exceptHandler.auth(["updatePassword", "bcrypt.hash"], error, true)
+      );
     await this.userRepository
       .updatePassword(req.user!.id, hashedNewPw)
-      .catch((error) => {
-        throw `Error! authController.updatePassword < ${error}`;
-      });
+      .catch((error) => exceptHandler.auth("updatePassword", error));
     return res.sendStatus(204);
   };
 
-  withdrawal = async (req: Request, res: Response, next: NextFunction) => {
-    await this.userRepository.deleteUser(req.user!.id).catch((error) => {
-      throw `Error! authController.withdrawal < ${error}`;
-    });
+  withdrawal = async (req: Request, res: Response) => {
+    await this.userRepository
+      .delete(req.user!.id)
+      .catch((error) => exceptHandler.auth("withdrawal", error));
     this.tokenController.setToken(res, "");
     return res.sendStatus(204);
   };

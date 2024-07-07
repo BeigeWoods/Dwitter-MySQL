@@ -14,7 +14,7 @@ export default function authRouter(
 ) {
   const router = express.Router();
 
-  router.post("/signup", userValidator.signUp, authController.signUp);
+  router.post("/signup", userValidator.signUp, authController.signup);
 
   router.post("/login", userValidator.login, authController.login);
 

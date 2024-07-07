@@ -19,35 +19,35 @@ export default function commentsRouter(
     "/:tweetId/comments",
     authValidator.isAuth,
     commentValidator.tweetId,
-    commentController.getComments
+    commentController.getAll
   );
 
   router.post(
     "/:tweetId/comments",
     authValidator.isAuth,
     commentValidator.creation,
-    commentController.createComment
+    commentController.create
   );
 
   router.put(
     "/:tweetId/comments/:commentId",
     authValidator.isAuth,
     commentValidator.update,
-    commentController.updateComment
+    commentController.update
   );
 
   router.delete(
     "/:tweetId/comments/:commentId",
     authValidator.isAuth,
     commentValidator.commentId,
-    commentController.deleteComment
+    commentController.delete
   );
 
   router.put(
     "/:tweetId/comments/:commentId/good",
     authValidator.isAuth,
     goodValidator.comment,
-    goodController.goodComment
+    goodController.comment
   );
 
   return router;

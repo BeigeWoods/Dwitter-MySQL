@@ -1,68 +1,58 @@
 import { TweetDataHandler } from "../data/tweet";
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { Server } from "socket.io";
 
 declare interface TweetHandler {
-  getTweets(
+  getAll(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  getTweet(
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
+  getById(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  createTweet(
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
+  create(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  updateTweet(
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
+  update(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  deleteTweet(
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
+  delete(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
 }
 
 export declare class TweetController implements TweetHandler {
-  private readonly idRegex;
+  private readonly urlRegex;
   private tweetRepository;
   private getSocketIO;
 
   constructor(tweetRepository: TweetDataHandler, getSocketIO: () => Server);
 
   private handleUrl(video?: string): string;
-  getTweets: (
+  getAll: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  getTweet: (
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
+  getById: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  createTweet: (
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
+  create: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  updateTweet: (
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
+  update: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  deleteTweet: (
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
+  delete: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
 }
 
 export default TweetHandler;

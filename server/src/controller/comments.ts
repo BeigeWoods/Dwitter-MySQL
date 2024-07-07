@@ -1,6 +1,7 @@
 import "express-async-errors";
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { Server } from "socket.io";
+import exceptHandler from "../exception/controller.js";
 import CommentHandler from "../__dwitter__.d.ts/controller/comments";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
 import { UserDataHandler, OutputUser } from "../__dwitter__.d.ts/data/user";
@@ -12,16 +13,14 @@ export default class CommentController implements CommentHandler {
     private getSocketIO: () => Server
   ) {}
 
-  getComments = async (req: Request, res: Response, next: NextFunction) => {
+  getAll = async (req: Request, res: Response) => {
     const data = await this.commentRepository
       .getAll(req.params.tweetId, req.user!.id)
-      .catch((error) => {
-        throw `Error! commentContoller.getComments < ${error}`;
-      });
+      .catch((error) => exceptHandler.comment("getAll", error));
     return res.status(200).json(data);
   };
 
-  createComment = async (req: Request, res: Response, next: NextFunction) => {
+  create = async (req: Request, res: Response) => {
     const { recipient }: { recipient?: string } = req.body;
     let findUser = "";
     if (recipient) {
@@ -29,9 +28,7 @@ export default class CommentController implements CommentHandler {
 
       const result = await this.userRepository
         .findByUsername(recipient)
-        .catch((error) => {
-          throw `Error! commentContoller.createComment < ${error}`;
-        });
+        .catch((error) => exceptHandler.comment("create", error));
       if (!result)
         return res.status(409).json({ message: "Replied user not found" });
 
@@ -40,14 +37,12 @@ export default class CommentController implements CommentHandler {
 
     const comment = await this.commentRepository
       .create(req.user!.id, req.params.tweetId, req.body.text, findUser)
-      .catch((error) => {
-        throw `Error! commentContoller.createComment < ${error}`;
-      });
+      .catch((error) => exceptHandler.comment("create", error));
     this.getSocketIO().emit("comments", comment);
     return res.status(201).json(comment);
   };
 
-  updateComment = async (req: Request, res: Response, next: NextFunction) => {
+  update = async (req: Request, res: Response) => {
     const updated = await this.commentRepository
       .update(
         req.params.tweetId,
@@ -55,16 +50,14 @@ export default class CommentController implements CommentHandler {
         req.user!.id,
         req.body.text
       )
-      .catch((error) => {
-        throw `Error! commentContoller.updateComment < ${error}`;
-      });
+      .catch((error) => exceptHandler.comment("update", error));
     return res.status(200).json(updated);
   };
 
-  deleteComment = async (req: Request, res: Response, next: NextFunction) => {
-    await this.commentRepository.remove(req.params.commentId).catch((error) => {
-      throw `Error! commentContoller.deleteComment < ${error}`;
-    });
+  delete = async (req: Request, res: Response) => {
+    await this.commentRepository
+      .delete(req.params.commentId)
+      .catch((error) => exceptHandler.comment("delete", error));
     return res.sendStatus(204);
   };
 }

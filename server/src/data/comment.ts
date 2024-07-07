@@ -1,4 +1,5 @@
 import db from "../db/database.js";
+import exceptHandler from "../exception/data.js";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
 
 export default class CommentRepository implements CommentDataHandler {
@@ -7,56 +8,41 @@ export default class CommentRepository implements CommentDataHandler {
   private readonly With_User_Reply =
     "SELECT C.id, text, good, tweetId, R.username AS recipient, C.userId, U.username, U.name, U.url, createdAt, updatedAt \
     FROM comments C \
-    JOIN users U \
-    ON C.userId = U.id \
-    LEFT JOIN replies R \
-    ON C.id = R.commentId";
+    JOIN users U ON C.userId = U.id \
+    LEFT JOIN replies R ON C.id = R.commentId";
   private readonly With_Good =
-    "LEFT JOIN (SELECT * FROM goodComments WHERE userId = ?) G \
-    ON G.commentId = J.id";
+    "LEFT JOIN (SELECT * FROM goodComments WHERE userId = ?) G ON G.commentId = J.id";
   private readonly Order_By = "ORDER BY createdAt DESC";
 
   constructor() {}
 
-  getAll = async (tweetId: string, userId: number) => {
-    return await db
+  getAll = async (tweetId: string, userId: number) =>
+    db
       .execute(
-        `${this.Select_Feild}
-        FROM (${this.With_User_Reply}
-              WHERE tweetId = ?) J \
-        ${this.With_Good}
-        ${this.Order_By}`,
+        `${this.Select_Feild} FROM (${this.With_User_Reply} WHERE tweetId = ?) J \
+        ${this.With_Good} ${this.Order_By}`,
         [tweetId, userId]
       )
       .then((result: any[]) => result[0])
-      .catch((error) => {
-        throw `commentRepository.getAll\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).comment("getAll"));
 
-  getById = async (tweetId: string, commentId: string, userId: number) => {
-    return await db
+  getById = async (tweetId: string, commentId: string, userId: number) =>
+    db
       .execute(
-        `${this.Select_Feild}
-        FROM (${this.With_User_Reply}
-              WHERE C.id = ? AND tweetId = ?) J \
-        ${this.With_Good}
-        ${this.Order_By}`,
+        `${this.Select_Feild} FROM (${this.With_User_Reply} WHERE C.id = ? AND tweetId = ?) J \
+        ${this.With_Good} ${this.Order_By}`,
         [commentId, tweetId, userId]
       )
       .then((result: any[]) => result[0][0])
-      .catch((error) => {
-        throw `commentRepository.getById\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).comment("getById"));
 
   create = async (
     userId: number,
     tweetId: string,
     text: string,
     recipient?: string
-  ) => {
-    return await db
+  ) =>
+    db
       .execute(
         "INSERT INTO comments (text, good, userId, tweetId, createdAt, updatedAt) \
         VALUES(?, ?, ?, ?, ?, ?)",
@@ -68,55 +54,41 @@ export default class CommentRepository implements CommentDataHandler {
         }
         return await this.getById(tweetId, result[0].insertId, userId);
       })
-      .catch((error) => {
-        throw `commentRepository.create\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).comment("create"));
 
-  createReply = async (commentId: string, username: string) => {
+  async createReply(commentId: string, username: string) {
     await db
-      .execute(
-        "INSERT INTO replies (commentId, username) \
-        VALUES(?, ?)",
-        [commentId, username]
-      )
-      .catch((error) => {
-        throw `commentRepository.createReply\n ${error}`;
-      });
-  };
+      .execute("INSERT INTO replies (commentId, username) VALUES(?, ?)", [
+        commentId,
+        username,
+      ])
+      .catch((error) => exceptHandler(error).comment("createReply"));
+  }
 
   update = async (
     tweetId: string,
     commentId: string,
     userId: number,
     text?: string
-  ) => {
-    return await db
-      .execute(
-        "UPDATE comments \
-        SET text = ? , updatedAt = ? \
-        WHERE id = ?",
-        [text, new Date(), commentId]
-      )
+  ) =>
+    db
+      .execute("UPDATE comments SET text = ? , updatedAt = ? WHERE id = ?", [
+        text,
+        new Date(),
+        commentId,
+      ])
       .then(async () => await this.getById(tweetId, commentId, userId))
-      .catch((error) => {
-        throw `commentRepository.update\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).comment("update"));
 
-  updateGood = async (commentId: string, good: number) => {
+  async updateGood(commentId: string, good: number) {
     await db
       .execute("UPDATE comments SET good = ? WHERE id = ?", [good, commentId])
-      .catch((error) => {
-        throw `commentRepository.updateGood\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).comment("updateGood"));
+  }
 
-  remove = async (commentId: string) => {
+  async delete(commentId: string) {
     await db
       .execute("DELETE FROM comments WHERE id = ?", [commentId])
-      .catch((error) => {
-        throw `commentRepository.remove\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).comment("delete"));
+  }
 }

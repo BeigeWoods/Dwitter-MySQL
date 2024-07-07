@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import Config from "../../config";
 import TokenHandler from "./token";
 import { UserDataHandler } from "../../data/user";
@@ -11,9 +11,8 @@ export type UserForToken = {
 declare interface GithubOauthHandler {
   githubStart(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
   githubFinish(
     req: Request,
     res: Response
@@ -42,9 +41,8 @@ export declare class OauthController implements GithubOauthHandler {
   protected getToken(code: string): Promise<string | never>;
   githubStart: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
   githubFinish: (
     req: Request,
     res: Response

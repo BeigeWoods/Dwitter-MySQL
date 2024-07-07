@@ -26,13 +26,13 @@ export declare type InputUserInfo = UserProfile & {
 export declare type OutputUser = InputUserInfo & { id: number };
 
 export declare interface UserDataHandler {
-  findById(userId: number): Promise<OutputUser | never | void>;
-  findByUsername(username: string): Promise<OutputUser | never | void>;
-  findByEmail(email: string): Promise<OutputUser | never | void>;
-  createUser(user: InputUserInfo): Promise<number | never | void>;
-  updateUser(userId: number, user: InputUserProf): Promise<never | void>;
-  updatePassword(userId: number, password: string): Promise<never | void>;
-  deleteUser(userId: number): Promise<never | void>;
+  findById(userId: number): Promise<OutputUser | void>;
+  findByUsername(username: string): Promise<OutputUser | void>;
+  findByEmail(email: string): Promise<OutputUser | void>;
+  create(user: InputUserInfo): Promise<number | void>;
+  update(userId: number, user: InputUserProf): Promise<void>;
+  updatePassword(userId: number, password: string): Promise<void>;
+  delete(userId: number): Promise<void>;
 }
 
 export declare class UserRepository implements UserDataHandler {
@@ -40,11 +40,11 @@ export declare class UserRepository implements UserDataHandler {
 
   private handleUpdateQuery(user: InputUserProf): string;
   private handleUpdateValues(user: InputUserProf): string[];
-  findById: (userId: number) => Promise<OutputUser | never | void>;
-  findByUsername: (username: string) => Promise<OutputUser | never | void>;
-  findByEmail: (email: string) => Promise<OutputUser | never | void>;
-  createUser: (user: InputUserInfo) => Promise<number | never | void>;
-  updateUser: (userId: number, user: InputUserProf) => Promise<never | void>;
-  updatePassword: (userId: number, password: string) => Promise<never | void>;
-  deleteUser: (userId: number) => Promise<never | void>;
+  findById: (userId: number) => Promise<OutputUser | void>;
+  findByUsername: (username: string) => Promise<OutputUser | void>;
+  findByEmail: (email: string) => Promise<OutputUser | void>;
+  create: (user: InputUserInfo) => Promise<number | void>;
+  update: (userId: number, user: InputUserProf) => Promise<void>;
+  updatePassword: (userId: number, password: string) => Promise<void>;
+  delete: (userId: number) => Promise<void>;
 }

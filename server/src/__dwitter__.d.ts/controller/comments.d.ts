@@ -1,27 +1,23 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { CommentDataHandler } from "../data/comments";
 
 declare interface CommentHandler {
-  getComments(
+  getAll(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  createComment(
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
+  create(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  updateComment(
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
+  update(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  deleteComment(
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
+  delete(
     req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ): Promise<Response<any, Record<string, any>> | void>;
 }
 
 export declare class CommentController implements CommentHandler {
@@ -29,26 +25,22 @@ export declare class CommentController implements CommentHandler {
 
   constructor(commentRepository: CommentDataHandler);
 
-  getComments: (
+  getAll: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  createComment: (
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
+  create: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  updateComment: (
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
+  update: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
-  deleteComment: (
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
+  delete: (
     req: Request,
-    res: Response,
-    next: NextFunction
-  ) => Promise<Response<any, Record<string, any>> | NextFunction | void>;
+    res: Response
+  ) => Promise<Response<any, Record<string, any>> | void>;
 }
 
 export default CommentHandler;

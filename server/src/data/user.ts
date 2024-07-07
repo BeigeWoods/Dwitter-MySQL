@@ -1,4 +1,5 @@
 import db from "../db/database.js";
+import exceptHandler from "../exception/data.js";
 import {
   InputUserInfo,
   InputUserProf,
@@ -8,7 +9,7 @@ import {
 export default class UserRepository implements UserDataHandler {
   constructor() {}
 
-  private handleUpdateQuery = (user: InputUserProf) => {
+  private handleUpdateQuery(user: InputUserProf) {
     const { username, name, email, url } = user;
     let result = "";
     if (username) result += " username = ?,";
@@ -16,9 +17,9 @@ export default class UserRepository implements UserDataHandler {
     if (email) result += " email = ?,";
     if (url) result += " url = ?,";
     return result?.trim();
-  };
+  }
 
-  private handleUpdateValues = (user: InputUserProf) => {
+  private handleUpdateValues(user: InputUserProf) {
     const { username, name, email, url } = user;
     let result: string[] = [];
     username && result.push(username);
@@ -26,37 +27,28 @@ export default class UserRepository implements UserDataHandler {
     email && result.push(email);
     url && result.push(url);
     return result;
-  };
+  }
 
-  findById = async (userId: number) => {
-    return await db
+  findById = async (userId: number) =>
+    db
       .execute("SELECT * FROM users WHERE id = ?", [userId])
       .then((result: any[]) => result[0][0])
-      .catch((error) => {
-        throw `userRepository.findById\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).user("findById"));
 
-  findByUsername = async (username: string) => {
-    return await db
+  findByUsername = async (username: string) =>
+    db
       .execute("SELECT * FROM users WHERE username = ?", [username])
       .then((result: any[]) => result[0][0])
-      .catch((error) => {
-        throw `userRepository.findByUsername\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).user("findByUsername"));
 
-  findByEmail = async (email: string) => {
-    return await db
+  findByEmail = async (email: string) =>
+    db
       .execute("SELECT * FROM users WHERE email = ?", [email])
       .then((result: any[]) => result[0][0])
-      .catch((error) => {
-        throw `userRepository.findByUserEmail\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).user("findByEmail"));
 
-  createUser = async (user: InputUserInfo) => {
-    return await db
+  create = async (user: InputUserInfo) =>
+    db
       .execute(
         "INSERT INTO users(username, password, name, email, url, socialLogin) \
         VALUES (?, ?, ?, ?, ?, ?)",
@@ -70,35 +62,26 @@ export default class UserRepository implements UserDataHandler {
         ]
       )
       .then((result: any[]) => result[0].insertId)
-      .catch((error) => {
-        throw `userRepository.createUser\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).user("create"));
 
-  updateUser = async (userId: number, user: InputUserProf) => {
+  async update(userId: number, user: InputUserProf) {
     await db
       .execute(
         `UPDATE users SET ${this.handleUpdateQuery(user)} WHERE id = ?`,
         [...this.handleUpdateValues(user), userId]
       )
-      .catch((error) => {
-        throw `userRepository.updateUser\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).user("update"));
+  }
 
-  updatePassword = async (userId: number, password: string) => {
+  async updatePassword(userId: number, password: string) {
     await db
       .execute("UPDATE users SET password = ? WHERE id = ?", [password, userId])
-      .catch((error) => {
-        throw `userRepository.updatePassword\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).user("updatePassword"));
+  }
 
-  deleteUser = async (userId: number) => {
+  async delete(userId: number) {
     await db
       .execute("DELETE FROM users WHERE id = ?", [userId])
-      .catch((error) => {
-        throw `userRepository.deleteUser\n ${error}`;
-      });
-  };
+      .catch((error) => exceptHandler(error).user("delete"));
+  }
 }

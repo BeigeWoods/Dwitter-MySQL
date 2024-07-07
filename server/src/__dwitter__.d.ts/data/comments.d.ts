@@ -9,33 +9,27 @@ declare type CommentData = {
 };
 
 export declare interface CommentDataHandler {
-  getAll(
-    tweetId: string,
-    userId: number
-  ): Promise<CommentData[] | never | void>;
+  getAll(tweetId: string, userId: number): Promise<CommentData[] | void>;
   getById(
     tweetId: string,
     commentId: string,
     userId: number
-  ): Promise<CommentData | never | void>;
+  ): Promise<CommentData | void>;
   create(
     userId: number,
     tweetId: string,
     text: string,
     recipient?: string
-  ): Promise<CommentData | never | void>;
-  createReply(
-    commentId: string,
-    username: string
-  ): Promise<unknown[] | never | void>;
+  ): Promise<CommentData | void>;
+  createReply(commentId: string, username: string): Promise<unknown[] | void>;
   update(
     tweetId: string,
     commentId: string,
     userId: number,
     text: string
-  ): Promise<CommentData | never | void>;
-  updateGood(id: string, good: number): Promise<never | void>;
-  remove(commentId: string): Promise<never | void>;
+  ): Promise<CommentData | void>;
+  updateGood(id: string, good: number): Promise<void>;
+  delete(commentId: string): Promise<void>;
 }
 
 export declare class CommentRepository implements CommentDataHandler {
@@ -46,31 +40,28 @@ export declare class CommentRepository implements CommentDataHandler {
 
   constructor();
 
-  getAll: (
-    tweetId: string,
-    userId: number
-  ) => Promise<CommentData[] | never | void>;
+  getAll: (tweetId: string, userId: number) => Promise<CommentData[] | void>;
   getById: (
     tweetId: string,
     commentId: string,
     userId: number
-  ) => Promise<CommentData | never | void>;
+  ) => Promise<CommentData | void>;
   create: (
     userId: number,
     tweetId: string,
     text: string,
     recipient?: string
-  ) => Promise<CommentData | never | void>;
+  ) => Promise<CommentData | void>;
   createReply: (
     commentId: string,
     username: string
-  ) => Promise<unknown[] | never | void>;
+  ) => Promise<unknown[] | void>;
   update: (
     tweetId: string,
     commentId: string,
     userId: number,
     text: string
-  ) => Promise<CommentData | never | void>;
-  updateGood(commentId: string, good: number): Promise<never | void>;
-  remove: (commentId: string) => Promise<never | void>;
+  ) => Promise<CommentData | void>;
+  updateGood(commentId: string, good: number): Promise<void>;
+  delete: (commentId: string) => Promise<void>;
 }

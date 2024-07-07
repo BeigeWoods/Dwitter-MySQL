@@ -13,7 +13,7 @@ import { initSocket, getSocketIO } from "./connection/socket.js";
 import csrfCheck from "./middleware/csrf.js";
 import TweetRepository from "./data/tweet.js";
 import TweetController from "./controller/tweet.js";
-import GoodRepository from "./data/good.js";
+import goodRepository from "./data/good.js";
 import GoodController from "./controller/good.js";
 import CommentRepository from "./data/comment.js";
 import CommentController from "./controller/comments.js";
@@ -45,7 +45,6 @@ const commentController = new CommentController(
   userRepository,
   getSocketIO
 );
-const goodRepository = new GoodRepository();
 const goodContoller = new GoodController(
   tweetRepository,
   commentRepository,
