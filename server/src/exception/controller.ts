@@ -1,9 +1,10 @@
 import {
   KindOfController,
-  objectToHandleExceptionOfCont,
+  objectToPrintMessageOfCont,
+  objectToThrowErrorOfCont,
 } from "../__dwitter__.d.ts/exception/controller";
 
-const throwException = (
+const exceptionMessage = (
   title: KindOfController,
   option: string | string[],
   exception: Error | string,
@@ -16,15 +17,28 @@ const throwException = (
       : `${(option as string[])[0]} < ${(option as string[])[1]}`;
   result += fromOwn ? " ##\n " : " < ";
   result += exception;
-  throw result;
+  return result;
 };
 
-const controllerExceptionHandler: objectToHandleExceptionOfCont = {
-  auth: (...argues) => throwException("authController", ...argues),
-  oauth: (...argues) => throwException("oauthController", ...argues),
-  tweet: (...argues) => throwException("tweetController", ...argues),
-  comment: (...argues) => throwException("commentController", ...argues),
-  good: (...argues) => throwException("goodController", ...argues),
+export const throwErrorOfController: objectToThrowErrorOfCont = {
+  auth: (...argues) => {
+    throw exceptionMessage("authController", ...argues);
+  },
+  oauth: (...argues) => {
+    throw exceptionMessage("oauthController", ...argues);
+  },
+  tweet: (...argues) => {
+    throw exceptionMessage("tweetController", ...argues);
+  },
+  comment: (...argues) => {
+    throw exceptionMessage("commentController", ...argues);
+  },
+  good: (...argues) => {
+    throw exceptionMessage("goodController", ...argues);
+  },
 };
 
-export default controllerExceptionHandler;
+export const printExceptionOfController: objectToPrintMessageOfCont = {
+  oauth: (...argues) => exceptionMessage("oauthController", ...argues),
+  good: (...argues) => exceptionMessage("goodController", ...argues),
+};

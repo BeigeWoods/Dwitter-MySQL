@@ -25,7 +25,7 @@ type ContentContCRUD = "getAll" | "create" | "update" | "delete";
 type TweetContMethod = ContentContCRUD | "getById";
 type GoodContentCont = "tweet" | "comment";
 
-export type objectToHandleExceptionOfCont = {
+export type objectToThrowErrorOfCont = {
   auth: (
     option: AuthCont | AuthContMethod,
     exception: Error | string,
@@ -51,4 +51,17 @@ export type objectToHandleExceptionOfCont = {
     exception: Error | string,
     fromOwn?: boolean
   ) => never;
+};
+
+export type objectToPrintMessageOfCont = {
+  oauth: (
+    option: OAuthCont | OAuthContMethod,
+    exception: Error | string,
+    fromOwn?: boolean
+  ) => string;
+  good: (
+    option: GoodContentCont,
+    exception: Error | string,
+    fromOwn?: boolean
+  ) => string;
 };

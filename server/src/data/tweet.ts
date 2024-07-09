@@ -1,5 +1,5 @@
 import db from "../db/database.js";
-import exceptHandler from "../exception/data.js";
+import throwError from "../exception/data.js";
 import {
   InputTweetContents,
   TweetDataHandler,
@@ -44,7 +44,7 @@ export default class TweetRepository implements TweetDataHandler {
         [userId]
       )
       .then((result: any[]) => result[0])
-      .catch((error) => exceptHandler(error).tweet("getAll"));
+      .catch((error) => throwError(error).tweet("getAll"));
 
   getAllByUsername = async (userId: number, username: string) =>
     db
@@ -54,7 +54,7 @@ export default class TweetRepository implements TweetDataHandler {
         [username, userId]
       )
       .then((result: any[]) => result[0])
-      .catch((error) => exceptHandler(error).tweet("getAllByUsername"));
+      .catch((error) => throwError(error).tweet("getAllByUsername"));
 
   getById = async (tweetId: string, userId: number) =>
     db
@@ -64,7 +64,7 @@ export default class TweetRepository implements TweetDataHandler {
         [tweetId, userId]
       )
       .then((result: any[]) => result[0][0])
-      .catch((error) => exceptHandler(error).tweet("getById"));
+      .catch((error) => throwError(error).tweet("getById"));
 
   create = async (userId: number, tweetContents: InputTweetContents) =>
     db
@@ -84,7 +84,7 @@ export default class TweetRepository implements TweetDataHandler {
       .then(
         async (result: any[]) => await this.getById(result[0].insertId, userId)
       )
-      .catch((error) => exceptHandler(error).tweet("create"));
+      .catch((error) => throwError(error).tweet("create"));
 
   update = async (
     tweetId: string,
@@ -99,17 +99,17 @@ export default class TweetRepository implements TweetDataHandler {
         [...this.handleUpdateValues(tweetContents), new Date(), tweetId]
       )
       .then(async () => await this.getById(tweetId, userId))
-      .catch((error) => exceptHandler(error).tweet("update"));
+      .catch((error) => throwError(error).tweet("update"));
 
   async updateGood(tweetId: string, good: number) {
     await db
       .execute("UPDATE tweets SET good = ? WHERE id = ?", [good, tweetId])
-      .catch((error) => exceptHandler(error).tweet("updateGood"));
+      .catch((error) => throwError(error).tweet("updateGood"));
   }
 
   async delete(tweetId: string) {
     await db
       .execute("DELETE FROM tweets WHERE id = ?", [tweetId])
-      .catch((error) => exceptHandler(error).tweet("delete"));
+      .catch((error) => throwError(error).tweet("delete"));
   }
 }

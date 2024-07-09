@@ -1,5 +1,5 @@
 import db from "../db/database.js";
-import exceptHandler from "../exception/data.js";
+import throwError from "../exception/data.js";
 import {
   InputUserInfo,
   InputUserProf,
@@ -33,19 +33,19 @@ export default class UserRepository implements UserDataHandler {
     db
       .execute("SELECT * FROM users WHERE id = ?", [userId])
       .then((result: any[]) => result[0][0])
-      .catch((error) => exceptHandler(error).user("findById"));
+      .catch((error) => throwError(error).user("findById"));
 
   findByUsername = async (username: string) =>
     db
       .execute("SELECT * FROM users WHERE username = ?", [username])
       .then((result: any[]) => result[0][0])
-      .catch((error) => exceptHandler(error).user("findByUsername"));
+      .catch((error) => throwError(error).user("findByUsername"));
 
   findByEmail = async (email: string) =>
     db
       .execute("SELECT * FROM users WHERE email = ?", [email])
       .then((result: any[]) => result[0][0])
-      .catch((error) => exceptHandler(error).user("findByEmail"));
+      .catch((error) => throwError(error).user("findByEmail"));
 
   create = async (user: InputUserInfo) =>
     db
@@ -62,7 +62,7 @@ export default class UserRepository implements UserDataHandler {
         ]
       )
       .then((result: any[]) => result[0].insertId)
-      .catch((error) => exceptHandler(error).user("create"));
+      .catch((error) => throwError(error).user("create"));
 
   async update(userId: number, user: InputUserProf) {
     await db
@@ -70,18 +70,18 @@ export default class UserRepository implements UserDataHandler {
         `UPDATE users SET ${this.handleUpdateQuery(user)} WHERE id = ?`,
         [...this.handleUpdateValues(user), userId]
       )
-      .catch((error) => exceptHandler(error).user("update"));
+      .catch((error) => throwError(error).user("update"));
   }
 
   async updatePassword(userId: number, password: string) {
     await db
       .execute("UPDATE users SET password = ? WHERE id = ?", [password, userId])
-      .catch((error) => exceptHandler(error).user("updatePassword"));
+      .catch((error) => throwError(error).user("updatePassword"));
   }
 
   async delete(userId: number) {
     await db
       .execute("DELETE FROM users WHERE id = ?", [userId])
-      .catch((error) => exceptHandler(error).user("delete"));
+      .catch((error) => throwError(error).user("delete"));
   }
 }

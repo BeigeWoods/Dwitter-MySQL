@@ -1,6 +1,9 @@
 import "express-async-errors";
 import { Request, Response } from "express";
-import exceptHandler from "../exception/controller.js";
+import {
+  throwErrorOfController as throwError,
+  printExceptionOfController as printException,
+} from "../exception/controller.js";
 import GoodHandler from "../__dwitter__.d.ts/controller/good";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 import GoodDataHandler from "../__dwitter__.d.ts/data/good";
@@ -22,23 +25,23 @@ export default class GoodController implements GoodHandler {
     if (clicked) {
       if (!good) {
         console.warn(
-          exceptHandler.good("tweet", "Number of clicked good is 0")
+          printException.good("tweet", "Number of clicked good is 0", true)
         );
         return res.sendStatus(400);
       }
       good -= 1;
       await this.goodRepository.tweet
         .unClick(userId, tweetId)
-        .catch((error) => exceptHandler.good("tweet", error));
+        .catch((error) => throwError.good("tweet", error));
     } else {
       good += 1;
       await this.goodRepository.tweet
         .click(userId, tweetId)
-        .catch((error) => exceptHandler.good("tweet", error));
+        .catch((error) => throwError.good("tweet", error));
     }
     await this.tweetRepository
       .updateGood(tweetId, good)
-      .catch((error) => exceptHandler.good("tweet", error));
+      .catch((error) => throwError.good("tweet", error));
 
     return res.status(201).json({
       id: Number(tweetId),
@@ -56,24 +59,24 @@ export default class GoodController implements GoodHandler {
     if (clicked) {
       if (!good) {
         console.warn(
-          exceptHandler.good("comment", "Number of clicked good is 0")
+          printException.good("comment", "Number of clicked good is 0", true)
         );
         return res.sendStatus(400);
       }
       good -= 1;
       await this.goodRepository.comment
         .unClick(userId, commentId)
-        .catch((error) => exceptHandler.good("comment", error));
+        .catch((error) => throwError.good("comment", error));
     } else {
       good += 1;
       await this.goodRepository.comment
         .click(userId, commentId)
-        .catch((error) => exceptHandler.good("comment", error));
+        .catch((error) => throwError.good("comment", error));
     }
 
     await this.commentRepository
       .updateGood(commentId, good)
-      .catch((error) => exceptHandler.good("comment", error));
+      .catch((error) => throwError.good("comment", error));
 
     return res.status(201).json({
       id: Number(commentId),

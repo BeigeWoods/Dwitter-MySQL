@@ -1,7 +1,7 @@
 import "express-async-errors";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import exceptHandler from "../../exception/controller.js";
+import { throwErrorOfController as throwError } from "../../exception/controller.js";
 import AuthDataHandler from "../../__dwitter__.d.ts/controller/auth/auth";
 import {
   InputUserInfo,
@@ -36,7 +36,7 @@ export default class AuthController implements AuthDataHandler {
       email,
       username
     ).catch((error) =>
-      exceptHandler.auth(["signup", "isDuplicateEmailOrUsername"], error, true)
+      throwError.auth(["signup", "isDuplicateEmailOrUsername"], error, true)
     );
     if (isDuplicate)
       return res.status(409).json({
@@ -56,7 +56,7 @@ export default class AuthController implements AuthDataHandler {
         url,
         socialLogin: false,
       })
-      .catch((error) => exceptHandler.auth("signup", error));
+      .catch((error) => throwError.auth("signup", error));
 
     const token = this.tokenController.createJwtToken(userId!);
     this.tokenController.setToken(res, token);
@@ -67,7 +67,7 @@ export default class AuthController implements AuthDataHandler {
     const { username, password }: InputUserInfo = req.body;
     const user = await this.userRepository
       .findByUsername(username)
-      .catch((error) => exceptHandler.auth("login", error));
+      .catch((error) => throwError.auth("login", error));
     if (!user)
       return res.status(400).json({ message: "Invalid user or password" });
 
@@ -77,7 +77,7 @@ export default class AuthController implements AuthDataHandler {
         (user as OutputUser).password
       )
       .catch((error) =>
-        exceptHandler.auth(["login", "bcrypt.compare"], error, true)
+        throwError.auth(["login", "bcrypt.compare"], error, true)
       );
     if (!isSamePw)
       return res.status(400).json({ message: "Invalid user or password" });
@@ -108,7 +108,7 @@ export default class AuthController implements AuthDataHandler {
     const isDuplicate = await this.isDuplicateEmailOrUsername(
       email!,
       username!
-    ).catch((error) => exceptHandler.auth("updateUser", error));
+    ).catch((error) => throwError.auth("updateUser", error));
     if (isDuplicate)
       return res.status(409).json({
         message: `${isDuplicate} already exists.`,
@@ -121,7 +121,7 @@ export default class AuthController implements AuthDataHandler {
         email,
         url,
       })
-      .catch((error) => exceptHandler.auth("updateUser", error));
+      .catch((error) => throwError.auth("updateUser", error));
     return res.status(201).json({ username, name, email, url });
   };
 
@@ -137,7 +137,7 @@ export default class AuthController implements AuthDataHandler {
     const isSamePw = await bcrypt
       .compare(password + this.config.bcrypt.randomWords, req.user!.password)
       .catch((error) =>
-        exceptHandler.auth(["updatePassword", "bcrypt.compare"], error, true)
+        throwError.auth(["updatePassword", "bcrypt.compare"], error, true)
       );
     if (!isSamePw || newPassword !== checkPassword)
       return res.status(400).json({ message: "Incorrect password" });
@@ -148,18 +148,18 @@ export default class AuthController implements AuthDataHandler {
         this.config.bcrypt.saltRounds
       )
       .catch((error) =>
-        exceptHandler.auth(["updatePassword", "bcrypt.hash"], error, true)
+        throwError.auth(["updatePassword", "bcrypt.hash"], error, true)
       );
     await this.userRepository
       .updatePassword(req.user!.id, hashedNewPw)
-      .catch((error) => exceptHandler.auth("updatePassword", error));
+      .catch((error) => throwError.auth("updatePassword", error));
     return res.sendStatus(204);
   };
 
   withdrawal = async (req: Request, res: Response) => {
     await this.userRepository
       .delete(req.user!.id)
-      .catch((error) => exceptHandler.auth("withdrawal", error));
+      .catch((error) => throwError.auth("withdrawal", error));
     this.tokenController.setToken(res, "");
     return res.sendStatus(204);
   };

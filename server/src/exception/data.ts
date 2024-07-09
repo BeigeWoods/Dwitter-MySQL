@@ -6,24 +6,23 @@ import {
   UserRepMethod,
 } from "../__dwitter__.d.ts/exception/data";
 
-const repositoryExceptionHandler = (error: Error) => {
-  const throwException = (title: KindOfRepository, method: string) => {
+const throwErrorOfRepository = (error: Error) => {
+  const throwError = (title: KindOfRepository, method: string) => {
     throw `${title}.${method} ##\n ${error}`;
   };
 
   return {
-    user: (method: UserRepMethod) => throwException("userRepository", method),
-    tweet: (method: TweetRepMethod) =>
-      throwException("tweetRepository", method),
+    user: (method: UserRepMethod) => throwError("userRepository", method),
+    tweet: (method: TweetRepMethod) => throwError("tweetRepository", method),
     comment: (method: CommentRepMethod) =>
-      throwException("commentRepository", method),
+      throwError("commentRepository", method),
     good: {
       tweet: (method: GoodDBMethod) =>
-        throwException("goodRepository", `${method} about tweet`),
+        throwError("goodRepository", `${method} of tweet`),
       comment: (method: GoodDBMethod) =>
-        throwException("goodRepository", `${method} about comment`),
+        throwError("goodRepository", `${method} of comment`),
     },
   };
 };
 
-export default repositoryExceptionHandler;
+export default throwErrorOfRepository;

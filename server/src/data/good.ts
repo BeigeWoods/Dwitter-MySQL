@@ -1,5 +1,5 @@
 import db from "../db/database.js";
-import exceptHandler from "../exception/data.js";
+import throwError from "../exception/data.js";
 import GoodDataHandler from "../__dwitter__.d.ts/data/good";
 
 const goodRepository: GoodDataHandler = {
@@ -10,7 +10,7 @@ const goodRepository: GoodDataHandler = {
           userId,
           tweetId,
         ])
-        .catch((error) => exceptHandler(error).good.tweet("click"));
+        .catch((error) => throwError(error).good.tweet("click"));
     },
     async unClick(userId: number, tweetId: string) {
       await db
@@ -18,7 +18,7 @@ const goodRepository: GoodDataHandler = {
           userId,
           tweetId,
         ])
-        .catch((error) => exceptHandler(error).good.tweet("unClick"));
+        .catch((error) => throwError(error).good.tweet("unClick"));
     },
   },
   comment: {
@@ -28,7 +28,7 @@ const goodRepository: GoodDataHandler = {
           userId,
           commentId,
         ])
-        .catch((error) => exceptHandler(error).good.comment("click"));
+        .catch((error) => throwError(error).good.comment("click"));
     },
     async unClick(userId: number, commentId: string) {
       await db
@@ -36,7 +36,7 @@ const goodRepository: GoodDataHandler = {
           "DELETE FROM goodComments WHERE userId = ? AND commentId = ?",
           [userId, commentId]
         )
-        .catch((error) => exceptHandler(error).good.comment("unClick"));
+        .catch((error) => throwError(error).good.comment("unClick"));
     },
   },
 };

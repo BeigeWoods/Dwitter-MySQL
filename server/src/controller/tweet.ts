@@ -2,7 +2,7 @@ import "express-async-errors";
 import { Request, Response } from "express";
 import { Server } from "socket.io";
 import awsS3 from "../middleware/awsS3.js";
-import exceptHandler from "../exception/controller.js";
+import { throwErrorOfController as throwError } from "../exception/controller.js";
 import TweetHandler from "../__dwitter__.d.ts/controller/tweet";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 
@@ -24,17 +24,17 @@ export default class TweetController implements TweetHandler {
     const data = await (username
       ? this.tweetRepository
           .getAllByUsername(req.user!.id, username as string)
-          .catch((error) => exceptHandler.tweet("getAll", error))
+          .catch((error) => throwError.tweet("getAll", error))
       : this.tweetRepository
           .getAll(req.user!.id)
-          .catch((error) => exceptHandler.tweet("getAll", error)));
+          .catch((error) => throwError.tweet("getAll", error)));
     return res.status(200).json(data);
   };
 
   getById = async (req: Request, res: Response) => {
     const tweet = await this.tweetRepository
       .getById(req.params.tweetId, req.user!.id)
-      .catch((error) => exceptHandler.tweet("getById", error));
+      .catch((error) => throwError.tweet("getById", error));
     return tweet
       ? res.status(200).json(tweet)
       : res.status(404).json({ message: `Tweet not found` });
@@ -50,7 +50,7 @@ export default class TweetController implements TweetHandler {
         video: video && this.handleUrl(video),
         image: newImage ? newImage : "",
       })
-      .catch((error) => exceptHandler.tweet("create", error));
+      .catch((error) => throwError.tweet("create", error));
     this.getSocketIO().emit("tweets", tweet);
     return res.status(201).json(tweet);
   };
@@ -66,7 +66,7 @@ export default class TweetController implements TweetHandler {
           .json({ message: "Invalid values to convert image" });
       await awsS3
         .deleteImage(image)
-        .catch((error) => exceptHandler.tweet("update", error));
+        .catch((error) => throwError.tweet("update", error));
     }
     const updated = await this.tweetRepository
       .update(req.params.tweetId, req.user!.id, {
@@ -74,7 +74,7 @@ export default class TweetController implements TweetHandler {
         video: video && this.handleUrl(video),
         image: newImage,
       })
-      .catch((error) => exceptHandler.tweet("update", error));
+      .catch((error) => throwError.tweet("update", error));
     return res.status(200).json(updated);
   };
 
@@ -83,10 +83,10 @@ export default class TweetController implements TweetHandler {
     if (image)
       await awsS3
         .deleteImage(image)
-        .catch((error) => exceptHandler.tweet("delete", error));
+        .catch((error) => throwError.tweet("delete", error));
     await this.tweetRepository
       .delete(req.params.tweetId)
-      .catch((error) => exceptHandler.tweet("delete", error));
+      .catch((error) => throwError.tweet("delete", error));
     return res.sendStatus(204);
   };
 }

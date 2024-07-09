@@ -1,7 +1,7 @@
 import "express-async-errors";
 import { Request, Response } from "express";
 import { Server } from "socket.io";
-import exceptHandler from "../exception/controller.js";
+import { throwErrorOfController as throwError } from "../exception/controller.js";
 import CommentHandler from "../__dwitter__.d.ts/controller/comments";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
 import { UserDataHandler, OutputUser } from "../__dwitter__.d.ts/data/user";
@@ -16,7 +16,7 @@ export default class CommentController implements CommentHandler {
   getAll = async (req: Request, res: Response) => {
     const data = await this.commentRepository
       .getAll(req.params.tweetId, req.user!.id)
-      .catch((error) => exceptHandler.comment("getAll", error));
+      .catch((error) => throwError.comment("getAll", error));
     return res.status(200).json(data);
   };
 
@@ -28,7 +28,7 @@ export default class CommentController implements CommentHandler {
 
       const result = await this.userRepository
         .findByUsername(recipient)
-        .catch((error) => exceptHandler.comment("create", error));
+        .catch((error) => throwError.comment("create", error));
       if (!result)
         return res.status(409).json({ message: "Replied user not found" });
 
@@ -37,7 +37,7 @@ export default class CommentController implements CommentHandler {
 
     const comment = await this.commentRepository
       .create(req.user!.id, req.params.tweetId, req.body.text, findUser)
-      .catch((error) => exceptHandler.comment("create", error));
+      .catch((error) => throwError.comment("create", error));
     this.getSocketIO().emit("comments", comment);
     return res.status(201).json(comment);
   };
@@ -50,14 +50,14 @@ export default class CommentController implements CommentHandler {
         req.user!.id,
         req.body.text
       )
-      .catch((error) => exceptHandler.comment("update", error));
+      .catch((error) => throwError.comment("update", error));
     return res.status(200).json(updated);
   };
 
   delete = async (req: Request, res: Response) => {
     await this.commentRepository
       .delete(req.params.commentId)
-      .catch((error) => exceptHandler.comment("delete", error));
+      .catch((error) => throwError.comment("delete", error));
     return res.sendStatus(204);
   };
 }

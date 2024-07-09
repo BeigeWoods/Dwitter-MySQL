@@ -2,7 +2,10 @@ import "express-async-errors";
 import { CookieOptions, Request, Response } from "express";
 import fetch from "node-fetch";
 import bcrypt from "bcrypt";
-import exceptHandler from "../../exception/controller.js";
+import {
+  throwErrorOfController as throwError,
+  printExceptionOfController as printException,
+} from "../../exception/controller.js";
 import TokenHandler from "../../__dwitter__.d.ts/controller/auth/token";
 import GithubOauthHandler, {
   UserForToken,
@@ -36,7 +39,7 @@ export default class OauthController implements GithubOauthHandler {
         socialLogin: true,
       })
       .catch((error) =>
-        exceptHandler.oauth(["githubFinish", "signup"], error)
+        printException.oauth(["githubFinish", "signup"], error)
       )) as number;
 
     return {
@@ -49,12 +52,12 @@ export default class OauthController implements GithubOauthHandler {
     const byUsername = (await this.userRepository
       .findByUsername(owner!.login)
       .catch((error) =>
-        exceptHandler.oauth(["githubFinish", "login"], error)
+        throwError.oauth(["githubFinish", "login"], error)
       )) as OutputUser;
     const byEmail = (await this.userRepository
       .findByEmail(email[0].email)
       .catch((error) =>
-        exceptHandler.oauth(["githubFinish", "login"], error)
+        throwError.oauth(["githubFinish", "login"], error)
       )) as OutputUser;
 
     return byEmail
@@ -80,7 +83,7 @@ export default class OauthController implements GithubOauthHandler {
         },
       }).then((data) => data.json()),
     ]).catch((error) =>
-      exceptHandler.oauth(
+      throwError.oauth(
         ["githubFinish", "getUser"],
         `The problem of fetch\n ${error}`,
         true
@@ -88,7 +91,7 @@ export default class OauthController implements GithubOauthHandler {
     );
 
     if (!result[0] || !result[1])
-      exceptHandler.oauth(
+      throwError.oauth(
         ["githubFinish", "getUser"],
         `Doesn't exist data in ${result}`,
         true
@@ -113,7 +116,7 @@ export default class OauthController implements GithubOauthHandler {
     })
       .then((data) => data.json())
       .catch((error) =>
-        exceptHandler.oauth(
+        throwError.oauth(
           ["githubFinish", "getToken"],
           `The problem of fetch\n ${error}`,
           true
@@ -121,7 +124,7 @@ export default class OauthController implements GithubOauthHandler {
       );
 
     if (!result || !result.access_token)
-      exceptHandler.oauth(
+      throwError.oauth(
         ["githubFinish", "getToken"],
         `Doesn't exist token in ${result}`,
         true
@@ -134,7 +137,7 @@ export default class OauthController implements GithubOauthHandler {
     const state = await bcrypt
       .hash(this.config.oauth.state.plain, this.config.oauth.state.saltRounds)
       .catch((error) =>
-        exceptHandler.oauth(["githubStart", "bcrypt.hash"], error, true)
+        throwError.oauth(["githubStart", "bcrypt.hash"], error, true)
       );
     const option = {
       client_id: this.config.oauth.github.clientId,
@@ -155,13 +158,17 @@ export default class OauthController implements GithubOauthHandler {
         .compare(this.config.oauth.state.plain, req.query.state as string)
         .catch((error) =>
           console.error(
-            exceptHandler.oauth(["githubFinish", "bcrypt.compare"], error, true)
+            printException.oauth(
+              ["githubFinish", "bcrypt.compare"],
+              error,
+              true
+            )
           )
         );
       if (!validate) {
         isSuccess = false;
         console.warn(
-          exceptHandler.oauth(
+          printException.oauth(
             "githubFinish",
             "a state of query from Github doesn't validate.",
             true

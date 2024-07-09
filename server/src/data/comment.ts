@@ -1,5 +1,5 @@
 import db from "../db/database.js";
-import exceptHandler from "../exception/data.js";
+import throwError from "../exception/data.js";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
 
 export default class CommentRepository implements CommentDataHandler {
@@ -24,7 +24,7 @@ export default class CommentRepository implements CommentDataHandler {
         [tweetId, userId]
       )
       .then((result: any[]) => result[0])
-      .catch((error) => exceptHandler(error).comment("getAll"));
+      .catch((error) => throwError(error).comment("getAll"));
 
   getById = async (tweetId: string, commentId: string, userId: number) =>
     db
@@ -34,7 +34,7 @@ export default class CommentRepository implements CommentDataHandler {
         [commentId, tweetId, userId]
       )
       .then((result: any[]) => result[0][0])
-      .catch((error) => exceptHandler(error).comment("getById"));
+      .catch((error) => throwError(error).comment("getById"));
 
   create = async (
     userId: number,
@@ -54,7 +54,7 @@ export default class CommentRepository implements CommentDataHandler {
         }
         return await this.getById(tweetId, result[0].insertId, userId);
       })
-      .catch((error) => exceptHandler(error).comment("create"));
+      .catch((error) => throwError(error).comment("create"));
 
   async createReply(commentId: string, username: string) {
     await db
@@ -62,7 +62,7 @@ export default class CommentRepository implements CommentDataHandler {
         commentId,
         username,
       ])
-      .catch((error) => exceptHandler(error).comment("createReply"));
+      .catch((error) => throwError(error).comment("createReply"));
   }
 
   update = async (
@@ -78,17 +78,17 @@ export default class CommentRepository implements CommentDataHandler {
         commentId,
       ])
       .then(async () => await this.getById(tweetId, commentId, userId))
-      .catch((error) => exceptHandler(error).comment("update"));
+      .catch((error) => throwError(error).comment("update"));
 
   async updateGood(commentId: string, good: number) {
     await db
       .execute("UPDATE comments SET good = ? WHERE id = ?", [good, commentId])
-      .catch((error) => exceptHandler(error).comment("updateGood"));
+      .catch((error) => throwError(error).comment("updateGood"));
   }
 
   async delete(commentId: string) {
     await db
       .execute("DELETE FROM comments WHERE id = ?", [commentId])
-      .catch((error) => exceptHandler(error).comment("delete"));
+      .catch((error) => throwError(error).comment("delete"));
   }
 }
