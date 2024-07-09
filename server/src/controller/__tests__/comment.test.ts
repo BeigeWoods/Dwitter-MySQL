@@ -28,14 +28,14 @@ describe("Comment Controller", () => {
     response = httpMocks.createResponse();
   });
 
-  describe("getComments", () => {
+  describe("getAll", () => {
     test("returns all comments when all data is provided", async () => {
       request = httpMocks.createRequest(mockComment.reqOptions());
       mockedCommentRepository.getAll.mockResolvedValueOnce([
         mockComment.comment,
       ]);
 
-      await commentController.getComments(request, response, next);
+      await commentController.getAll(request, response);
 
       expect(mockedCommentRepository.getAll).toHaveBeenCalledWith(
         tweetId,
@@ -46,14 +46,14 @@ describe("Comment Controller", () => {
     });
   });
 
-  describe("createComment", () => {
+  describe("create", () => {
     test("returns status 409 when recipient is a non-existent user", async () => {
       request = httpMocks.createRequest(
         mockComment.reqOptions(NaN, text, recipient)
       );
       mockedUserRepository.findByUsername.mockResolvedValueOnce(undefined);
 
-      await commentController.createComment(request, response, next);
+      await commentController.create(request, response);
 
       expect(mockedUserRepository.findByUsername).toHaveBeenCalledWith(
         recipient
@@ -70,7 +70,7 @@ describe("Comment Controller", () => {
       request = httpMocks.createRequest(mockComment.reqOptions(NaN, text));
       mockedCommentRepository.create.mockResolvedValueOnce(mockComment.comment);
 
-      await commentController.createComment(request, response, next);
+      await commentController.create(request, response);
 
       expect(response.statusCode).toBe(201);
       expect(response._getJSONData()).toEqual(mockComment.comment);
@@ -92,7 +92,7 @@ describe("Comment Controller", () => {
       );
       mockedCommentRepository.create.mockResolvedValueOnce(mockComment.comment);
 
-      await commentController.createComment(request, response, next);
+      await commentController.create(request, response);
 
       expect(mockedUserRepository.findByUsername).toHaveBeenCalledWith(
         recipient
@@ -112,14 +112,14 @@ describe("Comment Controller", () => {
     });
   });
 
-  describe("updateComment", () => {
+  describe("update", () => {
     test("calls next middleware when DB returns nothing of updating comment", async () => {
       request = httpMocks.createRequest(
         mockComment.reqOptions(commentId, text, recipient)
       );
       mockedCommentRepository.update.mockResolvedValueOnce();
 
-      await commentController.updateComment(request, response, next);
+      await commentController.update(request, response);
 
       expect(mockedCommentRepository.update).toHaveBeenCalledWith(
         tweetId,
@@ -130,28 +130,28 @@ describe("Comment Controller", () => {
     });
   });
 
-  describe("deleteComment", () => {
+  describe("delete", () => {
     test("calls next middleware when DB returns error by callback", async () => {
       request = httpMocks.createRequest(mockComment.reqOptions(commentId));
-      mockedCommentRepository.remove.mockRejectedValueOnce("Error");
+      mockedCommentRepository.delete.mockRejectedValueOnce("Error");
 
       await commentController
-        .deleteComment(request, response, next)
+        .delete(request, response)
         .catch((error) =>
-          expect(error).toBe("Error! commentContoller.deleteComment < Error")
+          expect(error).toBe("## commentController.delete < Error")
         );
 
-      expect(mockedCommentRepository.remove).toHaveBeenCalledWith(commentId);
+      expect(mockedCommentRepository.delete).toHaveBeenCalledWith(commentId);
       expect(response.statusCode).not.toBe(204);
     });
 
     test("returns status 204 when succeeds to deleting", async () => {
       request = httpMocks.createRequest(mockComment.reqOptions(commentId));
-      mockedCommentRepository.remove.mockResolvedValueOnce(undefined);
+      mockedCommentRepository.delete.mockResolvedValueOnce(undefined);
 
-      await commentController.deleteComment(request, response, next);
+      await commentController.delete(request, response);
 
-      expect(mockedCommentRepository.remove).toHaveBeenCalledWith(commentId);
+      expect(mockedCommentRepository.delete).toHaveBeenCalledWith(commentId);
       expect(response.statusCode).toBe(204);
     });
   });

@@ -10,7 +10,6 @@ export const mockedTokenController: jest.Mocked<TokenHandler> = {
   createJwtToken: jest.fn((userId: number) => "token"),
   setToken: jest.fn((res: MockResponse<any>, token) => res),
   csrfToken: jest.fn(),
-  generateCSRFToken: jest.fn(),
 };
 
 export class mockedOauthController {
@@ -41,7 +40,7 @@ export class mockedOauthController {
 
   private signUp = async (owner: any, email: any, exist: boolean) => {
     const userId = (await this.userRepository
-      .createUser({
+      .create({
         username: exist ? `${owner!.login}_github` : owner!.login,
         password: "",
         name: owner!.name,

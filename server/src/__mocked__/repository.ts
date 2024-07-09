@@ -1,16 +1,16 @@
 import { UserDataHandler } from "../__dwitter__.d.ts/data/user";
 import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
-import { GoodDataHandler } from "../__dwitter__.d.ts/data/good";
+import GoodDataHandler from "../__dwitter__.d.ts/data/good";
 import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
 
 export const mockedUserRepository: jest.Mocked<UserDataHandler> = {
   findById: jest.fn(),
   findByUsername: jest.fn(),
   findByEmail: jest.fn(),
-  updateUser: jest.fn(),
+  update: jest.fn(),
   updatePassword: jest.fn(),
-  createUser: jest.fn(),
-  deleteUser: jest.fn(),
+  create: jest.fn(),
+  delete: jest.fn(),
 };
 
 export const mockedTweetRepository: jest.Mocked<TweetDataHandler> = {
@@ -20,7 +20,7 @@ export const mockedTweetRepository: jest.Mocked<TweetDataHandler> = {
   create: jest.fn(),
   update: jest.fn(),
   updateGood: jest.fn(),
-  remove: jest.fn(),
+  delete: jest.fn(),
 };
 
 export const mockedCommentRepository: jest.Mocked<CommentDataHandler> = {
@@ -30,12 +30,16 @@ export const mockedCommentRepository: jest.Mocked<CommentDataHandler> = {
   createReply: jest.fn(),
   update: jest.fn(),
   updateGood: jest.fn(),
-  remove: jest.fn(),
+  delete: jest.fn(),
 };
 
 export const mockedGoodRepository: jest.Mocked<GoodDataHandler> = {
-  clickTweet: jest.fn(),
-  unClickTweet: jest.fn(),
-  clickComment: jest.fn(),
-  unClickComment: jest.fn(),
+  tweet: {
+    click: jest.fn(),
+    unClick: jest.fn(),
+  },
+  comment: {
+    click: jest.fn(),
+    unClick: jest.fn(),
+  },
 };

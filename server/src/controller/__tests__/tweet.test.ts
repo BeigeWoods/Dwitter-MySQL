@@ -1,9 +1,11 @@
 import httpMocks from "node-mocks-http";
 import faker from "faker";
-import { NextFunction } from "express";
 import TweetController from "../tweet";
+import awsS3 from "../../middleware/awsS3";
 import { mockedTweetRepository } from "../../__mocked__/repository";
 import { mockTweet } from "../../__mocked__/data";
+
+jest.mock("../../middleware/awsS3", () => ({ deleteImage: jest.fn() }));
 
 describe("Tweet Controller", () => {
   const mockedSocket: jest.Mocked<any> = { emit: jest.fn() };
@@ -15,35 +17,33 @@ describe("Tweet Controller", () => {
     text = faker.random.words(3),
     video = "https://youtu.be/q_VsCxx3jpo",
     match = "https://www.youtube.com/embed/q_VsCxx3jpo",
+    newImage = faker.internet.url(),
     image = faker.internet.url();
   let response: httpMocks.MockResponse<any>,
-    request: httpMocks.MockRequest<any>,
-    next: jest.Mock<NextFunction>;
+    request: httpMocks.MockRequest<any>;
 
   beforeEach(() => {
     response = httpMocks.createResponse();
   });
 
-  describe("getTweets", () => {
+  describe("getAll", () => {
     test("returns all tweets when username is not provided", async () => {
       request = httpMocks.createRequest(mockTweet.reqOptions());
       mockedTweetRepository.getAll.mockResolvedValueOnce([mockTweet.tweet()]);
 
-      await tweetController.getTweets(request, response, next);
+      await tweetController.getAll(request, response);
 
       expect(response.statusCode).toBe(200);
       expect(response._getJSONData()).toEqual([mockTweet.tweet()]);
     });
 
     test("returns tweets for the given user when username is provided", async () => {
-      request = httpMocks.createRequest(
-        mockTweet.reqOptions(NaN, "", "", "", "smith")
-      );
+      request = httpMocks.createRequest(mockTweet.reqOptions(NaN, {}, "smith"));
       mockedTweetRepository.getAllByUsername.mockResolvedValueOnce([
         mockTweet.tweet(),
       ]);
 
-      await tweetController.getTweets(request, response, next);
+      await tweetController.getAll(request, response);
 
       expect(mockedTweetRepository.getAllByUsername).toHaveBeenCalledWith(
         1,
@@ -54,15 +54,15 @@ describe("Tweet Controller", () => {
     });
   });
 
-  describe("getTweet", () => {
+  describe("getById", () => {
     test("returns status 404 when given tweetId doesn't exist", async () => {
       mockedTweetRepository.getById.mockResolvedValueOnce(undefined);
 
-      await tweetController.getTweet(request, response, next);
+      await tweetController.getById(request, response);
 
       expect(response.statusCode).toBe(404);
       expect(response._getJSONData()).toEqual({
-        message: `Tweet not found`,
+        message: "Tweet not found",
       });
     });
 
@@ -70,7 +70,7 @@ describe("Tweet Controller", () => {
       request = httpMocks.createRequest(mockTweet.reqOptions(tweetId));
       mockedTweetRepository.getById.mockResolvedValueOnce(mockTweet.tweet());
 
-      await tweetController.getTweet(request, response, next);
+      await tweetController.getById(request, response);
 
       expect(response.statusCode).toBe(200);
       expect(response._getJSONData()).toEqual(mockTweet.tweet());
@@ -78,21 +78,20 @@ describe("Tweet Controller", () => {
     });
   });
 
-  describe("createTweet", () => {
+  describe("create", () => {
     test("returns tweet and sends data to websocket when all data is provided", async () => {
       request = httpMocks.createRequest(
-        mockTweet.reqOptions(NaN, text, video, image)
+        mockTweet.reqOptions(NaN, { text, video, newImage })
       );
       mockedTweetRepository.create.mockResolvedValueOnce(mockTweet.tweet());
 
-      await tweetController.createTweet(request, response, next);
+      await tweetController.create(request, response);
 
-      expect(mockedTweetRepository.create).toHaveBeenCalledWith(
-        1,
+      expect(mockedTweetRepository.create).toHaveBeenCalledWith(1, {
         text,
-        match,
-        image
-      );
+        video: match,
+        image: newImage,
+      });
       expect(mockedSocket.emit).toHaveBeenCalledWith(
         "tweets",
         mockTweet.tweet()
@@ -101,66 +100,84 @@ describe("Tweet Controller", () => {
       expect(response._getJSONData()).toMatchObject(mockTweet.tweet());
     });
 
-    test("will call next middleware if DB returns nothing when creates tweet for the given video", async () => {
-      request = httpMocks.createRequest(mockTweet.reqOptions(NaN, "", video));
+    test("will throw an error if DB returns nothing when creates tweet for the given video", async () => {
+      request = httpMocks.createRequest(mockTweet.reqOptions(NaN, { video }));
       mockedTweetRepository.create.mockRejectedValueOnce("Error");
 
       await tweetController
-        .createTweet(request, response, next)
+        .create(request, response)
         .catch((error) =>
-          expect(error).toBe("Error! tweetController.createTweet < Error")
+          expect(error).toBe("## tweetController.create < Error")
         );
 
-      expect(mockedTweetRepository.create).toHaveBeenCalledWith(
-        1,
-        "",
-        match,
-        ""
-      );
+      expect(mockedTweetRepository.create).toHaveBeenCalledWith(1, {
+        text: "",
+        video: match,
+        image: "",
+      });
       expect(response.statusCode).not.toBe(201);
     });
   });
 
-  describe("updateTweet", () => {
+  describe("update", () => {
     test("returns updated tweet for given new image", async () => {
       request = httpMocks.createRequest(
-        mockTweet.reqOptions(tweetId, "", "", image)
+        mockTweet.reqOptions(tweetId, { newImage, image })
       );
+      (awsS3.deleteImage as jest.Mock).mockResolvedValueOnce("");
       mockedTweetRepository.update.mockResolvedValueOnce(mockTweet.tweet());
 
-      await tweetController.updateTweet(request, response, next);
+      await tweetController.update(request, response);
 
       expect(mockedTweetRepository.update).toHaveBeenCalledWith(tweetId, 1, {
         text: "",
         video: "",
-        image,
+        image: newImage,
       });
       expect(response.statusCode).toBe(200);
     });
+
+    test("returns status 400 when a existed image isn't given, but a new image.", async () => {
+      request = httpMocks.createRequest(
+        mockTweet.reqOptions(tweetId, { image })
+      );
+      mockedTweetRepository.update.mockResolvedValueOnce(mockTweet.tweet());
+
+      await tweetController.update(request, response);
+
+      expect(response.statusCode).toBe(400);
+      expect(response._getJSONData()).toEqual({
+        message: "Invalid values to convert image",
+      });
+      expect(awsS3.deleteImage).not.toHaveBeenCalled();
+      expect(mockedTweetRepository.update).not.toHaveBeenCalled();
+    });
   });
 
-  describe("deleteTweet", () => {
+  describe("delete", () => {
     test("calls next middleware when DB returns error at deleting tweet", async () => {
       request = httpMocks.createRequest(mockTweet.reqOptions(tweetId));
-      mockedTweetRepository.remove.mockRejectedValueOnce("Error");
+      (awsS3.deleteImage as jest.Mock).mockResolvedValueOnce("");
+      mockedTweetRepository.delete.mockRejectedValueOnce("Error");
 
       await tweetController
-        .deleteTweet(request, response, next)
+        .delete(request, response)
         .catch((error) =>
-          expect(error).toBe("Error! tweetController.deleteTweet < Error")
+          expect(error).toBe("## tweetController.delete < Error")
         );
 
-      expect(mockedTweetRepository.remove).toHaveBeenCalledWith(tweetId);
+      expect(mockedTweetRepository.delete).toHaveBeenCalledWith(tweetId);
       expect(response.statusCode).not.toBe(204);
     });
 
     test("returns status 204 when tweetId is provided", async () => {
       request = httpMocks.createRequest(mockTweet.reqOptions(tweetId));
-      mockedTweetRepository.remove.mockResolvedValueOnce(undefined);
+      (awsS3.deleteImage as jest.Mock).mockResolvedValueOnce("");
+      mockedTweetRepository.delete.mockResolvedValueOnce(undefined);
 
-      await tweetController.deleteTweet(request, response, next);
+      await tweetController.delete(request, response);
 
-      expect(mockedTweetRepository.remove).toHaveBeenCalledWith(tweetId);
+      expect(mockedTweetRepository.delete).toHaveBeenCalledWith(tweetId);
       expect(response.statusCode).toBe(204);
     });
   });
