@@ -1,8 +1,9 @@
-import db from "../db/database.js";
+import db, { getConnection } from "../db/database.js";
 import throwError from "../exception/data.js";
 import {
   InputUserInfo,
   InputUserProf,
+  OutputUser,
   UserDataHandler,
 } from "../__dwitter__.d.ts/data/user";
 
@@ -29,59 +30,112 @@ export default class UserRepository implements UserDataHandler {
     return result;
   }
 
-  findById = async (userId: number) =>
-    db
-      .execute("SELECT * FROM users WHERE id = ?", [userId])
-      .then((result: any[]) => result[0][0])
-      .catch((error) => throwError(error).user("findById"));
+  async findById(userId: number) {
+    let conn;
+    try {
+      conn = await getConnection();
+      return await conn
+        .execute("SELECT * FROM users WHERE id = ?", [userId])
+        .then((result: any[]) => result[0][0] as OutputUser);
+    } catch (error) {
+      throwError(error).user("findById");
+    } finally {
+      db.releaseConnection(conn!);
+    }
+  }
 
-  findByUsername = async (username: string) =>
-    db
-      .execute("SELECT * FROM users WHERE username = ?", [username])
-      .then((result: any[]) => result[0][0])
-      .catch((error) => throwError(error).user("findByUsername"));
+  async findByUsername(username: string) {
+    let conn;
+    try {
+      conn = await getConnection();
+      return await conn
+        .execute("SELECT * FROM users WHERE username = ?", [username])
+        .then((result: any[]) => result[0][0] as OutputUser);
+    } catch (error) {
+      throwError(error).user("findByUsername");
+    } finally {
+      db.releaseConnection(conn!);
+    }
+  }
 
-  findByEmail = async (email: string) =>
-    db
-      .execute("SELECT * FROM users WHERE email = ?", [email])
-      .then((result: any[]) => result[0][0])
-      .catch((error) => throwError(error).user("findByEmail"));
+  async findByEmail(email: string) {
+    let conn;
+    try {
+      conn = await getConnection();
+      return await conn
+        .execute("SELECT * FROM users WHERE email = ?", [email])
+        .then((result: any[]) => result[0][0] as OutputUser);
+    } catch (error) {
+      throwError(error).user("findByEmail");
+    } finally {
+      db.releaseConnection(conn!);
+    }
+  }
 
-  create = async (user: InputUserInfo) =>
-    db
-      .execute(
-        "INSERT INTO users(username, password, name, email, url, socialLogin) \
-        VALUES (?, ?, ?, ?, ?, ?)",
-        [
-          user.username,
-          user.password,
-          user.name,
-          user.email,
-          user.url,
-          user.socialLogin,
-        ]
-      )
-      .then((result: any[]) => result[0].insertId)
-      .catch((error) => throwError(error).user("create"));
+  async create(user: InputUserInfo) {
+    let conn;
+    try {
+      conn = await getConnection();
+      return await conn
+        .execute(
+          "INSERT INTO users(username, password, name, email, url, socialLogin) \
+       VALUES (?, ?, ?, ?, ?, ?)",
+          [
+            user.username,
+            user.password,
+            user.name,
+            user.email,
+            user.url,
+            user.socialLogin,
+          ]
+        )
+        .then((result: any[]) => result[0].insertId as number);
+    } catch (error) {
+      throwError(error).user("create");
+    } finally {
+      db.releaseConnection(conn!);
+    }
+  }
 
   async update(userId: number, user: InputUserProf) {
-    await db
-      .execute(
+    let conn;
+    try {
+      conn = await getConnection();
+      await conn.execute(
         `UPDATE users SET ${this.handleUpdateQuery(user)} WHERE id = ?`,
         [...this.handleUpdateValues(user), userId]
-      )
-      .catch((error) => throwError(error).user("update"));
+      );
+    } catch (error) {
+      throwError(error).user("update");
+    } finally {
+      db.releaseConnection(conn!);
+    }
   }
 
   async updatePassword(userId: number, password: string) {
-    await db
-      .execute("UPDATE users SET password = ? WHERE id = ?", [password, userId])
-      .catch((error) => throwError(error).user("updatePassword"));
+    let conn;
+    try {
+      conn = await getConnection();
+      await conn.execute("UPDATE users SET password = ? WHERE id = ?", [
+        password,
+        userId,
+      ]);
+    } catch (error) {
+      throwError(error).user("updatePassword");
+    } finally {
+      db.releaseConnection(conn!);
+    }
   }
 
   async delete(userId: number) {
-    await db
-      .execute("DELETE FROM users WHERE id = ?", [userId])
-      .catch((error) => throwError(error).user("delete"));
+    let conn;
+    try {
+      conn = await getConnection();
+      await conn.execute("DELETE FROM users WHERE id = ?", [userId]);
+    } catch (error) {
+      throwError(error).user("delete");
+    } finally {
+      db.releaseConnection(conn!);
+    }
   }
 }

@@ -6,7 +6,7 @@ import {
   UserRepMethod,
 } from "../__dwitter__.d.ts/exception/data";
 
-const throwErrorOfRepository = (error: Error) => {
+const throwErrorOfRepository = (error: Error | unknown) => {
   const throwError = (title: KindOfRepository, method: string) => {
     throw `${title}.${method} ##\n ${error}`;
   };

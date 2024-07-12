@@ -81,8 +81,9 @@ app.use((err: Error | unknown, res: Response) => {
 });
 
 db.getConnection()
-  .then(() => {
+  .then((conn) => {
     console.log("Success connect with DB");
+    db.releaseConnection(conn);
     const server = app.listen(config.port, () =>
       console.log(`Server listening on port ${config.port}`)
     );

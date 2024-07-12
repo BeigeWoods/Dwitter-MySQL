@@ -1,6 +1,55 @@
 import db from "../../db/database";
 import UserRepository from "../user";
 
+describe("Connection and Disconnection", () => {
+  afterAll(async () => {
+    try {
+      await db.end().then(() => console.log("DB disconnected"));
+    } catch (err) {
+      console.error("Failed disconnection\n", err);
+    }
+  });
+
+  test("return a result sorted out", async () => {
+    const getUser = async () => {
+      let conn;
+      try {
+        conn = await db.getConnection();
+        const [result]: any[] = await conn.query("SELECT * from users");
+        return result[0];
+      } catch (error: any) {
+        expect(error.message).toBe([]);
+      } finally {
+        db.releaseConnection(conn!);
+      }
+    };
+    const x = await getUser();
+
+    expect(x).not.toBeUndefined();
+  });
+
+  test("return query statement", async () => {
+    const getUser = async () => {
+      let conn;
+      try {
+        conn = await db.getConnection();
+        return conn
+          .execute("SELECT * FROM users WHERE id = ?", ["userId"])
+          .then((result) => result[0]);
+      } catch (error: any) {
+        expect(error.message).toBe(
+          "Truncated incorrect INTEGER value: 'userId'"
+        );
+      } finally {
+        db.releaseConnection(conn!);
+      }
+    };
+    const x = await getUser();
+
+    expect(x).not.toBeUndefined();
+  });
+});
+
 describe("UserRepository", () => {
   const userRepository = new UserRepository();
   const errorCallback = jest.fn((err: any) => err);
@@ -21,7 +70,7 @@ describe("UserRepository", () => {
     }
   });
 
-  describe("createUser", () => {
+  describe("create", () => {
     let sql =
       "INSERT INTO users(username, password, name, email, url, socialLogin) VALUES (?, ?, ?, ?, ?, ?)";
     const user = ["smith", "123", "smith", "@", "", true];
@@ -75,7 +124,7 @@ describe("UserRepository", () => {
     });
   });
 
-  describe("getUser", () => {
+  describe("getById", () => {
     test("succeeds to get user by userId", async () => {
       await db
         .execute("SELECT * FROM users WHERE id = ?", [userId])
@@ -118,7 +167,7 @@ describe("UserRepository", () => {
     });
   });
 
-  describe("updateUser", () => {
+  describe("update", () => {
     test("returns error when null is provided", async () => {
       await db
         .execute("UPDATE users SET username = ? WHERE id = ?", [null, userId])
@@ -139,7 +188,7 @@ describe("UserRepository", () => {
         .catch((error) => expect(error.message).toBe([]));
     });
 
-    test("userRepository.updateUser : returns 'mr.smith' when 'mr.smith' is provided", async () => {
+    test("userRepository.update : returns 'mr.smith' when 'mr.smith' is provided", async () => {
       const user = {
         username: "mr.smith",
         name: "",
@@ -148,7 +197,7 @@ describe("UserRepository", () => {
       };
 
       await userRepository
-        .updateUser(userId, user)
+        .update(userId, user)
         .catch((error) => expect(error?.message).toBe([]));
 
       await db
@@ -169,7 +218,7 @@ describe("UserRepository", () => {
     });
   });
 
-  describe("deleteUser", () => {
+  describe("delete", () => {
     let sql = "DELETE FROM users WHERE id = ?";
 
     test("returns error by wrong type of data", async () => {
