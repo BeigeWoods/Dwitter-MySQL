@@ -1,33 +1,33 @@
-declare type CommentData = {
+export declare type OutputComment = {
   id: string;
   text: string;
   good: number;
   tweetId: string;
   userId: number;
-  createdAt: object;
-  updatedAt: object;
+  createdAt: typeof Date;
+  updatedAt: typeof Date;
 };
 
-export declare interface CommentDataHandler {
-  getAll(tweetId: string, userId: number): Promise<CommentData[] | void>;
+declare interface CommentDataHandler {
+  getAll(tweetId: string, userId: number): Promise<OutputComment[] | void>;
   getById(
     tweetId: string,
     commentId: string,
     userId: number
-  ): Promise<CommentData | void>;
+  ): Promise<OutputComment | void>;
   create(
     userId: number,
     tweetId: string,
     text: string,
     recipient?: string
-  ): Promise<CommentData | void>;
+  ): Promise<OutputComment | void>;
   createReply(commentId: string, username: string): Promise<unknown[] | void>;
   update(
     tweetId: string,
     commentId: string,
     userId: number,
     text: string
-  ): Promise<CommentData | void>;
+  ): Promise<OutputComment | void>;
   updateGood(id: string, good: number): Promise<void>;
   delete(commentId: string): Promise<void>;
 }
@@ -40,18 +40,18 @@ export declare class CommentRepository implements CommentDataHandler {
 
   constructor();
 
-  getAll: (tweetId: string, userId: number) => Promise<CommentData[] | void>;
+  getAll: (tweetId: string, userId: number) => Promise<OutputComment[] | void>;
   getById: (
     tweetId: string,
     commentId: string,
     userId: number
-  ) => Promise<CommentData | void>;
+  ) => Promise<OutputComment | void>;
   create: (
     userId: number,
     tweetId: string,
     text: string,
     recipient?: string
-  ) => Promise<CommentData | void>;
+  ) => Promise<OutputComment | void>;
   createReply: (
     commentId: string,
     username: string
@@ -61,7 +61,9 @@ export declare class CommentRepository implements CommentDataHandler {
     commentId: string,
     userId: number,
     text: string
-  ) => Promise<CommentData | void>;
+  ) => Promise<OutputComment | void>;
   updateGood(commentId: string, good: number): Promise<void>;
   delete: (commentId: string) => Promise<void>;
 }
+
+export default CommentDataHandler;

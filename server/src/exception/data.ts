@@ -1,9 +1,8 @@
-import {
-  CommentRepMethod,
+import CommentDataHandler from "../__dwitter__.d.ts/data/comments";
+import TweetDataHandler from "../__dwitter__.d.ts/data/tweet";
+import UserDataHandler from "../__dwitter__.d.ts/data/user";
+import KindOfRepository, {
   GoodDBMethod,
-  KindOfRepository,
-  TweetRepMethod,
-  UserRepMethod,
 } from "../__dwitter__.d.ts/exception/data";
 
 const throwErrorOfRepository = (error: Error | unknown) => {
@@ -12,9 +11,11 @@ const throwErrorOfRepository = (error: Error | unknown) => {
   };
 
   return {
-    user: (method: UserRepMethod) => throwError("userRepository", method),
-    tweet: (method: TweetRepMethod) => throwError("tweetRepository", method),
-    comment: (method: CommentRepMethod) =>
+    user: (method: keyof UserDataHandler) =>
+      throwError("userRepository", method),
+    tweet: (method: keyof TweetDataHandler) =>
+      throwError("tweetRepository", method),
+    comment: (method: keyof CommentDataHandler) =>
       throwError("commentRepository", method),
     good: {
       tweet: (method: GoodDBMethod) =>

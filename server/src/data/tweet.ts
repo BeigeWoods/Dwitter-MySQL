@@ -1,9 +1,8 @@
 import db, { getConnection } from "../db/database.js";
 import throwError from "../exception/data.js";
-import {
-  InputTweetContents,
+import TweetDataHandler, {
+  InputTweet,
   OutputTweet,
-  TweetDataHandler,
 } from "../__dwitter__.d.ts/data/tweet";
 
 export default class TweetRepository implements TweetDataHandler {
@@ -19,7 +18,7 @@ export default class TweetRepository implements TweetDataHandler {
 
   constructor() {}
 
-  private handleUpdateQuery(tweetContents: InputTweetContents) {
+  private handleUpdateQuery(tweetContents: InputTweet) {
     const { text, video, image } = tweetContents;
     let result = "";
     if (text) result += " text = ?,";
@@ -28,7 +27,7 @@ export default class TweetRepository implements TweetDataHandler {
     return result?.trim();
   }
 
-  private handleUpdateValues(tweetContents: InputTweetContents) {
+  private handleUpdateValues(tweetContents: InputTweet) {
     const { text, video, image } = tweetContents;
     let result: string[] = [];
     text && result.push(text);
@@ -44,7 +43,7 @@ export default class TweetRepository implements TweetDataHandler {
       return await conn
         .execute(
           `${this.Select_Feild} FROM (${this.With_User} WHERE T.userId = U.id) J \
-            ${this.With_Good} ${this.Order_By}`,
+          ${this.With_Good} ${this.Order_By}`,
           [userId]
         )
         .then((result) => result[0] as OutputTweet[]);
@@ -62,7 +61,7 @@ export default class TweetRepository implements TweetDataHandler {
       return await conn
         .execute(
           `${this.Select_Feild} FROM (${this.With_User} WHERE T.userId = U.id AND U.username = ?) J \
-            ${this.With_Good} ${this.Order_By}`,
+          ${this.With_Good} ${this.Order_By}`,
           [username, userId]
         )
         .then((result) => result[0] as OutputTweet[]);
@@ -80,7 +79,7 @@ export default class TweetRepository implements TweetDataHandler {
       return await conn
         .execute(
           `${this.Select_Feild} FROM (${this.With_User} WHERE T.userId = U.id AND T.id = ?) J \
-            ${this.With_Good} ${this.Order_By}`,
+          ${this.With_Good} ${this.Order_By}`,
           [tweetId, userId]
         )
         .then((result: any[]) => result[0][0] as OutputTweet);
@@ -91,14 +90,14 @@ export default class TweetRepository implements TweetDataHandler {
     }
   }
 
-  async create(userId: number, tweetContents: InputTweetContents) {
+  async create(userId: number, tweetContents: InputTweet) {
     let conn;
     try {
       conn = await getConnection();
       return await conn
         .execute(
           "INSERT INTO tweets(text, video, image, good, userId, createdAt, updatedAt) \
-            VALUES(?, ?, ?, ?, ?, ?, ?)",
+          VALUES(?, ?, ?, ?, ?, ?, ?)",
           [
             tweetContents.text,
             tweetContents.video,
@@ -120,11 +119,7 @@ export default class TweetRepository implements TweetDataHandler {
     }
   }
 
-  async update(
-    tweetId: string,
-    userId: number,
-    tweetContents: InputTweetContents
-  ) {
+  async update(tweetId: string, userId: number, tweetContents: InputTweet) {
     let conn;
     try {
       conn = await getConnection();

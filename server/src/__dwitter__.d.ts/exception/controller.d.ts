@@ -1,3 +1,9 @@
+import AuthHandler from "../controller/auth/auth";
+import GithubOauthHandler from "../controller/auth/oauth";
+import CommentHandler from "../controller/comments";
+import GoodHandler from "../controller/good";
+import TweetDataHandler from "../data/tweet";
+
 export type KindOfController =
   | "authController"
   | "oauthController"
@@ -5,25 +11,15 @@ export type KindOfController =
   | "commentController"
   | "goodController";
 
-type AboutUserCont = "signup" | "login";
 type Bcrypt = "bcrypt.hash" | "bcrypt.compare";
 
-type AuthContMethod =
-  | AboutUserCont
-  | "updateUser"
-  | "updatePassword"
-  | "withdrawal";
+type AuthContMethod = keyof AuthHandler;
 type AuthContSubtitle = Bcrypt | "isDuplicateEmailOrUsername";
 type AuthCont = [AuthContMethod, AuthContSubtitle];
 
-type OAuthContMethod = "githubStart" | "githubFinish";
-type OAuthContSubtitle = Bcrypt | AboutUserCont | "getUser" | "getToken";
+type OAuthContMethod = keyof GithubOauthHandler;
+type OAuthContSubtitle = Bcrypt | "signup" | "login" | "getUser" | "getToken";
 type OAuthCont = [OAuthContMethod, OAuthContSubtitle];
-
-type ContentContCRUD = "getAll" | "create" | "update" | "delete";
-
-type TweetContMethod = ContentContCRUD | "getById";
-type GoodContentCont = "tweet" | "comment";
 
 export type objectToThrowErrorOfCont = {
   auth: (
@@ -37,17 +33,17 @@ export type objectToThrowErrorOfCont = {
     fromOwn?: boolean
   ) => never;
   tweet: (
-    option: TweetContMethod,
+    option: keyof TweetDataHandler,
     exception: Error | string,
     fromOwn?: boolean
   ) => never;
   comment: (
-    option: ContentContCRUD,
+    option: keyof CommentHandler,
     exception: Error | string,
     fromOwn?: boolean
   ) => never;
   good: (
-    option: GoodContentCont,
+    option: keyof GoodHandler,
     exception: Error | string,
     fromOwn?: boolean
   ) => never;
@@ -60,7 +56,7 @@ export type objectToPrintMessageOfCont = {
     fromOwn?: boolean
   ) => string;
   good: (
-    option: GoodContentCont,
+    option: keyof GoodHandler,
     exception: Error | string,
     fromOwn?: boolean
   ) => string;

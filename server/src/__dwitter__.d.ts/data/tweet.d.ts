@@ -1,24 +1,22 @@
-import { UserProfile } from "./user";
+import { UserForTweet } from "./user";
 
-export declare type InputTweetContents = {
-  text?: string | null;
-  video?: string | null;
-  image?: string | null;
+export declare type InputTweet = {
+  text?: string;
+  video?: string;
+  image?: string;
 };
 
-declare type OutputTweet = UserProfile & {
-  id: number;
-  text: string;
-  video: string;
-  image: string;
-  createdAt: object;
-  updatedAt: object;
-  good: number;
-  clicked: number;
-  userId: number;
-};
+export declare type OutputTweet = UserForTweet &
+  Required<InputTweet> & {
+    id: number;
+    createdAt: typeof Date;
+    updatedAt: typeof Date;
+    good: number;
+    clicked: number;
+    userId: number;
+  };
 
-export declare interface TweetDataHandler {
+declare interface TweetDataHandler {
   getAll(userId: number): Promise<OutputTweet[] | void>;
   getAllByUsername(
     userId: number,
@@ -27,12 +25,12 @@ export declare interface TweetDataHandler {
   getById(tweetId: string, userId: number): Promise<OutputTweet | void>;
   create(
     userId: number,
-    tweetContents: InputTweetContents
+    tweetContents: InputTweet
   ): Promise<OutputTweet | void>;
   update(
     tweetId: string,
     userId: number,
-    tweetContents: InputTweetContents
+    tweetContents: InputTweet
   ): Promise<OutputTweet | void>;
   updateGood(tweetId: string, good: number): Promise<void>;
   delete(tweetId: string): Promise<void>;
@@ -46,8 +44,8 @@ export declare class TweetRepository implements TweetDataHandler {
 
   constructor();
 
-  private handleUpdateQuery(tweetContents: InputTweetContents): string;
-  private handleUpdateValues(tweetContents: InputTweetContents): string[];
+  private handleUpdateQuery(tweetContents: InputTweet): string;
+  private handleUpdateValues(tweetContents: InputTweet): string[];
   getAll: (userId: number) => Promise<OutputTweet[] | void>;
   getAllByUsername: (
     userId: number,
@@ -56,13 +54,15 @@ export declare class TweetRepository implements TweetDataHandler {
   getById: (tweetId: string, userId: number) => Promise<OutputTweet | void>;
   create: (
     userId: number,
-    tweetContents: InputTweetContents
+    tweetContents: InputTweet
   ) => Promise<OutputTweet | void>;
   update: (
     tweetId: string,
     userId: number,
-    tweetContents: InputTweetContents
+    tweetContents: InputTweet
   ) => Promise<OutputTweet | void>;
   updateGood(tweetId: string, good: number): Promise<void>;
   delete: (tweetId: string) => Promise<void>;
 }
+
+export default TweetDataHandler;

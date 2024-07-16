@@ -3,8 +3,8 @@ import { Request, Response } from "express";
 import { Server } from "socket.io";
 import { throwErrorOfController as throwError } from "../exception/controller.js";
 import CommentHandler from "../__dwitter__.d.ts/controller/comments";
-import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
-import { UserDataHandler, OutputUser } from "../__dwitter__.d.ts/data/user";
+import CommentDataHandler from "../__dwitter__.d.ts/data/comments";
+import UserDataHandler, { OutputUser } from "../__dwitter__.d.ts/data/user";
 
 export default class CommentController implements CommentHandler {
   constructor(

@@ -6,9 +6,12 @@ import {
   throwErrorOfController as throwError,
   printExceptionOfController as printException,
 } from "../../exception/controller.js";
+import GithubOauthHandler, {
+  IndexForFetchUsage,
+  ResorceOwner,
+} from "../../__dwitter__.d.ts/controller/auth/oauth";
 import TokenHandler from "../../__dwitter__.d.ts/controller/auth/token";
-import GithubOauthHandler from "../../__dwitter__.d.ts/controller/auth/oauth";
-import { UserDataHandler } from "../../__dwitter__.d.ts/data/user";
+import UserDataHandler from "../../__dwitter__.d.ts/data/user";
 import Config from "../../__dwitter__.d.ts/config";
 
 export default class OauthController implements GithubOauthHandler {
@@ -18,20 +21,20 @@ export default class OauthController implements GithubOauthHandler {
     private userRepository: UserDataHandler
   ) {}
 
-  private setErrorMessage = async (res: Response) => {
+  private async setErrorMessage(res: Response) {
     const options: CookieOptions = {
       sameSite: "none",
       secure: true,
     };
     return res.cookie("oauth", "Github login is failed", options);
-  };
+  }
 
-  private fetch = async (
-    index: "token" | "user" | "email",
+  private async fetch(
+    index: IndexForFetchUsage,
     url: string,
-    reqOption: object
-  ) =>
-    await new Promise((resolve, reject) => {
+    reqOption: https.RequestOptions
+  ) {
+    return await new Promise((resolve, reject) => {
       const req = https
         .request(url, reqOption, (res) => {
           let body = "";
@@ -49,7 +52,7 @@ export default class OauthController implements GithubOauthHandler {
                   case "user":
                     return resolve(result);
                   case "email":
-                    return resolve(result[0]);
+                    return resolve(result[0].email);
                 }
               else return reject(`Doesn't exist ${index} in ${result}`);
             });
@@ -57,14 +60,19 @@ export default class OauthController implements GithubOauthHandler {
         .on("error", reject);
       req.end();
     });
+  }
 
-  private signup = async (owner: any, email: any, exist: boolean) => {
+  private signup = async (
+    owner: ResorceOwner,
+    email: string,
+    exist: boolean
+  ) => {
     const userId = (await this.userRepository
       .create({
         username: exist ? `${owner.login}_github` : owner.login,
         password: "",
         name: owner.name,
-        email: email.email,
+        email: email,
         url: owner.avatar_url,
         socialLogin: true,
       })
@@ -78,10 +86,10 @@ export default class OauthController implements GithubOauthHandler {
     };
   };
 
-  private login = async (owner: any, email: any) => {
+  private login = async (owner: ResorceOwner, email: string) => {
     const user = await Promise.all([
       await this.userRepository.findByUsername(owner.login),
-      await this.userRepository.findByEmail(email.email),
+      await this.userRepository.findByEmail(email),
     ]).catch((error) => throwError.oauth(["githubFinish", "login"], error));
 
     return user[1]
@@ -103,8 +111,8 @@ export default class OauthController implements GithubOauthHandler {
     };
 
     return await Promise.all([
-      await this.fetch("user", `${apiUrl}/user`, reqOption),
-      await this.fetch("email", `${apiUrl}/user/emails`, reqOption),
+      (await this.fetch("user", `${apiUrl}/user`, reqOption)) as ResorceOwner,
+      (await this.fetch("email", `${apiUrl}/user/emails`, reqOption)) as string,
     ]);
   };
 
@@ -124,7 +132,11 @@ export default class OauthController implements GithubOauthHandler {
       },
     };
 
-    return await this.fetch("token", `${baseUrl}?${params}`, reqOption);
+    return (await this.fetch(
+      "token",
+      `${baseUrl}?${params}`,
+      reqOption
+    )) as string;
   };
 
   githubStart = async (req: Request, res: Response) => {
@@ -138,7 +150,7 @@ export default class OauthController implements GithubOauthHandler {
       client_id: this.config.oauth.github.clientId,
       allow_signup: "false",
       scope: "read:user user:email",
-      state: state!,
+      state,
     };
     const params = new URLSearchParams(option).toString();
 
@@ -146,7 +158,7 @@ export default class OauthController implements GithubOauthHandler {
   };
 
   githubFinish = async (req: Request, res: Response) => {
-    let token: unknown;
+    let token;
     if (req.query) {
       const validate = await bcrypt
         .compare(this.config.oauth.state.plain, req.query.state as string)
@@ -175,13 +187,13 @@ export default class OauthController implements GithubOauthHandler {
         );
     }
 
-    const owner = token
-      ? await this.getUser(token).catch((error) =>
-          console.error(
-            printException.oauth(["githubFinish", "getUser"], error, true)
-          )
+    const owner =
+      token &&
+      (await this.getUser(token).catch((error) =>
+        console.error(
+          printException.oauth(["githubFinish", "getUser"], error, true)
         )
-      : false;
+      ));
     if (owner)
       await this.login(owner[0], owner[1])
         .then((user) => this.tokenController.setToken(res, user.token))

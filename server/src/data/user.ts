@@ -1,16 +1,15 @@
 import db, { getConnection } from "../db/database.js";
 import throwError from "../exception/data.js";
-import {
-  InputUserInfo,
-  InputUserProf,
+import UserDataHandler, {
+  UserForCreate,
+  UserForUpdate,
   OutputUser,
-  UserDataHandler,
 } from "../__dwitter__.d.ts/data/user";
 
 export default class UserRepository implements UserDataHandler {
   constructor() {}
 
-  private handleUpdateQuery(user: InputUserProf) {
+  private handleUpdateQuery(user: UserForUpdate) {
     const { username, name, email, url } = user;
     let result = "";
     if (username) result += " username = ?,";
@@ -20,7 +19,7 @@ export default class UserRepository implements UserDataHandler {
     return result?.trim();
   }
 
-  private handleUpdateValues(user: InputUserProf) {
+  private handleUpdateValues(user: UserForUpdate) {
     const { username, name, email, url } = user;
     let result: string[] = [];
     username && result.push(username);
@@ -72,14 +71,14 @@ export default class UserRepository implements UserDataHandler {
     }
   }
 
-  async create(user: InputUserInfo) {
+  async create(user: UserForCreate) {
     let conn;
     try {
       conn = await getConnection();
       return await conn
         .execute(
           "INSERT INTO users(username, password, name, email, url, socialLogin) \
-       VALUES (?, ?, ?, ?, ?, ?)",
+          VALUES (?, ?, ?, ?, ?, ?)",
           [
             user.username,
             user.password,
@@ -97,7 +96,7 @@ export default class UserRepository implements UserDataHandler {
     }
   }
 
-  async update(userId: number, user: InputUserProf) {
+  async update(userId: number, user: UserForUpdate) {
     let conn;
     try {
       conn = await getConnection();

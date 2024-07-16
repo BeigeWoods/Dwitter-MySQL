@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 import awsS3 from "../middleware/awsS3.js";
 import { throwErrorOfController as throwError } from "../exception/controller.js";
 import TweetHandler from "../__dwitter__.d.ts/controller/tweet";
-import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
+import TweetDataHandler from "../__dwitter__.d.ts/data/tweet";
 
 export default class TweetController implements TweetHandler {
   private readonly urlRegex =

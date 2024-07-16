@@ -5,9 +5,9 @@ import {
   printExceptionOfController as printException,
 } from "../exception/controller.js";
 import GoodHandler from "../__dwitter__.d.ts/controller/good";
-import { TweetDataHandler } from "../__dwitter__.d.ts/data/tweet";
+import TweetDataHandler from "../__dwitter__.d.ts/data/tweet";
 import GoodDataHandler from "../__dwitter__.d.ts/data/good";
-import { CommentDataHandler } from "../__dwitter__.d.ts/data/comments";
+import CommentDataHandler from "../__dwitter__.d.ts/data/comments";
 
 export default class GoodController implements GoodHandler {
   constructor(

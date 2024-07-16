@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import Config from "../../config";
-import { UserDataHandler } from "../../data/user";
+import UserDataHandler from "../../data/user";
 import TokenHandler from "./token";
 
-declare interface AuthDataHandler {
+declare interface AuthHandler {
   signup(
     req: Request,
     res: Response
@@ -35,7 +35,7 @@ declare interface AuthDataHandler {
   ): Promise<Response<any, Record<string, any>> | void>;
 }
 
-export declare class AuthController implements AuthDataHandler {
+export declare class AuthController implements AuthHandler {
   private readonly config;
   private userRepository;
   private tokenController;
@@ -84,4 +84,4 @@ export declare class AuthController implements AuthDataHandler {
   ) => Promise<Response<any, Record<string, any>> | void>;
 }
 
-export default AuthDataHandler;
+export default AuthHandler;

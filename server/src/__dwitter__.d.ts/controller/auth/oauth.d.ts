@@ -1,12 +1,20 @@
 import { Request, Response } from "express";
 import Config from "../../config";
 import TokenHandler from "./token";
-import { UserDataHandler } from "../../data/user";
+import UserDataHandler from "../../data/user";
 
 export type UserForToken = {
   token: string;
   username: string;
 };
+
+export type ResorceOwner = {
+  login: string;
+  name: string;
+  avatar_url: string;
+};
+
+export type IndexForFetchUsage = "token" | "user" | "email";
 
 declare interface GithubOauthHandler {
   githubStart(
@@ -32,10 +40,10 @@ export declare class OauthController implements GithubOauthHandler {
 
   private setErrorMessage(res: Response): Response<any, Record<string, any>>;
   private fetch(
-    index: "token" | "user" | "email",
+    index: IndexForFetchUsage,
     url: string,
-    reqOption: object
-  ): Promise<unknown>;
+    reqOption: ResorceOwner
+  ): Promise<string | ResorceOwner>;
   private signup(
     owner: any,
     email: any,

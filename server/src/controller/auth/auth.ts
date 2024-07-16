@@ -3,12 +3,11 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { throwErrorOfController as throwError } from "../../exception/controller.js";
 import AuthDataHandler from "../../__dwitter__.d.ts/controller/auth/auth";
-import {
-  InputUserInfo,
-  InputUserProf,
+import UserDataHandler, {
+  UserForCreate,
+  UserForUpdate,
   OutputUser,
-  PasswordInfo,
-  UserDataHandler,
+  Password,
 } from "../../__dwitter__.d.ts/data/user";
 import TokenHandler from "../../__dwitter__.d.ts/controller/auth/token";
 import Config from "../../__dwitter__.d.ts/config";
@@ -30,7 +29,7 @@ export default class AuthController implements AuthDataHandler {
   }
 
   signup = async (req: Request, res: Response) => {
-    const { username, password, name, email, url }: InputUserInfo = req.body;
+    const { username, password, name, email, url }: UserForCreate = req.body;
 
     const isDuplicate = await this.isDuplicateEmailOrUsername(
       email,
@@ -64,7 +63,7 @@ export default class AuthController implements AuthDataHandler {
   };
 
   login = async (req: Request, res: Response) => {
-    const { username, password }: InputUserInfo = req.body;
+    const { username, password }: UserForCreate = req.body;
     const user = await this.userRepository
       .findByUsername(username)
       .catch((error) => throwError.auth("login", error));
@@ -104,7 +103,7 @@ export default class AuthController implements AuthDataHandler {
   };
 
   updateUser = async (req: Request, res: Response) => {
-    const { username, name, email, url }: InputUserProf = req.body;
+    const { username, name, email, url }: UserForUpdate = req.body;
     const isDuplicate = await this.isDuplicateEmailOrUsername(
       email!,
       username!
@@ -126,7 +125,7 @@ export default class AuthController implements AuthDataHandler {
   };
 
   updatePassword = async (req: Request, res: Response) => {
-    const { password, newPassword, checkPassword }: PasswordInfo = req.body;
+    const { password, newPassword, checkPassword }: Password = req.body;
     if (req.user!.socialLogin) return res.sendStatus(403);
 
     if (password === newPassword)

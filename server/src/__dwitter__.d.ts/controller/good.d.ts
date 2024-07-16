@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import GoodDataHandler from "../data/good";
-import { TweetDataHandler } from "../data/tweet";
-import { CommentDataHandler } from "../data/comments";
+import TweetDataHandler from "../data/tweet";
+import CommentDataHandler from "../data/comments";
 
 declare interface GoodHandler {
   tweet(

@@ -1,4 +1,4 @@
-import { TweetDataHandler } from "../data/tweet";
+import TweetDataHandler from "../data/tweet";
 import { Request, Response } from "express";
 import { Server } from "socket.io";
 

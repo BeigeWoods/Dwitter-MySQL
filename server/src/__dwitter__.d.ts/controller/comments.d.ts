@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CommentDataHandler } from "../data/comments";
+import CommentDataHandler from "../data/comments";
 
 declare interface CommentHandler {
   getAll(

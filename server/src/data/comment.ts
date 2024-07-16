@@ -1,8 +1,7 @@
 import db, { getConnection } from "../db/database.js";
 import throwError from "../exception/data.js";
-import {
-  CommentData,
-  CommentDataHandler,
+import CommentDataHandler, {
+  OutputComment,
 } from "../__dwitter__.d.ts/data/comments";
 
 export default class CommentRepository implements CommentDataHandler {
@@ -29,7 +28,7 @@ export default class CommentRepository implements CommentDataHandler {
           ${this.With_Good} ${this.Order_By}`,
           [tweetId, userId]
         )
-        .then((result) => result[0] as CommentData[]);
+        .then((result) => result[0] as OutputComment[]);
     } catch (error) {
       throwError(error).comment("getAll");
     } finally {
@@ -44,10 +43,10 @@ export default class CommentRepository implements CommentDataHandler {
       return await conn
         .execute(
           `${this.Select_Feild} FROM (${this.With_User_Reply} WHERE C.id = ? AND tweetId = ?) J \
-        ${this.With_Good} ${this.Order_By}`,
+          ${this.With_Good} ${this.Order_By}`,
           [commentId, tweetId, userId]
         )
-        .then((result: any) => result[0][0] as CommentData);
+        .then((result: any) => result[0][0] as OutputComment);
     } catch (error) {
       throwError(error).comment("getById");
     } finally {

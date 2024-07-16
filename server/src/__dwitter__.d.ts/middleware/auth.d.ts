@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import Config from "../config";
-import { UserDataHandler } from "../data/user";
+import UserDataHandler from "../data/user";
 
 declare interface AuthValidateHandler {
   isAuth(
