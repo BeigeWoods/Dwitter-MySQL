@@ -1,16 +1,14 @@
 import "express-async-errors";
 import { CookieOptions, Request, Response } from "express";
-import fetch from "node-fetch";
+import https from "node:https";
 import bcrypt from "bcrypt";
 import {
   throwErrorOfController as throwError,
   printExceptionOfController as printException,
 } from "../../exception/controller.js";
 import TokenHandler from "../../__dwitter__.d.ts/controller/auth/token";
-import GithubOauthHandler, {
-  UserForToken,
-} from "../../__dwitter__.d.ts/controller/auth/oauth";
-import { OutputUser, UserDataHandler } from "../../__dwitter__.d.ts/data/user";
+import GithubOauthHandler from "../../__dwitter__.d.ts/controller/auth/oauth";
+import { UserDataHandler } from "../../__dwitter__.d.ts/data/user";
 import Config from "../../__dwitter__.d.ts/config";
 
 export default class OauthController implements GithubOauthHandler {
@@ -20,119 +18,116 @@ export default class OauthController implements GithubOauthHandler {
     private userRepository: UserDataHandler
   ) {}
 
-  private setErrorMessage(res: Response) {
+  private setErrorMessage = async (res: Response) => {
     const options: CookieOptions = {
       sameSite: "none",
       secure: true,
     };
     return res.cookie("oauth", "Github login is failed", options);
-  }
+  };
 
-  private async signup(owner: any, email: any, exist: boolean) {
+  private fetch = async (
+    index: "token" | "user" | "email",
+    url: string,
+    reqOption: object
+  ) =>
+    await new Promise((resolve, reject) => {
+      const req = https
+        .request(url, reqOption, (res) => {
+          let body = "";
+          res
+            .on("data", (chunk) => (body += chunk))
+            .on("end", () => {
+              if (res.statusCode! < 200 || res.statusCode! >= 300)
+                return reject(new Error(body));
+
+              const result = JSON.parse(body);
+              if (result)
+                switch (index) {
+                  case "token":
+                    return resolve(result.access_token);
+                  case "user":
+                    return resolve(result);
+                  case "email":
+                    return resolve(result[0]);
+                }
+              else return reject(`Doesn't exist ${index} in ${result}`);
+            });
+        })
+        .on("error", reject);
+      req.end();
+    });
+
+  private signup = async (owner: any, email: any, exist: boolean) => {
     const userId = (await this.userRepository
       .create({
-        username: exist ? `${owner!.login}_github` : owner!.login,
+        username: exist ? `${owner.login}_github` : owner.login,
         password: "",
-        name: owner!.name,
-        email: email[0].email,
-        url: owner!.avatar_url,
+        name: owner.name,
+        email: email.email,
+        url: owner.avatar_url,
         socialLogin: true,
       })
       .catch((error) =>
-        printException.oauth(["githubFinish", "signup"], error)
+        throwError.oauth(["githubFinish", "signup"], error)
       )) as number;
 
     return {
       token: this.tokenController.createJwtToken(userId),
-      username: owner!.login as string,
+      username: owner.login as string,
     };
-  }
+  };
 
-  private async login(owner: any, email: any) {
-    const byUsername = (await this.userRepository
-      .findByUsername(owner!.login)
-      .catch((error) =>
-        throwError.oauth(["githubFinish", "login"], error)
-      )) as OutputUser;
-    const byEmail = (await this.userRepository
-      .findByEmail(email[0].email)
-      .catch((error) =>
-        throwError.oauth(["githubFinish", "login"], error)
-      )) as OutputUser;
+  private login = async (owner: any, email: any) => {
+    const user = await Promise.all([
+      await this.userRepository.findByUsername(owner.login),
+      await this.userRepository.findByEmail(email.email),
+    ]).catch((error) => throwError.oauth(["githubFinish", "login"], error));
 
-    return byEmail
+    return user[1]
       ? {
-          token: this.tokenController.createJwtToken(byEmail.id),
-          username: byEmail.username,
+          token: this.tokenController.createJwtToken(user[1].id),
+          username: user[1].username,
         }
-      : await this.signup(owner, email, byUsername ? true : false);
-  }
+      : await this.signup(owner, email, user[0] ? true : false);
+  };
 
-  protected async getUser(token: string) {
+  protected getUser = async (token: unknown) => {
     const apiUrl = "https://api.github.com";
+    const reqOption: https.RequestOptions = {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "user-agent": "Dwitter/1.0 (Macintosh; Intel Mac OS X 10_15_7)",
+      },
+    };
 
-    const result: any = await Promise.all([
-      await fetch(`${apiUrl}/user`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }).then((data) => data.json()),
-      await fetch(`${apiUrl}/user/emails`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }).then((data) => data.json()),
-    ]).catch((error) =>
-      throwError.oauth(
-        ["githubFinish", "getUser"],
-        `The problem of fetch\n ${error}`,
-        true
-      )
-    );
+    return await Promise.all([
+      await this.fetch("user", `${apiUrl}/user`, reqOption),
+      await this.fetch("email", `${apiUrl}/user/emails`, reqOption),
+    ]);
+  };
 
-    if (!result[0] || !result[1])
-      throwError.oauth(
-        ["githubFinish", "getUser"],
-        `Doesn't exist data in ${result}`,
-        true
-      );
-    return result;
-  }
-
-  protected async getToken(code: string) {
+  protected getToken = async (code: string) => {
     const baseUrl = "https://github.com/login/oauth/access_token";
-    const option = {
+    const urlOption = {
       client_id: this.config.oauth.github.clientId,
       client_secret: this.config.oauth.github.clientSecret,
       code,
     };
-    const params = new URLSearchParams(option).toString();
+    const params = new URLSearchParams(urlOption).toString();
 
-    const result: any = await fetch(`${baseUrl}?${params}`, {
+    const reqOption: https.RequestOptions = {
       method: "POST",
       headers: {
-        Accept: "application/json",
+        accept: "application/json",
       },
-    })
-      .then((data) => data.json())
-      .catch((error) =>
-        throwError.oauth(
-          ["githubFinish", "getToken"],
-          `The problem of fetch\n ${error}`,
-          true
-        )
-      );
+    };
 
-    if (!result || !result.access_token)
-      throwError.oauth(
-        ["githubFinish", "getToken"],
-        `Doesn't exist token in ${result}`,
-        true
-      );
-    return result.access_token;
-  }
+    return await this.fetch("token", `${baseUrl}?${params}`, reqOption);
+  };
 
-  async githubStart(req: Request, res: Response) {
+  githubStart = async (req: Request, res: Response) => {
     const baseUrl = "https://github.com/login/oauth/authorize";
     const state = await bcrypt
       .hash(this.config.oauth.state.plain, this.config.oauth.state.saltRounds)
@@ -148,11 +143,10 @@ export default class OauthController implements GithubOauthHandler {
     const params = new URLSearchParams(option).toString();
 
     return res.status(200).json(`${baseUrl}?${params}`);
-  }
+  };
 
-  async githubFinish(req: Request, res: Response) {
-    let token: string;
-    let isSuccess = true;
+  githubFinish = async (req: Request, res: Response) => {
+    let token: unknown;
     if (req.query) {
       const validate = await bcrypt
         .compare(this.config.oauth.state.plain, req.query.state as string)
@@ -165,8 +159,13 @@ export default class OauthController implements GithubOauthHandler {
             )
           )
         );
-      if (!validate) {
-        isSuccess = false;
+      if (validate)
+        token = await this.getToken(req.query.code as string).catch((error) =>
+          console.error(
+            printException.oauth(["githubFinish", "getToken"], error, true)
+          )
+        );
+      else
         console.warn(
           printException.oauth(
             "githubFinish",
@@ -174,31 +173,21 @@ export default class OauthController implements GithubOauthHandler {
             true
           )
         );
-      }
-      token =
-        isSuccess &&
-        (await this.getToken(req.query.code as string).catch((error) => {
-          isSuccess = false;
-          console.error(error);
-        }));
     }
 
-    const owner =
-      isSuccess &&
-      (await this.getUser(token!).catch((error) => {
-        isSuccess = false;
-        console.error(error);
-      }));
-    const user =
-      isSuccess &&
-      (await this.login(owner[0], owner[1]).catch((error) => {
-        isSuccess = false;
-        console.error(error);
-      }));
+    const owner = token
+      ? await this.getUser(token).catch((error) =>
+          console.error(
+            printException.oauth(["githubFinish", "getUser"], error, true)
+          )
+        )
+      : false;
+    if (owner)
+      await this.login(owner[0], owner[1])
+        .then((user) => this.tokenController.setToken(res, user.token))
+        .catch((error) => console.error(error));
+    else this.setErrorMessage(res);
 
-    isSuccess
-      ? this.tokenController.setToken(res, (user as UserForToken).token)
-      : this.setErrorMessage(res);
     return res.redirect(301, this.config.cors.allowedOrigin);
-  }
+  };
 }

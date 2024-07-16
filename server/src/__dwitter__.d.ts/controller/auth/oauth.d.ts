@@ -31,14 +31,19 @@ export declare class OauthController implements GithubOauthHandler {
   );
 
   private setErrorMessage(res: Response): Response<any, Record<string, any>>;
-  private signUp(
+  private fetch(
+    index: "token" | "user" | "email",
+    url: string,
+    reqOption: object
+  ): Promise<unknown>;
+  private signup(
     owner: any,
     email: any,
     exist: boolean
-  ): Promise<UserForToken | never>;
-  private login(owner: any, email: any): Promise<UserForToken | never>;
-  protected getUser(githubToken: string): Promise<unknown[] | never>;
-  protected getToken(code: string): Promise<string | never>;
+  ): Promise<UserForToken | void>;
+  private login(owner: any, email: any): Promise<UserForToken | void>;
+  protected getUser(githubToken: string): Promise<unknown[] | void>;
+  protected getToken(code: string): Promise<string | void>;
   githubStart: (
     req: Request,
     res: Response
