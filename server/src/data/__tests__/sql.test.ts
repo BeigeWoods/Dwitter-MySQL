@@ -192,7 +192,7 @@ describe("UserRepository", () => {
       const user = {
         username: "mr.smith",
         name: "",
-        email: null,
+        email: undefined,
         url: undefined,
       };
 

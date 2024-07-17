@@ -4,7 +4,7 @@ import {
   mockedGoodRepository,
   mockedTweetRepository,
   mockedCommentRepository,
-} from "../../__mocked__/repository";
+} from "../../__mocked__/handler";
 
 describe("GoodController", () => {
   const goodController = new GoodController(

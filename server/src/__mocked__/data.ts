@@ -21,8 +21,8 @@ export const mockTweet = {
     video,
     image,
     good: 1,
-    createdAt: {},
-    updatedAt: {},
+    createdAt: Date,
+    updatedAt: Date,
     clicked: 1,
     userId: 1,
   }),
@@ -55,8 +55,8 @@ export const mockComment = {
     good: 1,
     tweetId: "",
     userId: 1,
-    createdAt: {},
-    updatedAt: {},
+    createdAt: Date,
+    updatedAt: Date,
   },
   reqOptions: (
     commentId?: number,
@@ -75,10 +75,8 @@ export const mockOauth = {
     name: "smith",
     avatar_url: "https://",
   },
-  emailData: [{ email: "@" }],
-  reqOptions: (
-    code: "code" | "null" | "undefined" | "error"
-  ): httpMocks.RequestOptions => ({
-    query: { state: "state", code },
-  }),
+  emailData: "@",
+  reqOptions: {
+    query: { state: "state", code: "code" },
+  },
 };

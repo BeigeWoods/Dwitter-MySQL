@@ -5,7 +5,7 @@ import CommentController from "../comments";
 import {
   mockedCommentRepository,
   mockedUserRepository,
-} from "../../__mocked__/repository";
+} from "../../__mocked__/handler";
 import { mockComment, mockUser } from "../../__mocked__/data";
 
 describe("Comment Controller", () => {

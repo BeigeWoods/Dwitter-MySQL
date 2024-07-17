@@ -1,26 +1,29 @@
 import httpMocks from "node-mocks-http";
-import { NextFunction } from "express";
 import { hash, compare } from "bcrypt";
-import {
-  mockedOauthController,
-  mockedTokenController,
-} from "../../../__mocked__/controller";
+import OauthController from "../oauth";
+import config from "../../../config";
 import { mockOauth, mockUser } from "../../../__mocked__/data";
-import { mockedUserRepository } from "../../../__mocked__/repository";
+import {
+  mockedTokenController,
+  mockedUserRepository,
+} from "../../../__mocked__/handler";
 
 jest.mock("bcrypt");
+jest.mock("node:https");
 
 describe("OauthController", () => {
-  const oauthController = new mockedOauthController(
+  const oauthController = new OauthController(
+    config,
     mockedTokenController,
     mockedUserRepository
   );
   const hideMathods = {
     setErrorMessage: jest.spyOn(oauthController as any, "setErrorMessage"),
+    fetch: jest.spyOn(oauthController as any, "fetch"),
     getToken: jest.spyOn(oauthController as any, "getToken"),
     getUser: jest.spyOn(oauthController as any, "getUser"),
     login: jest.spyOn(oauthController as any, "login"),
-    signUp: jest.spyOn(oauthController as any, "signUp"),
+    signup: jest.spyOn(oauthController as any, "signup"),
   };
   const mockBcrypt = {
     hash: hash as jest.Mock,
@@ -28,7 +31,6 @@ describe("OauthController", () => {
   };
   let response: httpMocks.MockResponse<any>,
     request: httpMocks.MockRequest<any>,
-    next: jest.Mock<NextFunction>,
     error: jest.SpyInstance;
 
   beforeEach(() => {
@@ -38,23 +40,23 @@ describe("OauthController", () => {
 
   describe("githubStart", () => {
     test("success to respond", async () => {
-      request = httpMocks.createRequest();
       mockBcrypt.hash.mockResolvedValueOnce("hashed state");
 
-      await oauthController.githubStart(request, response, next);
+      await oauthController.githubStart(request, response);
 
       expect(response.statusCode).toBe(200);
       expect(typeof response._getJSONData()).toBe("string");
     });
 
     test("calls next function when hashing state is failed", async () => {
-      request = httpMocks.createRequest();
       mockBcrypt.hash.mockRejectedValueOnce("hash error");
 
       await oauthController
-        .githubStart(request, response, next)
+        .githubStart(request, response)
         .catch((error) =>
-          expect(error).toBe(`githubStart : hash by bcrypt\n hash error`)
+          expect(error).toBe(
+            `## oauthController.githubStart < bcrypt.hash ##\n hash error`
+          )
         );
     });
   });
@@ -62,7 +64,7 @@ describe("OauthController", () => {
   describe("githubFinish", () => {
     describe("validate the state", () => {
       beforeEach(() => {
-        request = httpMocks.createRequest(mockOauth.reqOptions("code"));
+        request = httpMocks.createRequest(mockOauth.reqOptions);
       });
 
       test("the OAuth will fail when validate is false", async () => {
@@ -72,12 +74,9 @@ describe("OauthController", () => {
         await oauthController.githubFinish(request, response);
 
         expect(warn).toHaveBeenCalledWith(
-          "githubFinish : state of github OAuth doesn't validate."
+          "## oauthController.githubFinish ##\n a state of query from Github doesn't validate."
         );
-        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(
-          response,
-          "error from validating the state"
-        );
+        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
 
       test("the OAuth will fail when bcrypt occur error", async () => {
@@ -86,123 +85,102 @@ describe("OauthController", () => {
         await oauthController.githubFinish(request, response);
 
         expect(error).toHaveBeenCalledWith(
-          "githubFinish : validate by bcrypt\n compare error"
+          "## oauthController.githubFinish < bcrypt.compare ##\n compare error"
         );
-        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(
-          response,
-          "error from validating the state"
-        );
+        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
     });
 
     describe("get access_token", () => {
       beforeEach(() => {
+        request = httpMocks.createRequest(mockOauth.reqOptions);
         mockBcrypt.compare.mockResolvedValueOnce(true);
       });
 
       test("occurs error when value of access_token doesn't exist", async () => {
-        request = httpMocks.createRequest(mockOauth.reqOptions("null"));
+        hideMathods.fetch.mockRejectedValueOnce("Doesn't exist token");
 
         await oauthController.githubFinish(request, response);
 
-        expect(hideMathods.getToken).toHaveBeenCalledWith("null");
+        expect(hideMathods.getToken).toHaveBeenCalledWith("code");
         expect(error).toHaveBeenCalledWith(
-          "githubFinish : getToken\n doesn't exist token"
+          "## oauthController.githubFinish < getToken ##\n Doesn't exist token"
         );
-        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(
-          response,
-          "error from get access_token"
-        );
-      });
-
-      test("occurs error when access_token is undefined", async () => {
-        request = httpMocks.createRequest(mockOauth.reqOptions("undefined"));
-
-        await oauthController.githubFinish(request, response);
-
-        expect(hideMathods.getToken).toHaveBeenCalledWith("undefined");
-        expect(error).toHaveBeenCalledWith(
-          "githubFinish : getToken\n doesn't exist token"
-        );
-        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(
-          response,
-          "error from get access_token"
-        );
+        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
 
       test("occurs error when github gets problem", async () => {
-        request = httpMocks.createRequest(mockOauth.reqOptions("error"));
+        hideMathods.fetch.mockRejectedValueOnce(new Error("Github error"));
 
         await oauthController.githubFinish(request, response);
 
-        expect(hideMathods.getToken).toHaveBeenCalledWith("error");
+        expect(hideMathods.getToken).toHaveBeenCalledWith("code");
         expect(error).toHaveBeenCalledWith(
-          "githubFinish : getToken\n the problem of github"
+          "## oauthController.githubFinish < getToken ##\n Error: Github error"
         );
-        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(
-          response,
-          "error from get access_token"
-        );
+        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
     });
 
     describe("get user from github", () => {
       beforeEach(() => {
-        request = httpMocks.createRequest(mockOauth.reqOptions("code"));
+        request = httpMocks.createRequest(mockOauth.reqOptions);
         mockBcrypt.compare.mockResolvedValueOnce(true);
+        hideMathods.getToken.mockResolvedValueOnce("token");
       });
 
       test("occurs error when value of owner's email doesn't exist", async () => {
-        hideMathods.getToken.mockResolvedValueOnce("undefined");
+        hideMathods.getUser.mockRejectedValueOnce("Doesn't exist email");
 
         await oauthController.githubFinish(request, response);
 
-        expect(hideMathods.getUser).toHaveBeenCalledWith("undefined");
+        expect(hideMathods.getUser).toHaveBeenCalledWith("token");
         expect(error).toHaveBeenCalledWith(
-          "githubFinish : getUser\n doesn't exist data"
+          "## oauthController.githubFinish < getUser ##\n Doesn't exist email"
         );
-        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(
-          response,
-          "error from get user"
-        );
+        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
 
-      test("occurs error when a problem occurs by getting owner", async () => {
-        hideMathods.getToken.mockResolvedValueOnce("error");
+      test("occurs error when github gets problem", async () => {
+        hideMathods.getUser.mockRejectedValueOnce(new Error("Github error"));
 
         await oauthController.githubFinish(request, response);
 
-        expect(hideMathods.getUser).toHaveBeenCalledWith("error");
+        expect(hideMathods.getUser).toHaveBeenCalledWith("token");
         expect(error).toHaveBeenCalledWith(
-          "githubFinish : getUser\n the problem of github"
+          "## oauthController.githubFinish < getUser ##\n Error: Github error"
         );
-        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(
-          response,
-          "error from get user"
-        );
+        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
     });
 
     describe("login", () => {
       beforeEach(() => {
-        request = httpMocks.createRequest(mockOauth.reqOptions("code"));
+        request = httpMocks.createRequest(mockOauth.reqOptions);
         mockBcrypt.compare.mockResolvedValueOnce(true);
-        hideMathods.getToken.mockResolvedValueOnce("all");
+        hideMathods.getToken.mockResolvedValueOnce("token");
+        hideMathods.getUser.mockResolvedValueOnce([
+          mockOauth.ownerData,
+          mockOauth.emailData,
+        ]);
       });
 
       test("occurs error when DB gets a problem by finding user", async () => {
-        mockedUserRepository.findByUsername.mockRejectedValueOnce("error");
+        mockedUserRepository.findByUsername.mockRejectedValueOnce(
+          "findByUsername error"
+        );
         mockedUserRepository.findByEmail.mockResolvedValueOnce(mockUser(1));
 
         await oauthController.githubFinish(request, response);
 
+        expect(hideMathods.login).toHaveBeenCalledWith(
+          mockOauth.ownerData,
+          mockOauth.emailData
+        );
         expect(error).toHaveBeenCalledWith(
-          "githubFinish : find user by username from login"
+          "## oauthController.githubFinish < login ##\n findByUsername error"
         );
-        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(
-          response,
-          "error from login"
-        );
+        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
 
       test("a user can find not by owner's username but by owner's email", async () => {
@@ -214,7 +192,7 @@ describe("OauthController", () => {
         expect(error).not.toHaveBeenCalled();
         expect(hideMathods.setErrorMessage).not.toHaveBeenCalled();
         expect(mockedTokenController.setToken).toHaveBeenCalled();
-        expect(hideMathods.signUp).not.toHaveBeenCalled();
+        expect(hideMathods.signup).not.toHaveBeenCalled();
       });
 
       test("a user can find by owner's username and by owner's email", async () => {
@@ -226,7 +204,7 @@ describe("OauthController", () => {
         expect(error).not.toHaveBeenCalled();
         expect(hideMathods.setErrorMessage).not.toHaveBeenCalled();
         expect(mockedTokenController.setToken).toHaveBeenCalled();
-        expect(hideMathods.signUp).not.toHaveBeenCalled();
+        expect(hideMathods.signup).not.toHaveBeenCalled();
       });
 
       test("a user can find by owner's username and by owner's email, but id doesn't match", async () => {
@@ -238,44 +216,47 @@ describe("OauthController", () => {
         expect(error).not.toHaveBeenCalled();
         expect(hideMathods.setErrorMessage).not.toHaveBeenCalled();
         expect(mockedTokenController.setToken).toHaveBeenCalled();
-        expect(hideMathods.signUp).not.toHaveBeenCalled();
+        expect(hideMathods.signup).not.toHaveBeenCalled();
       });
     });
 
-    describe.skip("signUp", () => {
+    describe("signup", () => {
       beforeEach(() => {
-        request = httpMocks.createRequest(mockOauth.reqOptions("code"));
+        request = httpMocks.createRequest(mockOauth.reqOptions);
         mockBcrypt.compare.mockResolvedValueOnce(true);
-        hideMathods.getToken.mockResolvedValueOnce("all");
+        hideMathods.getToken.mockResolvedValueOnce("token");
+        hideMathods.getUser.mockResolvedValueOnce([
+          mockOauth.ownerData,
+          mockOauth.emailData,
+        ]);
       });
 
-      test("occurs error when DB gets a problem by creating user from signUp", async () => {
+      test("occurs error when DB gets a problem by creating user from signup", async () => {
         mockedUserRepository.findByUsername.mockResolvedValueOnce(undefined);
         mockedUserRepository.findByEmail.mockResolvedValueOnce(undefined);
-        hideMathods.signUp.mockRejectedValueOnce("githubFinish : signUp");
+        mockedUserRepository.create.mockRejectedValueOnce("create error");
 
         await oauthController.githubFinish(request, response);
 
-        expect(hideMathods.signUp).toHaveBeenCalledWith(
+        expect(hideMathods.signup).toHaveBeenCalledWith(
           mockOauth.ownerData,
           mockOauth.emailData,
           false
         );
-        expect(error).toHaveBeenCalledWith("githubFinish : signUp");
-        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(
-          response,
-          "error from login"
+        expect(error).toHaveBeenCalledWith(
+          "## oauthController.githubFinish < signup ##\n create error"
         );
+        expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
 
       test("success", async () => {
         mockedUserRepository.findByUsername.mockResolvedValueOnce(mockUser(1));
         mockedUserRepository.findByEmail.mockResolvedValueOnce(undefined);
-        hideMathods.signUp.mockResolvedValueOnce({ token: "token" });
+        hideMathods.signup.mockResolvedValueOnce({ token: "token" });
 
         await oauthController.githubFinish(request, response);
 
-        expect(hideMathods.signUp).toHaveBeenCalledWith(
+        expect(hideMathods.signup).toHaveBeenCalledWith(
           mockOauth.ownerData,
           mockOauth.emailData,
           true
