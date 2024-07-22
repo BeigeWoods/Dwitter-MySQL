@@ -21,7 +21,6 @@ declare interface CommentDataHandler {
     text: string,
     recipient?: string
   ): Promise<OutputComment | void>;
-  createReply(commentId: string, username: string): Promise<unknown[] | void>;
   update(
     tweetId: string,
     commentId: string,
@@ -52,10 +51,6 @@ export declare class CommentRepository implements CommentDataHandler {
     text: string,
     recipient?: string
   ) => Promise<OutputComment | void>;
-  createReply: (
-    commentId: string,
-    username: string
-  ) => Promise<unknown[] | void>;
   update: (
     tweetId: string,
     commentId: string,

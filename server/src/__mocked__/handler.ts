@@ -29,21 +29,14 @@ export const mockedCommentRepository: jest.Mocked<CommentDataHandler> = {
   getAll: jest.fn(),
   getById: jest.fn(),
   create: jest.fn(),
-  createReply: jest.fn(),
   update: jest.fn(),
   updateGood: jest.fn(),
   delete: jest.fn(),
 };
 
 export const mockedGoodRepository: jest.Mocked<GoodDataHandler> = {
-  tweet: {
-    click: jest.fn(),
-    unClick: jest.fn(),
-  },
-  comment: {
-    click: jest.fn(),
-    unClick: jest.fn(),
-  },
+  click: jest.fn(),
+  unClick: jest.fn(),
 };
 
 export const mockedTokenController: jest.Mocked<TokenHandler> = {

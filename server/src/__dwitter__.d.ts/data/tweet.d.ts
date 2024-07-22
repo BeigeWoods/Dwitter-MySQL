@@ -22,7 +22,10 @@ declare interface TweetDataHandler {
     userId: number,
     username: string
   ): Promise<OutputTweet[] | void>;
-  getById(tweetId: string, userId: number): Promise<OutputTweet | void>;
+  getById(
+    tweetId: string | number,
+    userId: number
+  ): Promise<OutputTweet | void>;
   create(
     userId: number,
     tweetContents: InputTweet
@@ -51,13 +54,16 @@ export declare class TweetRepository implements TweetDataHandler {
     userId: number,
     username: string
   ) => Promise<OutputTweet[] | void>;
-  getById: (tweetId: string, userId: number) => Promise<OutputTweet | void>;
+  getById: (
+    tweetId: string | number,
+    userId: number
+  ) => Promise<OutputTweet | void>;
   create: (
     userId: number,
     tweetContents: InputTweet
   ) => Promise<OutputTweet | void>;
   update: (
-    tweetId: string,
+    tweetId: string | number,
     userId: number,
     tweetContents: InputTweet
   ) => Promise<OutputTweet | void>;

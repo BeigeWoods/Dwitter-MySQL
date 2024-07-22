@@ -13,7 +13,7 @@ import { initSocket, getSocketIO } from "./connection/socket.js";
 import csrfCheck from "./middleware/csrf.js";
 import TweetRepository from "./data/tweet.js";
 import TweetController from "./controller/tweet.js";
-import goodRepository from "./data/good.js";
+import GoodRepository from "./data/good.js";
 import GoodController from "./controller/good.js";
 import CommentRepository from "./data/comment.js";
 import CommentController from "./controller/comments.js";
@@ -24,7 +24,7 @@ import AuthController from "./controller/auth/auth.js";
 import OauthController from "./controller/auth/oauth.js";
 
 const app = express();
-const userRepository = new UserRepository();
+const userRepository = new UserRepository(db);
 const authValidator = new AuthValidator(config, userRepository);
 const tokenController = new TokenRepository(config);
 const authController = new AuthController(
@@ -37,14 +37,15 @@ const oauthController = new OauthController(
   tokenController,
   userRepository
 );
-const tweetRepository = new TweetRepository();
+const tweetRepository = new TweetRepository(db);
 const tweetController = new TweetController(tweetRepository, getSocketIO);
-const commentRepository = new CommentRepository();
+const commentRepository = new CommentRepository(db);
 const commentController = new CommentController(
   commentRepository,
   userRepository,
   getSocketIO
 );
+const goodRepository = new GoodRepository(db);
 const goodContoller = new GoodController(
   tweetRepository,
   commentRepository,
@@ -89,4 +90,4 @@ db.getConnection()
     );
     initSocket(server);
   })
-  .catch((err) => console.error("The problem of DB connection\n", err));
+  .catch(console.error);

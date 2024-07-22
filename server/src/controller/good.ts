@@ -30,13 +30,13 @@ export default class GoodController implements GoodHandler {
         return res.sendStatus(400);
       }
       good -= 1;
-      await this.goodRepository.tweet
-        .unClick(userId, tweetId)
+      await this.goodRepository
+        .unClick(userId, tweetId, true)
         .catch((error) => throwError.good("tweet", error));
     } else {
       good += 1;
-      await this.goodRepository.tweet
-        .click(userId, tweetId)
+      await this.goodRepository
+        .click(userId, tweetId, true)
         .catch((error) => throwError.good("tweet", error));
     }
     await this.tweetRepository
@@ -64,13 +64,13 @@ export default class GoodController implements GoodHandler {
         return res.sendStatus(400);
       }
       good -= 1;
-      await this.goodRepository.comment
-        .unClick(userId, commentId)
+      await this.goodRepository
+        .unClick(userId, commentId, false)
         .catch((error) => throwError.good("comment", error));
     } else {
       good += 1;
-      await this.goodRepository.comment
-        .click(userId, commentId)
+      await this.goodRepository
+        .click(userId, commentId, false)
         .catch((error) => throwError.good("comment", error));
     }
 

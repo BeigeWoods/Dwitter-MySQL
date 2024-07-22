@@ -1,68 +1,45 @@
-import db, { getConnection } from "../db/database.js";
 import throwError from "../exception/data.js";
 import GoodDataHandler from "../__dwitter__.d.ts/data/good";
+import DB from "../__dwitter__.d.ts/db/database";
 
-const goodRepository: GoodDataHandler = {
-  tweet: {
-    async click(userId: number, tweetId: string) {
-      let conn;
-      try {
-        conn = await getConnection();
-        await conn.execute(
-          "INSERT INTO goodTweets(userId, tweetId) VALUES(?, ?)",
-          [userId, tweetId]
-        );
-      } catch (error) {
-        throwError(error).good.tweet("click");
-      } finally {
-        db.releaseConnection(conn!);
-      }
-    },
-    async unClick(userId: number, tweetId: string) {
-      let conn;
-      try {
-        conn = await getConnection();
-        await conn.execute(
-          "DELETE FROM goodTweets WHERE userId = ? AND tweetId = ?",
-          [userId, tweetId]
-        );
-      } catch (error) {
-        throwError(error).good.tweet("unClick");
-      } finally {
-        db.releaseConnection(conn!);
-      }
-    },
-  },
-  comment: {
-    async click(userId: number, commentId: string) {
-      let conn;
-      try {
-        conn = await getConnection();
-        await conn.execute(
-          "INSERT INTO goodComments(userId, commentId) VALUES(?, ?)",
-          [userId, commentId]
-        );
-      } catch (error) {
-        throwError(error).good.comment("click");
-      } finally {
-        db.releaseConnection(conn!);
-      }
-    },
-    async unClick(userId: number, commentId: string) {
-      let conn;
-      try {
-        conn = await getConnection();
-        await conn.execute(
-          "DELETE FROM goodComments WHERE userId = ? AND commentId = ?",
-          [userId, commentId]
-        );
-      } catch (error) {
-        throwError(error).good.comment("unClick");
-      } finally {
-        db.releaseConnection(conn!);
-      }
-    },
-  },
-};
+export default class GoodRepository implements GoodDataHandler {
+  constructor(private readonly db: DB) {}
 
-export default goodRepository;
+  async click(userId: number, contentId: string, isTweet: boolean) {
+    let conn;
+    try {
+      conn = await this.db.getConnection();
+      await conn.execute(
+        isTweet
+          ? "INSERT INTO goodTweets(userId, tweetId) VALUES(?, ?)"
+          : "INSERT INTO goodComments(userId, commentId) VALUES(?, ?)",
+        [userId, contentId]
+      );
+    } catch (error) {
+      isTweet
+        ? throwError(error).good.tweet("click")
+        : throwError(error).good.comment("click");
+    } finally {
+      this.db.releaseConnection(conn!);
+    }
+  }
+
+  async unClick(userId: number, contentId: string, isTweet: boolean) {
+    let conn;
+    try {
+      conn = await this.db.getConnection();
+      await conn.execute(
+        isTweet
+          ? "DELETE FROM goodTweets WHERE userId = ? AND tweetId = ?"
+          : "DELETE FROM goodComments WHERE userId = ? AND commentId = ?",
+        [userId, contentId]
+      );
+    } catch (error) {
+      isTweet
+        ? throwError(error).good.tweet("unClick")
+        : throwError(error).good.comment("unClick");
+    } finally {
+      this.db.releaseConnection(conn!);
+    }
+  }
+}

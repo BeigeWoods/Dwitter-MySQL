@@ -1,12 +1,6 @@
 declare type GoodDataHandler = {
-  tweet: {
-    click(userId: number, tweetId: string): Promise<void>;
-    unClick(userId: number, tweetId: string): Promise<void>;
-  };
-  comment: {
-    click(userId: number, commentId: string): Promise<void>;
-    unClick(userId: number, commentId: string): Promise<void>;
-  };
+  click(userId: number, contentId: string, isTweet: boolean): Promise<void>;
+  unClick(userId: number, contentId: string, isTweet: boolean): Promise<void>;
 };
 
 export default GoodDataHandler;
