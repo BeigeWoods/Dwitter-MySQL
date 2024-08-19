@@ -61,10 +61,7 @@ function App({ tweetService, commentService }) {
             />
           </Route>
           <Route exact path="/my/change-password">
-            <ChangePassword
-              onChangePassword={changePassword}
-              toProfile={toProfile}
-            />
+            <ChangePassword onChangePassword={changePassword} />
           </Route>
         </>
         )

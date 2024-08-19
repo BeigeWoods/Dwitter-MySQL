@@ -19,9 +19,8 @@ const Comments = memo(({ tweetId, commentService, onError }) => {
     return () => stopSync();
   }, [commentService, user, tweetId, onError]);
 
-  const onCreated = (comment) => {
+  const onCreated = (comment) =>
     setComments((comments) => [comment, ...comments]);
-  };
 
   const onDelete = (tweetId, id) =>
     commentService

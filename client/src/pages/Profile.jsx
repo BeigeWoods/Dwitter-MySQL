@@ -51,9 +51,9 @@ const Profile = ({
 
   const onChange = (event) => {
     const {
-      target: { index, value },
+      target: { name, value },
     } = event;
-    switch (index) {
+    switch (name) {
       case "username":
         return setUsername(value !== user.username ? value : "");
       case "name":
@@ -67,6 +67,7 @@ const Profile = ({
   };
 
   const onError = (error) => {
+    console.log(error);
     setError(error.toString());
     setTimeout(() => {
       setError("");
@@ -75,7 +76,7 @@ const Profile = ({
 
   return (
     <>
-      <Banner text={error} />
+      <Banner error={error} />
       {user && (
         <>
           <Avatar url={user.url} name={user.name} isTweet={false} />
@@ -83,25 +84,17 @@ const Profile = ({
             <profile.Title>
               Username: <profile.Span>{user.username}</profile.Span>
             </profile.Title>
-            <authForm.Input
-              index="username"
-              type="username"
-              onChange={onChange}
-            />
+            <authForm.Input name="username" type="text" onChange={onChange} />
             {!user.socialLogin && (
               <>
                 <profile.Title>
                   Name: <profile.Span>{user.name}</profile.Span>
                 </profile.Title>
-                <authForm.Input index="name" type="name" onChange={onChange} />
+                <authForm.Input name="name" type="text" onChange={onChange} />
                 <profile.Title>
                   Email: <profile.Span>{user.email}</profile.Span>
                 </profile.Title>
-                <authForm.Input
-                  index="email"
-                  type="email"
-                  onChange={onChange}
-                />
+                <authForm.Input name="email" type="email" onChange={onChange} />
               </>
             )}
             <profile.Title>
@@ -112,7 +105,7 @@ const Profile = ({
                   : user.url}
               </profile.Span>
             </profile.Title>
-            <authForm.Input index="url" type="url" onChange={onChange} />
+            <authForm.Input name="url" type="url" onChange={onChange} />
             <authForm.Submit type="submit">Submit</authForm.Submit>
           </authForm.Form>
           {!user.socialLogin && (

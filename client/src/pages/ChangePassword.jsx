@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Banner from "../components/Banner";
 import { authForm } from "../css/forms";
 
-const ChangePassword = ({ onChangePassword, toProfile }) => {
+const ChangePassword = ({ onChangePassword }) => {
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
@@ -10,9 +10,7 @@ const ChangePassword = ({ onChangePassword, toProfile }) => {
 
   const onSubmit = (event) => {
     event.preventDefault();
-    onChangePassword(password, newPassword, checkPassword)
-      .then(toProfile())
-      .catch(onError);
+    onChangePassword(password, newPassword, checkPassword).catch(onError);
   };
 
   const onChange = (event) => {
@@ -31,8 +29,8 @@ const ChangePassword = ({ onChangePassword, toProfile }) => {
     }
   };
 
-  const onError = (err) => {
-    setError(err.toString());
+  const onError = (error) => {
+    setError(error.toString());
     setTimeout(() => {
       setError("");
     }, 3000);
