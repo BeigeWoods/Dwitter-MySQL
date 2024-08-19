@@ -4,17 +4,12 @@ export declare type OutputComment = {
   good: number;
   tweetId: string;
   userId: number;
-  createdAt: typeof Date;
-  updatedAt: typeof Date;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 declare interface CommentDataHandler {
   getAll(tweetId: string, userId: number): Promise<OutputComment[] | void>;
-  getById(
-    tweetId: string,
-    commentId: string,
-    userId: number
-  ): Promise<OutputComment | void>;
   create(
     userId: number,
     tweetId: string,
@@ -36,15 +31,11 @@ export declare class CommentRepository implements CommentDataHandler {
   private readonly With_User_Reply: string;
   private readonly With_Good: string;
   private readonly Order_By: string;
+  private readonly Get_By_Id: string;
 
   constructor();
 
   getAll: (tweetId: string, userId: number) => Promise<OutputComment[] | void>;
-  getById: (
-    tweetId: string,
-    commentId: string,
-    userId: number
-  ) => Promise<OutputComment | void>;
   create: (
     userId: number,
     tweetId: string,

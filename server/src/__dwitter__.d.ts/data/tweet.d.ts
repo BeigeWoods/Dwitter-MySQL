@@ -9,8 +9,8 @@ export declare type InputTweet = {
 export declare type OutputTweet = UserForTweet &
   Required<InputTweet> & {
     id: number;
-    createdAt: typeof Date;
-    updatedAt: typeof Date;
+    createdAt: Date;
+    updatedAt: Date;
     good: number;
     clicked: number;
     userId: number;

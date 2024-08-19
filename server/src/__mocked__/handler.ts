@@ -27,7 +27,6 @@ export const mockedTweetRepository: jest.Mocked<TweetDataHandler> = {
 
 export const mockedCommentRepository: jest.Mocked<CommentDataHandler> = {
   getAll: jest.fn(),
-  getById: jest.fn(),
   create: jest.fn(),
   update: jest.fn(),
   updateGood: jest.fn(),
