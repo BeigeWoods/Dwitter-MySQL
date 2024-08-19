@@ -37,20 +37,6 @@ export default class CommentRepository implements CommentDataHandler {
     }
   }
 
-  async getById(tweetId: string, commentId: string, userId: number) {
-    let conn;
-    try {
-      conn = await this.db.getConnection();
-      return await conn
-        .execute(this.Get_By_Id, [commentId, tweetId, userId])
-        .then((result: any[]) => result[0][0] as OutputComment);
-    } catch (error) {
-      throwError(error).comment("getById");
-    } finally {
-      this.db.releaseConnection(conn!);
-    }
-  }
-
   async create(
     userId: number,
     tweetId: string,
@@ -68,13 +54,14 @@ export default class CommentRepository implements CommentDataHandler {
           [text, 0, userId, tweetId, new Date(), new Date()]
         )
         .then((result: any[]) => result[0].insertId as number);
-      if (recipient)
+      if (recipient) {
         await conn.execute(
           "INSERT INTO replies (commentId, username) VALUES(?, ?)",
           [commentId, recipient]
         );
+      }
       const result = await conn
-        .execute(this.Get_By_Id, [tweetId, commentId, userId])
+        .execute(this.Get_By_Id, [commentId, tweetId, userId])
         .then((result: any[]) => result[0][0] as OutputComment);
       await this.db.commit(conn);
       return result;
@@ -101,7 +88,7 @@ export default class CommentRepository implements CommentDataHandler {
         [text, new Date(), commentId]
       );
       const result = await conn
-        .execute(this.Get_By_Id, [tweetId, commentId, userId])
+        .execute(this.Get_By_Id, [commentId, tweetId, userId])
         .then((result: any[]) => result[0][0] as OutputComment);
       await this.db.commit(conn);
       return result;

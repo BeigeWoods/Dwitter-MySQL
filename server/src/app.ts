@@ -1,4 +1,4 @@
-import express, { Response } from "express";
+import express, { Request, NextFunction, Response } from "express";
 import "express-async-errors";
 import cors from "cors";
 import morgan from "morgan";
@@ -76,9 +76,9 @@ app.use(
 );
 
 app.use((res: Response) => res.status(404).json({ message: "Bad Access" }));
-app.use((err: Error | unknown, res: Response) => {
-  console.error("Something go wrong\n", err);
-  return res.status(500).json({ message: "Sorry, Something wrong" });
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
+  return res.status(500).json({ message: "Sorry, something wrong" });
 });
 
 db.getConnection()

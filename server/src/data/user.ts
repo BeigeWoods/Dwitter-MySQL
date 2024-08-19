@@ -12,11 +12,11 @@ export default class UserRepository implements UserDataHandler {
   private handleUpdateQuery(user: UserForUpdate) {
     const { username, name, email, url } = user;
     let result = "";
-    if (username) result += " username = ?,";
-    if (name) result += " name = ?,";
-    if (email) result += " email = ?,";
-    if (url) result += " url = ?,";
-    return result?.trim();
+    if (username) result += "username = ?";
+    if (name) result += result ? ", name = ?" : "name = ?";
+    if (email) result += result ? ", email = ?" : "email = ?";
+    if (url) result += result ? ", url = ?" : "url = ?";
+    return result;
   }
 
   private handleUpdateValues(user: UserForUpdate) {
