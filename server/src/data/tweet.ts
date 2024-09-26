@@ -19,21 +19,24 @@ export default class TweetRepository implements TweetDataHandler {
 
   constructor(private readonly db: DB) {}
 
-  private handleUpdateQuery(tweetContents: InputTweet) {
-    const { text, video, image } = tweetContents;
+  private queryToUpdateTweet(tweetContents: InputTweet) {
     let result = "";
-    if (text) result += " text = ?,";
-    if (video) result += " video = ?,";
-    if (image) result += " image = ?,";
-    return result?.trim();
+    let key: keyof InputTweet;
+    for (key in tweetContents) {
+      if (tweetContents[key]) {
+        if (result) result += ", ";
+        result += key + " = ?";
+      }
+    }
+    return result;
   }
 
-  private handleUpdateValues(tweetContents: InputTweet) {
-    const { text, video, image } = tweetContents;
+  private valuesToUpdateTweet(tweetContents: InputTweet) {
     let result: string[] = [];
-    text && result.push(text);
-    video && result.push(video);
-    image && result.push(image);
+    let key: keyof InputTweet;
+    for (key in tweetContents) {
+      if (tweetContents[key]) result.push(key);
+    }
     return result;
   }
 
@@ -126,10 +129,10 @@ export default class TweetRepository implements TweetDataHandler {
       conn = await this.db.getConnection();
       await this.db.beginTransaction(conn);
       await conn.execute(
-        `UPDATE tweets SET ${this.handleUpdateQuery(
+        `UPDATE tweets SET ${this.queryToUpdateTweet(
           tweetContents
         )} updatedAt = ? WHERE id = ?`,
-        [...this.handleUpdateValues(tweetContents), new Date(), tweetId]
+        [...this.valuesToUpdateTweet(tweetContents), new Date(), tweetId]
       );
       const result = await conn
         .execute(this.Get_By_Id, [tweetId, userId])

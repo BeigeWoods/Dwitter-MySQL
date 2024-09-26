@@ -9,23 +9,24 @@ import DB from "../__dwitter__.d.ts/db/database";
 export default class UserRepository implements UserDataHandler {
   constructor(private readonly db: DB) {}
 
-  private handleUpdateQuery(user: UserForUpdate) {
-    const { username, name, email, url } = user;
+  private queryToUpdateUser(user: UserForUpdate) {
     let result = "";
-    if (username) result += "username = ?";
-    if (name) result += result ? ", name = ?" : "name = ?";
-    if (email) result += result ? ", email = ?" : "email = ?";
-    if (url) result += result ? ", url = ?" : "url = ?";
+    let key: keyof UserForUpdate;
+    for (key in user) {
+      if (user[key]) {
+        if (result) result += ", ";
+        result += key + " = ?";
+      }
+    }
     return result;
   }
 
-  private handleUpdateValues(user: UserForUpdate) {
-    const { username, name, email, url } = user;
+  private valuesToUpdateUser(user: UserForUpdate) {
     let result: string[] = [];
-    username && result.push(username);
-    name && result.push(name);
-    email && result.push(email);
-    url && result.push(url);
+    let key: keyof UserForUpdate;
+    for (key in user) {
+      if (user[key]) result.push(key);
+    }
     return result;
   }
 
@@ -101,8 +102,8 @@ export default class UserRepository implements UserDataHandler {
     try {
       conn = await this.db.getConnection();
       await conn.execute(
-        `UPDATE users SET ${this.handleUpdateQuery(user)} WHERE id = ?`,
-        [...this.handleUpdateValues(user), userId]
+        `UPDATE users SET ${this.queryToUpdateUser(user)} WHERE id = ?`,
+        [...this.valuesToUpdateUser(user), userId]
       );
     } catch (error) {
       throwError(error).user("update");

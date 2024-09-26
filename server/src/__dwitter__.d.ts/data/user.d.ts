@@ -35,8 +35,8 @@ declare interface UserDataHandler {
 export declare class UserRepository implements UserDataHandler {
   constructor();
 
-  private handleUpdateQuery(user: UserForUpdate): string;
-  private handleUpdateValues(user: UserForUpdate): string[];
+  private queryToUpdateUser(user: UserForUpdate): string;
+  private valuesToUpdateUser(user: UserForUpdate): string[];
   findById: (userId: number) => Promise<OutputUser | void>;
   findByUsername: (username: string) => Promise<OutputUser | void>;
   findByEmail: (email: string) => Promise<OutputUser | void>;

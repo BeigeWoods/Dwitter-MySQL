@@ -47,8 +47,8 @@ export declare class TweetRepository implements TweetDataHandler {
 
   constructor();
 
-  private handleUpdateQuery(tweetContents: InputTweet): string;
-  private handleUpdateValues(tweetContents: InputTweet): string[];
+  private queryToUpdateTweet(tweetContents: InputTweet): string;
+  private valuesToUpdateTweet(tweetContents: InputTweet): string[];
   getAll: (userId: number) => Promise<OutputTweet[] | void>;
   getAllByUsername: (
     userId: number,
