@@ -1,9 +1,10 @@
-import throwError from "../exception/data.js";
+import ExceptionHandler from "../exception/exception.js";
 import TweetDataHandler, {
   InputTweet,
   OutputTweet,
 } from "../__dwitter__.d.ts/data/tweet";
 import DB from "../__dwitter__.d.ts/db/database";
+import { KindOfRepository } from "../__dwitter__.d.ts/exception/exception";
 
 export default class TweetRepository implements TweetDataHandler {
   private readonly Select_Feild =
@@ -17,7 +18,13 @@ export default class TweetRepository implements TweetDataHandler {
   private readonly Order_By = "ORDER BY createdAt DESC";
   private readonly Get_By_Id = `${this.Select_Feild} FROM (${this.With_User} WHERE T.userId = U.id AND T.id = ?) J ${this.With_Good} ${this.Order_By}`;
 
-  constructor(private readonly db: DB) {}
+  constructor(
+    private readonly db: DB,
+    private readonly exc: ExceptionHandler<
+      KindOfRepository,
+      keyof TweetDataHandler
+    >
+  ) {}
 
   private queryToUpdateTweet(tweetContents: InputTweet) {
     let result = "";
@@ -51,8 +58,8 @@ export default class TweetRepository implements TweetDataHandler {
           [userId]
         )
         .then((result) => result[0] as OutputTweet[]);
-    } catch (error) {
-      throwError(error).tweet("getAll");
+    } catch (e) {
+      this.exc.throw(e, "getAll");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -69,8 +76,8 @@ export default class TweetRepository implements TweetDataHandler {
           [username, userId]
         )
         .then((result) => result[0] as OutputTweet[]);
-    } catch (error) {
-      throwError(error).tweet("getAllByUsername");
+    } catch (e) {
+      this.exc.throw(e, "getAllByUsername");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -83,8 +90,8 @@ export default class TweetRepository implements TweetDataHandler {
       return await conn
         .execute(this.Get_By_Id, [tweetId, userId])
         .then((result: any[]) => result[0][0] as OutputTweet);
-    } catch (error) {
-      throwError(error).tweet("getById");
+    } catch (e) {
+      this.exc.throw(e, "getById");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -115,9 +122,9 @@ export default class TweetRepository implements TweetDataHandler {
         .then((result: any[]) => result[0][0] as OutputTweet);
       await this.db.commit(conn);
       return result;
-    } catch (error) {
+    } catch (e) {
       await this.db.rollback(conn!);
-      throwError(error).tweet("create");
+      this.exc.throw(e, "create");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -139,9 +146,9 @@ export default class TweetRepository implements TweetDataHandler {
         .then((result: any[]) => result[0][0] as OutputTweet);
       await this.db.commit(conn);
       return result;
-    } catch (error) {
+    } catch (e) {
       await this.db.rollback(conn!);
-      throwError(error).tweet("update");
+      this.exc.throw(e, "update");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -155,8 +162,8 @@ export default class TweetRepository implements TweetDataHandler {
         good,
         tweetId,
       ]);
-    } catch (error) {
-      throwError(error).tweet("updateGood");
+    } catch (e) {
+      this.exc.throw(e, "updateGood");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -167,8 +174,8 @@ export default class TweetRepository implements TweetDataHandler {
     try {
       conn = await this.db.getConnection();
       await conn.execute("DELETE FROM tweets WHERE id = ?", [tweetId]);
-    } catch (error) {
-      throwError(error).tweet("delete");
+    } catch (e) {
+      this.exc.throw(e, "delete");
     } finally {
       this.db.releaseConnection(conn!);
     }

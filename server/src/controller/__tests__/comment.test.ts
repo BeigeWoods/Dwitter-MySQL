@@ -7,13 +7,15 @@ import {
   mockedUserRepository,
 } from "../../__mocked__/handler";
 import { mockComment, mockUser } from "../../__mocked__/data";
+import ExceptionHandler from "../../exception/exception";
 
 describe("Comment Controller", () => {
   const mockedSocket: jest.Mocked<any> = { emit: jest.fn() };
   const commentController = new CommentController(
     mockedCommentRepository,
     mockedUserRepository,
-    () => mockedSocket
+    () => mockedSocket,
+    new ExceptionHandler("commentController")
   );
   const userId = 1,
     tweetId = 2,
@@ -135,11 +137,10 @@ describe("Comment Controller", () => {
       request = httpMocks.createRequest(mockComment.reqOptions(commentId));
       mockedCommentRepository.delete.mockRejectedValueOnce("Error");
 
-      await commentController
-        .delete(request, response)
-        .catch((error) =>
-          expect(error).toBe("## commentController.delete < Error")
-        );
+      await commentController.delete(request, response).catch((e) => {
+        expect(e.name).toBe("Error > commentController.delete");
+        expect(e.message).toBe("Error");
+      });
 
       expect(mockedCommentRepository.delete).toHaveBeenCalledWith(commentId);
       expect(response.statusCode).not.toBe(204);

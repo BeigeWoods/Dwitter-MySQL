@@ -4,6 +4,7 @@ import TweetController from "../tweet";
 import awsS3 from "../../middleware/awsS3";
 import { mockedTweetRepository } from "../../__mocked__/handler";
 import { mockTweet } from "../../__mocked__/data";
+import ExceptionHandler from "../../exception/exception";
 
 jest.mock("../../middleware/awsS3", () => ({ deleteImage: jest.fn() }));
 
@@ -11,7 +12,8 @@ describe("Tweet Controller", () => {
   const mockedSocket: jest.Mocked<any> = { emit: jest.fn() };
   const tweetController = new TweetController(
     mockedTweetRepository,
-    () => mockedSocket
+    () => mockedSocket,
+    new ExceptionHandler("tweetController")
   );
   const tweetId = 2,
     text = faker.random.words(3),
@@ -104,11 +106,10 @@ describe("Tweet Controller", () => {
       request = httpMocks.createRequest(mockTweet.reqOptions(NaN, { video }));
       mockedTweetRepository.create.mockRejectedValueOnce("Error");
 
-      await tweetController
-        .create(request, response)
-        .catch((error) =>
-          expect(error).toBe("## tweetController.create < Error")
-        );
+      await tweetController.create(request, response).catch((e) => {
+        expect(e.name).toBe("Error > tweetController.create");
+        expect(e.message).toBe("Error");
+      });
 
       expect(mockedTweetRepository.create).toHaveBeenCalledWith(1, {
         text: "",
@@ -160,11 +161,10 @@ describe("Tweet Controller", () => {
       (awsS3.deleteImage as jest.Mock).mockResolvedValueOnce("");
       mockedTweetRepository.delete.mockRejectedValueOnce("Error");
 
-      await tweetController
-        .delete(request, response)
-        .catch((error) =>
-          expect(error).toBe("## tweetController.delete < Error")
-        );
+      await tweetController.delete(request, response).catch((e) => {
+        expect(e.name).toBe("Error > tweetController.delete");
+        expect(e.message).toBe("Error");
+      });
 
       expect(mockedTweetRepository.delete).toHaveBeenCalledWith(tweetId);
       expect(response.statusCode).not.toBe(204);

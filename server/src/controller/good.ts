@@ -1,19 +1,18 @@
 import "express-async-errors";
 import { Request, Response } from "express";
-import {
-  throwErrorOfController as throwError,
-  printExceptionOfController as printException,
-} from "../exception/controller.js";
+import ExceptionHandler from "../exception/exception.js";
 import GoodHandler from "../__dwitter__.d.ts/controller/good";
 import TweetDataHandler from "../__dwitter__.d.ts/data/tweet";
 import GoodDataHandler from "../__dwitter__.d.ts/data/good";
 import CommentDataHandler from "../__dwitter__.d.ts/data/comments";
+import { KindOfController } from "../__dwitter__.d.ts/exception/exception.js";
 
 export default class GoodController implements GoodHandler {
   constructor(
     private tweetRepository: TweetDataHandler,
     private commentRepository: CommentDataHandler,
-    private goodRepository: GoodDataHandler
+    private goodRepository: GoodDataHandler,
+    private readonly exc: ExceptionHandler<KindOfController, keyof GoodHandler>
   ) {}
 
   tweet = async (req: Request, res: Response) => {
@@ -24,24 +23,15 @@ export default class GoodController implements GoodHandler {
 
     if (clicked) {
       if (!good) {
-        console.warn(
-          printException.good("tweet", "Number of clicked good is 0", true)
-        );
         return res.sendStatus(400);
       }
       good -= 1;
-      await this.goodRepository
-        .unClick(userId, tweetId, true)
-        .catch((error) => throwError.good("tweet", error));
+      await this.goodRepository.unClick(userId, tweetId, true);
     } else {
       good += 1;
-      await this.goodRepository
-        .click(userId, tweetId, true)
-        .catch((error) => throwError.good("tweet", error));
+      await this.goodRepository.click(userId, tweetId, true);
     }
-    await this.tweetRepository
-      .updateGood(tweetId, good)
-      .catch((error) => throwError.good("tweet", error));
+    await this.tweetRepository.updateGood(tweetId, good);
 
     return res.status(201).json({
       id: Number(tweetId),
@@ -58,25 +48,16 @@ export default class GoodController implements GoodHandler {
 
     if (clicked) {
       if (!good) {
-        console.warn(
-          printException.good("comment", "Number of clicked good is 0", true)
-        );
         return res.sendStatus(400);
       }
       good -= 1;
-      await this.goodRepository
-        .unClick(userId, commentId, false)
-        .catch((error) => throwError.good("comment", error));
+      await this.goodRepository.unClick(userId, commentId, false);
     } else {
       good += 1;
-      await this.goodRepository
-        .click(userId, commentId, false)
-        .catch((error) => throwError.good("comment", error));
+      await this.goodRepository.click(userId, commentId, false);
     }
 
-    await this.commentRepository
-      .updateGood(commentId, good)
-      .catch((error) => throwError.good("comment", error));
+    await this.commentRepository.updateGood(commentId, good);
 
     return res.status(201).json({
       id: Number(commentId),

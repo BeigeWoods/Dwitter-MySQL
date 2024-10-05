@@ -1,8 +1,9 @@
-import throwError from "../exception/data.js";
+import ExceptionHandler from "../exception/exception.js";
 import CommentDataHandler, {
   OutputComment,
 } from "../__dwitter__.d.ts/data/comments";
 import DB from "../__dwitter__.d.ts/db/database";
+import { KindOfRepository } from "../__dwitter__.d.ts/exception/exception";
 
 export default class CommentRepository implements CommentDataHandler {
   private readonly Select_Feild =
@@ -17,7 +18,13 @@ export default class CommentRepository implements CommentDataHandler {
   private readonly Order_By = "ORDER BY createdAt DESC";
   private readonly Get_By_Id = `${this.Select_Feild} FROM (${this.With_User_Reply} WHERE C.id = ? AND tweetId = ?) J ${this.With_Good} ${this.Order_By}`;
 
-  constructor(private readonly db: DB) {}
+  constructor(
+    private readonly db: DB,
+    private readonly exc: ExceptionHandler<
+      KindOfRepository,
+      keyof CommentDataHandler
+    >
+  ) {}
 
   async getAll(tweetId: string, userId: number) {
     let conn;
@@ -30,8 +37,8 @@ export default class CommentRepository implements CommentDataHandler {
           [tweetId, userId]
         )
         .then((result) => result[0] as OutputComment[]);
-    } catch (error) {
-      throwError(error).comment("getAll");
+    } catch (e) {
+      this.exc.throw(e, "getAll");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -65,9 +72,9 @@ export default class CommentRepository implements CommentDataHandler {
         .then((result: any[]) => result[0][0] as OutputComment);
       await this.db.commit(conn);
       return result;
-    } catch (error) {
+    } catch (e) {
       await this.db.rollback(conn!);
-      throwError(error).comment("create");
+      this.exc.throw(e, "create");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -92,9 +99,9 @@ export default class CommentRepository implements CommentDataHandler {
         .then((result: any[]) => result[0][0] as OutputComment);
       await this.db.commit(conn);
       return result;
-    } catch (error) {
+    } catch (e) {
       await this.db.rollback(conn!);
-      throwError(error).comment("update");
+      this.exc.throw(e, "update");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -108,8 +115,8 @@ export default class CommentRepository implements CommentDataHandler {
         good,
         commentId,
       ]);
-    } catch (error) {
-      throwError(error).comment("updateGood");
+    } catch (e) {
+      this.exc.throw(e, "updateGood");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -120,8 +127,8 @@ export default class CommentRepository implements CommentDataHandler {
     try {
       conn = await this.db.getConnection();
       await conn.execute("DELETE FROM comments WHERE id = ?", [commentId]);
-    } catch (error) {
-      throwError(error).comment("delete");
+    } catch (e) {
+      this.exc.throw(e, "delete");
     } finally {
       this.db.releaseConnection(conn!);
     }

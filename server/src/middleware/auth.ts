@@ -20,9 +20,10 @@ export default class AuthValidator implements AuthValidateHandler {
 
     if (!token) return res.status(401).json(this.AUTH_ERROR);
 
-    jwt.verify(token, this.config.jwt.secretKey, async (error, decoded) => {
-      if (error) {
-        console.error("The problem of verifying jwt token\n", error);
+    jwt.verify(token, this.config.jwt.secretKey, async (e, decoded) => {
+      if (e) {
+        e.name += " > authValidator.isAuth";
+        console.error(e);
         return res.status(401).json(this.AUTH_ERROR);
       }
 

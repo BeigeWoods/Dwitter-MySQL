@@ -19,8 +19,9 @@ const awsS3 = {
           Body: image,
         })
       )
-      .catch((error) => {
-        throw `AWS-S3: putImage ##\n ${error}`;
+      .catch((e) => {
+        e.name += " > putObject at AWS-S3";
+        throw e;
       });
   },
   async deleteImage(fileName: string) {
@@ -31,8 +32,9 @@ const awsS3 = {
           Key: fileName.slice(57),
         })
       )
-      .catch((error) => {
-        throw `AWS-S3: deleteImage ##\n ${error}`;
+      .catch((e) => {
+        e.name += " > deleteObject at AWS-S3";
+        throw e;
       });
   },
 };

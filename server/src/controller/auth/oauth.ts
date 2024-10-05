@@ -2,10 +2,7 @@ import "express-async-errors";
 import { CookieOptions, Request, Response } from "express";
 import https from "node:https";
 import bcrypt from "bcrypt";
-import {
-  throwErrorOfController as throwError,
-  printExceptionOfController as printException,
-} from "../../exception/controller.js";
+import ExceptionHandler from "../../exception/exception.js";
 import GithubOauthHandler, {
   IndexForFetchUsage,
   ResorceOwner,
@@ -13,12 +10,17 @@ import GithubOauthHandler, {
 import TokenHandler from "../../__dwitter__.d.ts/controller/auth/token";
 import UserDataHandler, { OutputUser } from "../../__dwitter__.d.ts/data/user";
 import Config from "../../__dwitter__.d.ts/config";
+import { KindOfController } from "../../__dwitter__.d.ts/exception/exception.js";
 
 export default class OauthController implements GithubOauthHandler {
   constructor(
     private readonly config: Config,
     private tokenController: TokenHandler,
-    private userRepository: UserDataHandler
+    private userRepository: UserDataHandler,
+    private readonly exc: ExceptionHandler<
+      KindOfController,
+      keyof GithubOauthHandler
+    >
   ) {}
 
   private async setErrorMessage(res: Response) {
@@ -67,18 +69,14 @@ export default class OauthController implements GithubOauthHandler {
     email: string,
     exist: boolean
   ) => {
-    const userId = (await this.userRepository
-      .create({
-        username: exist ? `${owner.login}_github` : owner.login,
-        password: "",
-        name: owner.name,
-        email: email,
-        url: owner.avatar_url,
-        socialLogin: true,
-      })
-      .catch((error) =>
-        throwError.oauth(["githubFinish", "signup"], error, true)
-      )) as number;
+    const userId = (await this.userRepository.create({
+      username: exist ? `${owner.login}_github` : owner.login,
+      password: "",
+      name: owner.name,
+      email: email,
+      url: owner.avatar_url,
+      socialLogin: true,
+    })) as number;
 
     return {
       token: this.tokenController.createJwtToken(userId),
@@ -90,9 +88,7 @@ export default class OauthController implements GithubOauthHandler {
     const user = (await Promise.all([
       this.userRepository.findByUsername(owner.login),
       this.userRepository.findByEmail(email),
-    ]).catch((error) =>
-      throwError.oauth(["githubFinish", "login"], error, true)
-    )) as OutputUser[];
+    ])) as OutputUser[];
 
     return user[1]
       ? {
@@ -145,9 +141,7 @@ export default class OauthController implements GithubOauthHandler {
     const baseUrl = "https://github.com/login/oauth/authorize";
     const state = await bcrypt
       .hash(this.config.oauth.state.plain, this.config.oauth.state.saltRounds)
-      .catch((error) =>
-        throwError.oauth(["githubStart", "bcrypt.hash"], error, true)
-      );
+      .catch((e) => this.exc.throw(e, "githubStart"));
     const option = {
       client_id: this.config.oauth.github.clientId,
       allow_signup: "false",
@@ -164,36 +158,23 @@ export default class OauthController implements GithubOauthHandler {
     if (req.query) {
       const validate = await bcrypt
         .compare(this.config.oauth.state.plain, req.query.state as string)
-        .catch((error) =>
-          console.error(
-            printException.oauth(
-              ["githubFinish", "bcrypt.compare"],
-              error,
-              true
-            )
-          )
-        );
+        .catch((e) => console.error(this.exc.setup(e, "githubFinish")));
       if (validate)
-        token = await this.getToken(req.query.code as string).catch((error) =>
-          console.error(
-            printException.oauth(["githubFinish", "getToken"], error, true)
-          )
+        token = await this.getToken(req.query.code as string).catch((e) =>
+          console.error(this.exc.setup(e, "githubFinish"))
         );
       else
         console.warn(
-          printException.oauth(
-            "githubFinish",
-            "a state of query from Github doesn't validate.",
-            true
+          this.exc.setup(
+            "A state of query from Github doesn't validate",
+            "githubFinish"
           )
         );
     }
     const owner =
       token &&
-      (await this.getUser(token).catch((error) =>
-        console.error(
-          printException.oauth(["githubFinish", "getUser"], error, true)
-        )
+      (await this.getUser(token).catch((e) =>
+        console.error(this.exc.setup(e, "githubFinish"))
       ));
     const user =
       owner &&

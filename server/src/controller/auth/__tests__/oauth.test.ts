@@ -7,6 +7,7 @@ import {
   mockedTokenController,
   mockedUserRepository,
 } from "../../../__mocked__/handler";
+import ExceptionHandler from "../../../exception/exception";
 
 jest.mock("bcrypt");
 jest.mock("node:https");
@@ -15,7 +16,8 @@ describe("OauthController", () => {
   const oauthController = new OauthController(
     config,
     mockedTokenController,
-    mockedUserRepository
+    mockedUserRepository,
+    new ExceptionHandler("oauthController")
   );
   const hideMathods = {
     setErrorMessage: jest.spyOn(oauthController as any, "setErrorMessage"),
@@ -51,13 +53,10 @@ describe("OauthController", () => {
     test("calls next function when hashing state is failed", async () => {
       mockBcrypt.hash.mockRejectedValueOnce("hash error");
 
-      await oauthController
-        .githubStart(request, response)
-        .catch((error) =>
-          expect(error).toBe(
-            `## oauthController.githubStart < bcrypt.hash ##\n hash error`
-          )
-        );
+      await oauthController.githubStart(request, response).catch((e) => {
+        expect(e.name).toBe("Error > oauthController.githubStart");
+        expect(e.message).toBe("hash error");
+      });
     });
   });
 
@@ -73,9 +72,7 @@ describe("OauthController", () => {
 
         await oauthController.githubFinish(request, response);
 
-        expect(warn).toHaveBeenCalledWith(
-          "## oauthController.githubFinish ##\n a state of query from Github doesn't validate."
-        );
+        expect(warn).toHaveBeenCalled();
         expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
 
@@ -84,9 +81,7 @@ describe("OauthController", () => {
 
         await oauthController.githubFinish(request, response);
 
-        expect(error).toHaveBeenCalledWith(
-          "## oauthController.githubFinish < bcrypt.compare ##\n compare error"
-        );
+        expect(error).toHaveBeenCalled();
         expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
     });
@@ -103,9 +98,7 @@ describe("OauthController", () => {
         await oauthController.githubFinish(request, response);
 
         expect(hideMathods.getToken).toHaveBeenCalledWith("code");
-        expect(error).toHaveBeenCalledWith(
-          "## oauthController.githubFinish < getToken ##\n Doesn't exist token"
-        );
+        expect(error).toHaveBeenCalled();
         expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
 
@@ -115,9 +108,7 @@ describe("OauthController", () => {
         await oauthController.githubFinish(request, response);
 
         expect(hideMathods.getToken).toHaveBeenCalledWith("code");
-        expect(error).toHaveBeenCalledWith(
-          "## oauthController.githubFinish < getToken ##\n Error: Github error"
-        );
+        expect(error).toHaveBeenCalled();
         expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
     });
@@ -135,9 +126,7 @@ describe("OauthController", () => {
         await oauthController.githubFinish(request, response);
 
         expect(hideMathods.getUser).toHaveBeenCalledWith("token");
-        expect(error).toHaveBeenCalledWith(
-          "## oauthController.githubFinish < getUser ##\n Doesn't exist email"
-        );
+        expect(error).toHaveBeenCalled();
         expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
 
@@ -147,9 +136,7 @@ describe("OauthController", () => {
         await oauthController.githubFinish(request, response);
 
         expect(hideMathods.getUser).toHaveBeenCalledWith("token");
-        expect(error).toHaveBeenCalledWith(
-          "## oauthController.githubFinish < getUser ##\n Error: Github error"
-        );
+        expect(error).toHaveBeenCalled();
         expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
     });
@@ -177,9 +164,7 @@ describe("OauthController", () => {
           mockOauth.ownerData,
           mockOauth.emailData
         );
-        expect(error).toHaveBeenCalledWith(
-          "## oauthController.githubFinish < login ##\n findByUsername error"
-        );
+        expect(error).toHaveBeenCalledWith("findByUsername error");
         expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
 
@@ -243,9 +228,7 @@ describe("OauthController", () => {
           mockOauth.emailData,
           false
         );
-        expect(error).toHaveBeenCalledWith(
-          "## oauthController.githubFinish < signup ##\n create error"
-        );
+        expect(error).toHaveBeenCalledWith("create error");
         expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
 

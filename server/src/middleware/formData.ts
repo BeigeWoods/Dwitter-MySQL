@@ -22,12 +22,14 @@ const handleFormData = (req: Request, res: Response, next: NextFunction) => {
 
   const upload = multerUpload.single("newImage");
 
-  upload(req, res, (err) => {
-    if (err instanceof multer.MulterError) {
-      console.error("## handleFormData < multer ##\n", err);
+  upload(req, res, (e) => {
+    if (e instanceof multer.MulterError) {
+      e.name += " > multer > handleFormData";
+      console.error(e);
       return res.status(409).json({ message: "Failed to upload image" });
-    } else if (err) {
-      console.error("## handleFormData < other than multer ##\n", err);
+    } else if (e) {
+      e.name += " > other than multer > handleFormData";
+      console.error(e);
       return res.status(409).json({ message: "Failed to upload image" });
     }
     next();

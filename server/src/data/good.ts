@@ -1,9 +1,16 @@
-import throwError from "../exception/data.js";
+import ExceptionHandler from "../exception/exception.js";
 import GoodDataHandler from "../__dwitter__.d.ts/data/good";
 import DB from "../__dwitter__.d.ts/db/database";
+import { KindOfRepository } from "../__dwitter__.d.ts/exception/exception";
 
 export default class GoodRepository implements GoodDataHandler {
-  constructor(private readonly db: DB) {}
+  constructor(
+    private readonly db: DB,
+    private readonly exc: ExceptionHandler<
+      KindOfRepository,
+      keyof GoodDataHandler
+    >
+  ) {}
 
   async click(userId: number, contentId: string, isTweet: boolean) {
     let conn;
@@ -15,10 +22,7 @@ export default class GoodRepository implements GoodDataHandler {
           : "INSERT INTO goodComments(userId, commentId) VALUES(?, ?)",
         [userId, contentId]
       );
-    } catch (error) {
-      isTweet
-        ? throwError(error).good.tweet("click")
-        : throwError(error).good.comment("click");
+    } catch (e) {
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -34,10 +38,7 @@ export default class GoodRepository implements GoodDataHandler {
           : "DELETE FROM goodComments WHERE userId = ? AND commentId = ?",
         [userId, contentId]
       );
-    } catch (error) {
-      isTweet
-        ? throwError(error).good.tweet("unClick")
-        : throwError(error).good.comment("unClick");
+    } catch (e) {
     } finally {
       this.db.releaseConnection(conn!);
     }

@@ -19,8 +19,8 @@ describe("AuthController.isDuplicateEmailOrUsername", () => {
   );
   async function validateDuple(email: string, username: string) {
     const isDuplicate = await isDuplicateEmailOrUsername(email, username).catch(
-      (error) => {
-        throw `## authController < isDuplicateEmailOrUsername ## ${error}`;
+      (e) => {
+        throw `${e} > authController`;
       }
     );
     return isDuplicate && "status 409";
@@ -31,7 +31,7 @@ describe("AuthController.isDuplicateEmailOrUsername", () => {
       mockedUserRepository.findByEmail.mockRejectedValueOnce("Error");
 
       const result = await isDuplicateEmailOrUsername(email, username).catch(
-        (error) => expect(error).toBe("Error")
+        (e) => expect(e).toBe("Error")
       );
 
       expect(mockedUserRepository.findByEmail).toHaveBeenCalled();
@@ -44,7 +44,7 @@ describe("AuthController.isDuplicateEmailOrUsername", () => {
       mockedUserRepository.findByUsername.mockResolvedValueOnce(mockUser(1));
 
       const result = await isDuplicateEmailOrUsername(email, username).catch(
-        (error) => expect(error).toBeUndefined()
+        (e) => expect(e).toBeUndefined()
       );
 
       expect(mockedUserRepository.findByEmail).toHaveBeenCalled();
@@ -57,7 +57,7 @@ describe("AuthController.isDuplicateEmailOrUsername", () => {
       mockedUserRepository.findByUsername.mockResolvedValueOnce(undefined);
 
       const result = await isDuplicateEmailOrUsername(email, username).catch(
-        (error) => expect(error).toBeUndefined()
+        (e) => expect(e).toBeUndefined()
       );
 
       expect(mockedUserRepository.findByEmail).toHaveBeenCalled();
@@ -70,10 +70,8 @@ describe("AuthController.isDuplicateEmailOrUsername", () => {
     test("returns 'next()' when validateDuple catches error", async () => {
       mockedUserRepository.findByEmail.mockRejectedValueOnce("Error");
 
-      await validateDuple(email, username).catch((error) =>
-        expect(error).toBe(
-          "## authController < isDuplicateEmailOrUsername ## Error"
-        )
+      await validateDuple(email, username).catch((e) =>
+        expect(e).toBe("Error > authController")
       );
     });
 

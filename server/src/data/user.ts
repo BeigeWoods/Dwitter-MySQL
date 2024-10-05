@@ -1,13 +1,20 @@
-import throwError from "../exception/data.js";
+import ExceptionHandler from "../exception/exception.js";
 import UserDataHandler, {
   UserForCreate,
   UserForUpdate,
   OutputUser,
 } from "../__dwitter__.d.ts/data/user";
 import DB from "../__dwitter__.d.ts/db/database";
+import { KindOfRepository } from "../__dwitter__.d.ts/exception/exception";
 
 export default class UserRepository implements UserDataHandler {
-  constructor(private readonly db: DB) {}
+  constructor(
+    private readonly db: DB,
+    private readonly exc: ExceptionHandler<
+      KindOfRepository,
+      keyof UserDataHandler
+    >
+  ) {}
 
   private queryToUpdateUser(user: UserForUpdate) {
     let result = "";
@@ -37,8 +44,8 @@ export default class UserRepository implements UserDataHandler {
       return await conn
         .execute("SELECT * FROM users WHERE id = ?", [userId])
         .then((result: any[]) => result[0][0] as OutputUser);
-    } catch (error) {
-      throwError(error).user("findById");
+    } catch (e) {
+      this.exc.throw(e, "findById");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -51,8 +58,8 @@ export default class UserRepository implements UserDataHandler {
       return await conn
         .execute("SELECT * FROM users WHERE username = ?", [username])
         .then((result: any[]) => result[0][0] as OutputUser);
-    } catch (error) {
-      throwError(error).user("findByUsername");
+    } catch (e) {
+      this.exc.throw(e, "findByUsername");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -65,8 +72,8 @@ export default class UserRepository implements UserDataHandler {
       return await conn
         .execute("SELECT * FROM users WHERE email = ?", [email])
         .then((result: any[]) => result[0][0] as OutputUser);
-    } catch (error) {
-      throwError(error).user("findByEmail");
+    } catch (e) {
+      this.exc.throw(e, "findByEmail");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -90,8 +97,8 @@ export default class UserRepository implements UserDataHandler {
           ]
         )
         .then((result: any[]) => result[0].insertId as number);
-    } catch (error) {
-      throwError(error).user("create");
+    } catch (e) {
+      this.exc.throw(e, "create");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -105,8 +112,8 @@ export default class UserRepository implements UserDataHandler {
         `UPDATE users SET ${this.queryToUpdateUser(user)} WHERE id = ?`,
         [...this.valuesToUpdateUser(user), userId]
       );
-    } catch (error) {
-      throwError(error).user("update");
+    } catch (e) {
+      this.exc.throw(e, "update");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -120,8 +127,8 @@ export default class UserRepository implements UserDataHandler {
         password,
         userId,
       ]);
-    } catch (error) {
-      throwError(error).user("updatePassword");
+    } catch (e) {
+      this.exc.throw(e, "updatePassword");
     } finally {
       this.db.releaseConnection(conn!);
     }
@@ -132,8 +139,8 @@ export default class UserRepository implements UserDataHandler {
     try {
       conn = await this.db.getConnection();
       await conn.execute("DELETE FROM users WHERE id = ?", [userId]);
-    } catch (error) {
-      throwError(error).user("delete");
+    } catch (e) {
+      this.exc.throw(e, "delete");
     } finally {
       this.db.releaseConnection(conn!);
     }

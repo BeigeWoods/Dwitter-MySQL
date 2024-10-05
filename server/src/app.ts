@@ -22,34 +22,58 @@ import TokenRepository from "./controller/auth/token.js";
 import AuthValidator from "./middleware/auth.js";
 import AuthController from "./controller/auth/auth.js";
 import OauthController from "./controller/auth/oauth.js";
+import ExceptionHandler from "./exception/exception.js";
 
 const app = express();
-const userRepository = new UserRepository(db);
+const userRepository = new UserRepository(
+  db,
+  new ExceptionHandler("userRepository")
+);
 const authValidator = new AuthValidator(config, userRepository);
-const tokenController = new TokenRepository(config);
+const tokenController = new TokenRepository(
+  config,
+  new ExceptionHandler("tokenController")
+);
 const authController = new AuthController(
   config,
   userRepository,
-  tokenController
+  tokenController,
+  new ExceptionHandler("authController")
 );
 const oauthController = new OauthController(
   config,
   tokenController,
-  userRepository
+  userRepository,
+  new ExceptionHandler("oauthController")
 );
-const tweetRepository = new TweetRepository(db);
-const tweetController = new TweetController(tweetRepository, getSocketIO);
-const commentRepository = new CommentRepository(db);
+const tweetRepository = new TweetRepository(
+  db,
+  new ExceptionHandler("tweetRepository")
+);
+const tweetController = new TweetController(
+  tweetRepository,
+  getSocketIO,
+  new ExceptionHandler("tweetController")
+);
+const commentRepository = new CommentRepository(
+  db,
+  new ExceptionHandler("commentRepository")
+);
 const commentController = new CommentController(
   commentRepository,
   userRepository,
-  getSocketIO
+  getSocketIO,
+  new ExceptionHandler("commentController")
 );
-const goodRepository = new GoodRepository(db);
+const goodRepository = new GoodRepository(
+  db,
+  new ExceptionHandler("goodRepository")
+);
 const goodContoller = new GoodController(
   tweetRepository,
   commentRepository,
-  goodRepository
+  goodRepository,
+  new ExceptionHandler("goodController")
 );
 
 const corsOption = {

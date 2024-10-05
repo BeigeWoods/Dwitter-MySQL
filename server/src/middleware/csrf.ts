@@ -18,8 +18,8 @@ const csrfCheck = async (req: Request, res: Response, next: NextFunction) => {
   const csrfHeader = req.get("dwitter_csrf-token");
   if (!csrfHeader) {
     console.warn(
-      "## csrfCheck ##",
-      "Missing required 'dwitter_csrf-token' header : ",
+      "csrfCheck : ",
+      "Missing required 'dwitter_csrf-token' header\n ",
       req.headers.origin
     );
     return res.status(403).json(CSRF_ERROR);
@@ -29,17 +29,18 @@ const csrfCheck = async (req: Request, res: Response, next: NextFunction) => {
     .then((valid) => {
       if (!valid) {
         console.warn(
-          "## csrfCheck < validateCsrfToken ##\n",
-          "The value of 'dwitter_csrf-token' doesn't validate.\n",
-          `- request origin : ${req.headers.origin}\n`,
+          "validateCsrfToken > csrfCheck : ",
+          "The value of 'dwitter_csrf-token' doesn't validate\n ",
+          `- request origin : ${req.headers.origin}\n `,
           `- dwitter_csrf-token : ${csrfHeader}`
         );
         return res.status(403).json(CSRF_ERROR);
       }
       next();
     })
-    .catch((error) => {
-      throw `## csrfCheck < validateCsrfToken ##\n ${error}`;
+    .catch((e) => {
+      e.name += " > validateCsrfToken > csrfCheck";
+      throw e;
     });
 };
 

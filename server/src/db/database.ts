@@ -7,21 +7,25 @@ const pool = mysql.createPool({ host, user, password, database });
 
 const db: DB = {
   getConnection: async () =>
-    pool.getConnection().catch((error) => {
-      throw `Error of DB connection : ${error}`;
+    pool.getConnection().catch((e) => {
+      e.name += "from getConnection";
+      throw e;
     }),
   releaseConnection: (conn: PoolConnection) => pool.releaseConnection(conn),
   beginTransaction: async (conn: PoolConnection) =>
-    conn.beginTransaction().catch((error) => {
-      throw `Error to start transaction : ${error}`;
+    conn.beginTransaction().catch((e) => {
+      e.name += "from beginTransaction";
+      throw e;
     }),
   rollback: async (conn: PoolConnection) =>
-    conn.rollback().catch((error) => {
-      throw `Error to rollback : ${error}`;
+    conn.rollback().catch((e) => {
+      e.name += "from rollback";
+      throw e;
     }),
   commit: async (conn: PoolConnection) =>
-    conn.commit().catch((error) => {
-      throw `Error to commit : ${error}`;
+    conn.commit().catch((e) => {
+      e.name += "from commit";
+      throw e;
     }),
 };
 
