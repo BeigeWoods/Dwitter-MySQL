@@ -1,9 +1,9 @@
 import httpMocks from "node-mocks-http";
 import faker from "faker";
-import TweetController from "../tweet";
+import TweetController from "../../controller/tweet";
 import awsS3 from "../../middleware/awsS3";
-import { mockedTweetRepository } from "../../__mocked__/handler";
-import { mockTweet } from "../../__mocked__/data";
+import { mockedTweetRepository } from "../__mocked__/handler";
+import { mockTweet } from "../__mocked__/data";
 import ExceptionHandler from "../../exception/exception";
 
 jest.mock("../../middleware/awsS3", () => ({ deleteImage: jest.fn() }));

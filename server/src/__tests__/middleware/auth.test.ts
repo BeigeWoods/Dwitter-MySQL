@@ -2,10 +2,10 @@ import httpMocks from "node-mocks-http";
 import faker from "faker";
 import { NextFunction } from "express";
 import { verify } from "jsonwebtoken";
-import AuthValidator from "../auth";
+import AuthValidator from "../../middleware/auth";
 import config from "../../config";
-import { mockedUserRepository } from "../../__mocked__/handler";
-import { mockUser } from "../../__mocked__/data";
+import { mockedUserRepository } from "../__mocked__/handler";
+import { mockUser } from "../__mocked__/data";
 
 jest.mock("jsonwebtoken");
 

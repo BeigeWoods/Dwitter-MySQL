@@ -1,6 +1,6 @@
-import { OutputUser } from "../../../__dwitter__.d.ts/data/user";
-import { mockUser } from "../../../__mocked__/data";
-import { mockedUserRepository } from "../../../__mocked__/handler";
+import { OutputUser } from "../../__dwitter__.d.ts/data/user";
+import { mockUser } from "../__mocked__/data";
+import { mockedUserRepository } from "../__mocked__/handler";
 
 describe("AuthController.isDuplicateEmailOrUsername", () => {
   const email = "@1",

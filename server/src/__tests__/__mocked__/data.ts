@@ -1,6 +1,6 @@
 import httpMocks from "node-mocks-http";
-import { OutputUser } from "../__dwitter__.d.ts/data/user";
-import { OutputTweet } from "../__dwitter__.d.ts/data/tweet";
+import { OutputUser } from "../../__dwitter__.d.ts/data/user";
+import { OutputTweet } from "../../__dwitter__.d.ts/data/tweet";
 
 export const mockUser = (userId: number, username = ""): OutputUser => ({
   id: userId,

@@ -1,9 +1,9 @@
 import { MockResponse } from "node-mocks-http";
-import UserDataHandler from "../__dwitter__.d.ts/data/user";
-import CommentDataHandler from "../__dwitter__.d.ts/data/comments";
-import GoodDataHandler from "../__dwitter__.d.ts/data/good";
-import TweetDataHandler from "../__dwitter__.d.ts/data/tweet";
-import TokenHandler from "../__dwitter__.d.ts/controller/auth/token";
+import UserDataHandler from "../../__dwitter__.d.ts/data/user";
+import TweetDataHandler from "../../__dwitter__.d.ts/data/tweet";
+import CommentDataHandler from "../../__dwitter__.d.ts/data/comments";
+import GoodDataHandler from "../../__dwitter__.d.ts/data/good";
+import TokenHandler from "../../__dwitter__.d.ts/controller/auth/token";
 
 export const mockedUserRepository: jest.Mocked<UserDataHandler> = {
   findById: jest.fn(),

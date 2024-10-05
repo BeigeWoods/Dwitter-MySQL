@@ -1,13 +1,13 @@
 import httpMocks from "node-mocks-http";
 import { hash, compare } from "bcrypt";
-import OauthController from "../oauth";
-import config from "../../../config";
-import { mockOauth, mockUser } from "../../../__mocked__/data";
+import OauthController from "../../controller/auth/oauth";
+import config from "../../config";
 import {
   mockedTokenController,
   mockedUserRepository,
-} from "../../../__mocked__/handler";
-import ExceptionHandler from "../../../exception/exception";
+} from "../__mocked__/handler";
+import { mockOauth, mockUser } from "../__mocked__/data";
+import ExceptionHandler from "../../exception/exception";
 
 jest.mock("bcrypt");
 jest.mock("node:https");

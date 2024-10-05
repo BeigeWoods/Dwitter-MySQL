@@ -1,10 +1,10 @@
 import httpMocks from "node-mocks-http";
-import GoodController from "../good";
+import GoodController from "../../controller/good";
 import {
+  mockedCommentRepository,
   mockedGoodRepository,
   mockedTweetRepository,
-  mockedCommentRepository,
-} from "../../__mocked__/handler";
+} from "../__mocked__/handler";
 import ExceptionHandler from "../../exception/exception";
 
 describe("GoodController", () => {

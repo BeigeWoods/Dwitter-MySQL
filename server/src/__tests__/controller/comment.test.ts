@@ -1,12 +1,12 @@
 import httpMocks from "node-mocks-http";
 import faker from "faker";
 import { NextFunction } from "express";
-import CommentController from "../comments";
+import CommentController from "../../controller/comments";
 import {
   mockedCommentRepository,
   mockedUserRepository,
-} from "../../__mocked__/handler";
-import { mockComment, mockUser } from "../../__mocked__/data";
+} from "../__mocked__/handler";
+import { mockComment, mockUser } from "../__mocked__/data";
 import ExceptionHandler from "../../exception/exception";
 
 describe("Comment Controller", () => {
