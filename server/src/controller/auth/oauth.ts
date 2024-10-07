@@ -23,46 +23,59 @@ export default class OauthController implements GithubOauthHandler {
     >
   ) {}
 
-  private async setErrorMessage(res: Response) {
+  private setErrorMessage = async (res: Response) => {
     const options: CookieOptions = {
       sameSite: "none",
       secure: true,
     };
     return res.cookie("oauth", "Github login is failed", options);
-  }
+  };
 
-  private async fetch(
+  private fetchData = async (
     index: IndexForFetchUsage,
     url: string,
     reqOption: https.RequestOptions
-  ) {
-    return await new Promise((resolve, reject) => {
+  ) =>
+    await new Promise((resolve, reject) => {
       const req = https
         .request(url, reqOption, (res) => {
           let body = "";
           res
             .on("data", (chunk) => (body += chunk))
             .on("end", () => {
-              if (res.statusCode! < 200 || res.statusCode! >= 300)
-                return reject(new Error(body));
-
               const result = JSON.parse(body);
+
+              if (res.statusCode! < 200 || res.statusCode! >= 300)
+                return reject(
+                  new Error(
+                    `Responds with "${result.message}" and status ${result.status} to get ${index}`
+                  )
+                );
+
               if (result)
                 switch (index) {
                   case "token":
-                    return resolve(result.access_token);
+                    return "access_token" in result
+                      ? resolve(result.access_token)
+                      : reject(new Error(`Doesn't exist token in ${result}`));
                   case "user":
-                    return resolve(result);
+                    return "login" in result && "name" in result
+                      ? resolve(result)
+                      : reject(new Error(`Doesn't exist user in ${result}`));
                   case "email":
-                    return resolve(result[0].email);
+                    return Array.isArray(result) && "email" in result[0]
+                      ? resolve(result[0].email)
+                      : reject(new Error(`Doesn't exist email in ${result}`));
                 }
-              else return reject(`Doesn't exist ${index} in ${result}`);
+              else
+                return reject(
+                  new Error(`Response to get ${index} doesn't exist`)
+                );
             });
         })
-        .on("error", reject);
-      req.end();
+        .on("error", (e) => reject(e))
+        .end();
     });
-  }
 
   private signup = async (
     owner: ResorceOwner,
@@ -109,8 +122,8 @@ export default class OauthController implements GithubOauthHandler {
     };
 
     return (await Promise.all([
-      this.fetch("user", `${apiUrl}/user`, reqOption),
-      this.fetch("email", `${apiUrl}/user/emails`, reqOption),
+      this.fetchData("user", `${apiUrl}/user`, reqOption),
+      this.fetchData("email", `${apiUrl}/user/emails`, reqOption),
     ])) as [ResorceOwner, string];
   };
 
@@ -130,7 +143,7 @@ export default class OauthController implements GithubOauthHandler {
       },
     };
 
-    return (await this.fetch(
+    return (await this.fetchData(
       "token",
       `${baseUrl}?${params}`,
       reqOption
@@ -155,34 +168,30 @@ export default class OauthController implements GithubOauthHandler {
 
   githubFinish = async (req: Request, res: Response) => {
     let token;
-    if (req.query) {
-      const validate = await bcrypt
-        .compare(this.config.oauth.state.plain, req.query.state as string)
-        .catch((e) => console.error(this.exc.setup(e, "githubFinish")));
-      if (validate)
-        token = await this.getToken(req.query.code as string).catch((e) =>
-          console.error(this.exc.setup(e, "githubFinish"))
+    try {
+      if (req.query) {
+        const validate = await bcrypt.compare(
+          this.config.oauth.state.plain,
+          req.query.state as string
         );
-      else
-        console.warn(
-          this.exc.setup(
-            "A state of query from Github doesn't validate",
-            "githubFinish"
-          )
-        );
+        if (validate) token = await this.getToken(req.query.code as string);
+        else
+          console.warn(
+            this.exc.setup(
+              new Error("A state of query from Github doesn't validate"),
+              "githubFinish"
+            )
+          );
+      }
+      const owner = await this.getUser(token);
+      await this.login(owner[0], owner[1]).then((user) =>
+        this.tokenController.setToken(res, user.token)
+      );
+    } catch (e) {
+      console.error(this.exc.setup(e, "githubFinish"));
+      this.setErrorMessage(res);
+    } finally {
+      return res.redirect(301, this.config.cors.allowedOrigin);
     }
-    const owner =
-      token &&
-      (await this.getUser(token).catch((e) =>
-        console.error(this.exc.setup(e, "githubFinish"))
-      ));
-    const user =
-      owner &&
-      (await this.login(owner[0], owner[1])
-        .then((user) => this.tokenController.setToken(res, user.token))
-        .catch(console.error));
-
-    user || this.setErrorMessage(res);
-    return res.redirect(301, this.config.cors.allowedOrigin);
   };
 }

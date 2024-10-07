@@ -3,21 +3,21 @@ export default class ExceptionHandler<D, T> {
   constructor(module: D) {
     this.module = module;
   }
-
-  protected editName = (e: Error, method: T) =>
-    (e.name += ` > ${this.module}.${method}`);
-
   protected create = (e: unknown) => {
     const change = new Error(String(e));
     if (typeof e !== "string") change.name += `(${typeof e})`;
     return change;
   };
 
-  setup = (e: Error | unknown, method: T) => {
+  setup = (e: Error | unknown, method: T, eToAddStack?: Error) => {
     if (e === null || typeof e !== "object" || !("name" in e!))
       e = this.create(e);
-    this.editName(e as Error, method);
-    return e as Error;
+
+    // add stack trace
+    if (eToAddStack) (e as Error).stack! += eToAddStack.stack;
+    // edit name
+    (e as Error).name += ` > ${this.module}.${method}`;
+    return e;
   };
 
   throw = (e: Error | unknown, method: T) => {

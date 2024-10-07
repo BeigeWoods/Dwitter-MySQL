@@ -21,7 +21,7 @@ describe("OauthController", () => {
   );
   const hideMathods = {
     setErrorMessage: jest.spyOn(oauthController as any, "setErrorMessage"),
-    fetch: jest.spyOn(oauthController as any, "fetch"),
+    fetchData: jest.spyOn(oauthController as any, "fetchData"),
     getToken: jest.spyOn(oauthController as any, "getToken"),
     getUser: jest.spyOn(oauthController as any, "getUser"),
     login: jest.spyOn(oauthController as any, "login"),
@@ -93,7 +93,7 @@ describe("OauthController", () => {
       });
 
       test("occurs error when value of access_token doesn't exist", async () => {
-        hideMathods.fetch.mockRejectedValueOnce("Doesn't exist token");
+        hideMathods.fetchData.mockRejectedValueOnce("Doesn't exist token");
 
         await oauthController.githubFinish(request, response);
 
@@ -103,7 +103,7 @@ describe("OauthController", () => {
       });
 
       test("occurs error when github gets problem", async () => {
-        hideMathods.fetch.mockRejectedValueOnce(new Error("Github error"));
+        hideMathods.fetchData.mockRejectedValueOnce(new Error("Github error"));
 
         await oauthController.githubFinish(request, response);
 
@@ -164,7 +164,7 @@ describe("OauthController", () => {
           mockOauth.ownerData,
           mockOauth.emailData
         );
-        expect(error).toHaveBeenCalledWith("findByUsername error");
+        expect(error).toHaveBeenCalled();
         expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
 
@@ -228,7 +228,7 @@ describe("OauthController", () => {
           mockOauth.emailData,
           false
         );
-        expect(error).toHaveBeenCalledWith("create error");
+        expect(error).toHaveBeenCalled();
         expect(hideMathods.setErrorMessage).toHaveBeenCalledWith(response);
       });
 
