@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "ES2015",
-    "lib": ["ES6"],
+    "lib": ["ES2022.Error", "ES2021.Promise"],
     "strict": true,
     "sourceMap": true,
     "rootDir": "src",

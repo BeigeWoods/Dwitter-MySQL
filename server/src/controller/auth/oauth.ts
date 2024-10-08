@@ -31,13 +31,13 @@ export default class OauthController implements GithubOauthHandler {
     return res.cookie("oauth", "Github login is failed", options);
   };
 
-  private fetchData = async (
+  private fetchData = (
     index: IndexForFetchUsage,
     url: string,
     reqOption: https.RequestOptions
   ) =>
-    await new Promise((resolve, reject) => {
-      const req = https
+    new Promise((resolve, reject) =>
+      https
         .request(url, reqOption, (res) => {
           let body = "";
           res
@@ -48,7 +48,7 @@ export default class OauthController implements GithubOauthHandler {
               if (res.statusCode! < 200 || res.statusCode! >= 300)
                 return reject(
                   new Error(
-                    `Responds with "${result.message}" and status ${result.status} to get ${index}`
+                    `Responds with "${result.message}" and status ${result.status}`
                   )
                 );
 
@@ -57,15 +57,15 @@ export default class OauthController implements GithubOauthHandler {
                   case "token":
                     return "access_token" in result
                       ? resolve(result.access_token)
-                      : reject(new Error(`Doesn't exist token in ${result}`));
+                      : reject(new Error(JSON.stringify(result)));
                   case "user":
                     return "login" in result && "name" in result
                       ? resolve(result)
-                      : reject(new Error(`Doesn't exist user in ${result}`));
+                      : reject(new Error(JSON.stringify(result)));
                   case "email":
                     return Array.isArray(result) && "email" in result[0]
                       ? resolve(result[0].email)
-                      : reject(new Error(`Doesn't exist email in ${result}`));
+                      : reject(new Error(JSON.stringify(result)));
                 }
               else
                 return reject(
@@ -73,9 +73,9 @@ export default class OauthController implements GithubOauthHandler {
                 );
             });
         })
-        .on("error", (e) => reject(e))
-        .end();
-    });
+        .on("error", reject)
+        .end()
+    );
 
   private signup = async (
     owner: ResorceOwner,
@@ -121,10 +121,16 @@ export default class OauthController implements GithubOauthHandler {
       },
     };
 
-    return (await Promise.all([
-      this.fetchData("user", `${apiUrl}/user`, reqOption),
-      this.fetchData("email", `${apiUrl}/user/emails`, reqOption),
-    ])) as [ResorceOwner, string];
+    try {
+      return (await Promise.all([
+        this.fetchData("user", `${apiUrl}/user`, reqOption),
+        this.fetchData("email", `${apiUrl}/user/emails`, reqOption),
+      ])) as [ResorceOwner, string];
+    } catch (e) {
+      throw new Error("Failed to get user information", {
+        cause: { contents: e, token },
+      });
+    }
   };
 
   protected getToken = async (code: string) => {
@@ -143,11 +149,15 @@ export default class OauthController implements GithubOauthHandler {
       },
     };
 
-    return (await this.fetchData(
-      "token",
-      `${baseUrl}?${params}`,
-      reqOption
-    )) as string;
+    try {
+      return (await this.fetchData(
+        "token",
+        `${baseUrl}?${params}`,
+        reqOption
+      )) as string;
+    } catch (e) {
+      throw new Error("Failed to get token", { cause: { contents: e, code } });
+    }
   };
 
   githubStart = async (req: Request, res: Response) => {
