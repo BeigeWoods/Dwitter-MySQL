@@ -10,8 +10,7 @@ export default class ExceptionHandler<D, T> {
   };
 
   setup = (e: Error | unknown, method: T, eToAddStack?: Error) => {
-    if (e === null || typeof e !== "object" || !("name" in e!))
-      e = this.create(e);
+    if (!(e instanceof Error)) e = this.create(e);
 
     // add stack trace
     if (eToAddStack) (e as Error).stack! += eToAddStack.stack;
