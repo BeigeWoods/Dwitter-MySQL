@@ -9,9 +9,9 @@ import { KindOfController } from "../__dwitter__.d.ts/exception/exception.js";
 
 export default class CommentController implements CommentHandler {
   constructor(
-    private commentRepository: CommentDataHandler,
-    private userRepository: UserDataHandler,
-    private getSocketIO: () => Server,
+    private readonly commentRepository: CommentDataHandler,
+    private readonly userRepository: UserDataHandler,
+    private readonly getSocketIO: () => Server,
     private readonly exc: ExceptionHandler<
       KindOfController,
       keyof CommentHandler

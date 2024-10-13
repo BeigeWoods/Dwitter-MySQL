@@ -1,5 +1,4 @@
 import httpMocks from "node-mocks-http";
-import { hash, compare } from "bcrypt";
 import OauthController from "../../controller/auth/oauth";
 import config from "../../config";
 import {
@@ -7,6 +6,7 @@ import {
   mockedUserRepository,
 } from "../__mocked__/handler";
 import { mockOauth, mockUser } from "../__mocked__/data";
+import { mockBcrypt } from "../__mocked__/module";
 import ExceptionHandler from "../../exception/exception";
 
 jest.mock("bcrypt");
@@ -26,10 +26,6 @@ describe("OauthController", () => {
     getUser: jest.spyOn(oauthController as any, "getUser"),
     login: jest.spyOn(oauthController as any, "login"),
     signup: jest.spyOn(oauthController as any, "signup"),
-  };
-  const mockBcrypt = {
-    hash: hash as jest.Mock,
-    compare: compare as jest.Mock,
   };
   let response: httpMocks.MockResponse<any>,
     request: httpMocks.MockRequest<any>,

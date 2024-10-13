@@ -1,95 +1,282 @@
-import { OutputUser } from "../../__dwitter__.d.ts/data/user";
-import { mockUser } from "../__mocked__/data";
-import { mockedUserRepository } from "../__mocked__/handler";
+import httpMocks from "node-mocks-http";
+import AuthController from "../../controller/auth/auth";
+import config from "../../config";
+import ExceptionHandler from "../../exception/exception";
+import { mockPassword, mockUser, mockUserForInput } from "../__mocked__/data";
+import {
+  mockedTokenController,
+  mockedUserRepository,
+} from "../__mocked__/handler";
+import { mockBcrypt } from "../__mocked__/module";
 
-describe("AuthController.isDuplicateEmailOrUsername", () => {
-  const email = "@1",
-    username = "smith";
-  const isDuplicateEmailOrUsername = jest.fn(
-    async (email: string, username: string) => {
-      let result: OutputUser;
-      result = (await mockedUserRepository.findByEmail(email)) as OutputUser;
-      if (result) return email;
+jest.mock("bcrypt");
 
-      result = (await mockedUserRepository.findByUsername(
-        username
-      )) as OutputUser;
-      if (result) return username;
-    }
+describe("AuthController", () => {
+  const authController = new AuthController(
+    config,
+    mockedUserRepository,
+    mockedTokenController,
+    new ExceptionHandler("authController")
   );
-  async function validateDuple(email: string, username: string) {
-    const isDuplicate = await isDuplicateEmailOrUsername(email, username).catch(
-      (e) => {
-        throw `${e} > authController`;
-      }
+  let response: httpMocks.MockResponse<any>,
+    request: httpMocks.MockRequest<any>;
+  const username = "mr.smith",
+    email = "@",
+    name = "smith";
+
+  beforeEach(() => {
+    response = httpMocks.createResponse();
+  });
+
+  describe("signup", () => {
+    beforeEach(
+      () =>
+        (request = httpMocks.createRequest({
+          body: mockUserForInput(false, { username, email }),
+        }))
     );
-    return isDuplicate && "status 409";
-  }
-
-  describe("isDuplicateEmailOrUsername", () => {
-    test("occurs error when DB has a issue at finding user by email", async () => {
-      mockedUserRepository.findByEmail.mockRejectedValueOnce("Error");
-
-      const result = await isDuplicateEmailOrUsername(email, username).catch(
-        (e) => expect(e).toBe("Error")
-      );
-
-      expect(mockedUserRepository.findByEmail).toHaveBeenCalled();
-      expect(mockedUserRepository.findByUsername).not.toHaveBeenCalled();
-      expect(result).toBeUndefined();
-    });
-
-    test("returns username when username is duplicate", async () => {
+    test("return status 409 when username already exists", async () => {
       mockedUserRepository.findByEmail.mockResolvedValueOnce(undefined);
       mockedUserRepository.findByUsername.mockResolvedValueOnce(mockUser(1));
 
-      const result = await isDuplicateEmailOrUsername(email, username).catch(
-        (e) => expect(e).toBeUndefined()
-      );
+      await authController.signup(request, response);
 
-      expect(mockedUserRepository.findByEmail).toHaveBeenCalled();
-      expect(mockedUserRepository.findByUsername).toHaveBeenCalled();
-      expect(result).toBe(username);
+      expect(response.statusCode).toBe(409);
+      expect(response._getJSONData()).toEqual({
+        message: "username already exists",
+      });
     });
 
-    test("returns nothing when email or username isn't duplicate", async () => {
+    test("return status 409 and 'email already exists' when username and email exist", async () => {
+      mockedUserRepository.findByEmail.mockResolvedValueOnce(mockUser(1));
+      mockedUserRepository.findByUsername.mockResolvedValueOnce(mockUser(1));
+
+      await authController.signup(request, response);
+
+      expect(response.statusCode).toBe(409);
+      expect(response._getJSONData()).toEqual({
+        message: "email already exists",
+      });
+    });
+
+    test("throw error when bcrypt has problem", async () => {
       mockedUserRepository.findByEmail.mockResolvedValueOnce(undefined);
       mockedUserRepository.findByUsername.mockResolvedValueOnce(undefined);
+      mockBcrypt.hash.mockRejectedValueOnce("hash error");
 
-      const result = await isDuplicateEmailOrUsername(email, username).catch(
-        (e) => expect(e).toBeUndefined()
-      );
+      await authController.signup(request, response).catch((e) => {
+        expect(e.name).toBe("Error > authController.signup");
+        expect(e.message).toBe("hash error");
+      });
+    });
 
-      expect(mockedUserRepository.findByEmail).toHaveBeenCalled();
-      expect(mockedUserRepository.findByUsername).toHaveBeenCalled();
-      expect(result).toBeUndefined();
+    test("return status 201 when succeed", async () => {
+      mockedUserRepository.findByEmail.mockResolvedValueOnce(undefined);
+      mockedUserRepository.findByUsername.mockResolvedValueOnce(undefined);
+      mockBcrypt.hash.mockResolvedValueOnce("hashedPassword");
+      mockedUserRepository.create.mockResolvedValueOnce(2);
+      mockedTokenController.createJwtToken.mockReturnValue("token");
+
+      await authController.signup(request, response);
+
+      expect(mockedUserRepository.create).toHaveBeenCalledWith({
+        ...mockUserForInput(false, {
+          username,
+          email,
+          password: "hashedPassword",
+        }),
+        socialLogin: false,
+      });
+      expect(mockedTokenController.createJwtToken).toHaveBeenCalledWith(2);
+      expect(mockedTokenController.setToken).toHaveBeenCalled();
+      expect(response.statusCode).toBe(201);
+      expect(response._getJSONData()).toEqual({
+        token: "token",
+        username,
+      });
     });
   });
 
-  describe("signUp and updateUser validateDuple using isDuplicateEmailOrUsername", () => {
-    test("returns 'next()' when validateDuple catches error", async () => {
-      mockedUserRepository.findByEmail.mockRejectedValueOnce("Error");
+  describe("login", () => {
+    beforeEach(
+      () =>
+        (request = httpMocks.createRequest({
+          body: mockUserForInput(false, {
+            username,
+          }),
+        }))
+    );
 
-      await validateDuple(email, username).catch((e) =>
-        expect(e).toBe("Error > authController")
-      );
-    });
-
-    test("returns 'status 409' when validateDuple receives email or username", async () => {
-      mockedUserRepository.findByEmail.mockResolvedValueOnce(mockUser(1));
-
-      const result = await validateDuple(email, username);
-
-      expect(result).toBe("status 409");
-    });
-
-    test("returns undefined when validateDuple receives nothing", async () => {
-      mockedUserRepository.findByEmail.mockResolvedValueOnce(undefined);
+    test("return status 400 when doesn't exist user which find by username", async () => {
       mockedUserRepository.findByUsername.mockResolvedValueOnce(undefined);
 
-      const result = await validateDuple(email, username);
+      await authController.login(request, response);
 
-      expect(result).toBeUndefined();
+      expect(mockBcrypt.compare).not.toHaveBeenCalled();
+      expect(mockedTokenController.createJwtToken).not.toHaveBeenCalled();
+      expect(mockedTokenController.setToken).not.toHaveBeenCalled();
+      expect(response.statusCode).toBe(400);
+      expect(response._getJSONData()).toEqual({
+        message: "Invalid user or password",
+      });
+    });
+
+    test("return status 400 when result of bcrypt.compare about password is false", async () => {
+      mockedUserRepository.findByUsername.mockResolvedValueOnce(
+        mockUser(1, username)
+      );
+      mockBcrypt.compare.mockResolvedValue(false);
+
+      await authController.login(request, response);
+
+      expect(response.statusCode).toBe(400);
+      expect(response._getJSONData()).toEqual({
+        message: "Invalid user or password",
+      });
+    });
+
+    test("return status 201 when succeed", async () => {
+      mockedUserRepository.findByUsername.mockResolvedValueOnce(
+        mockUser(1, username)
+      );
+      mockBcrypt.compare.mockResolvedValue(true);
+      mockedTokenController.createJwtToken.mockReturnValue("token");
+
+      await authController.login(request, response);
+
+      expect(mockedTokenController.createJwtToken).toHaveBeenCalledWith(1);
+      expect(mockedTokenController.setToken).toHaveBeenCalled();
+      expect(response.statusCode).toBe(200);
+      expect(response._getJSONData()).toEqual({
+        token: "token",
+        username,
+      });
+    });
+  });
+
+  describe("updateUser", () => {
+    test("return status 409 when data of name and email is given but email already exists", async () => {
+      request = httpMocks.createRequest({
+        user: { id: 2 },
+        body: mockUserForInput(true, {
+          name,
+          email,
+        }),
+      });
+      mockedUserRepository.findByEmail.mockResolvedValueOnce(mockUser(1));
+
+      await authController.updateUser(request, response);
+
+      expect(mockedUserRepository.findByEmail).toHaveBeenCalledWith(
+        request.body.email
+      );
+      expect(mockedUserRepository.findByUsername).not.toHaveBeenCalled();
+      expect(mockedUserRepository.update).not.toHaveBeenCalled();
+      expect(response.statusCode).toBe(409);
+      expect(response._getJSONData()).toEqual({
+        message: "email already exists",
+      });
+    });
+
+    test("return status 201 when data of name is given and succeed", async () => {
+      request = httpMocks.createRequest({
+        user: { id: 2 },
+        body: mockUserForInput(true, {
+          name,
+        }),
+      });
+
+      await authController.updateUser(request, response);
+
+      expect(mockedUserRepository.findByEmail).not.toHaveBeenCalled();
+      expect(mockedUserRepository.findByUsername).not.toHaveBeenCalled();
+      expect(mockedUserRepository.update).toHaveBeenCalledWith(2, request.body);
+      expect(response.statusCode).toBe(201);
+      expect(response._getJSONData()).toEqual(request.body);
+    });
+  });
+
+  describe("updatePassword", () => {
+    test("return status 403 when social login users access", async () => {
+      request = httpMocks.createRequest({
+        user: { socialLogin: true },
+      });
+
+      await authController.updatePassword(request, response);
+
+      expect(mockBcrypt.compare).not.toHaveBeenCalled();
+      expect(mockBcrypt.hash).not.toHaveBeenCalled();
+      expect(mockedUserRepository.updatePassword).not.toHaveBeenCalled();
+      expect(response.statusCode).toBe(403);
+    });
+
+    test("return status 400 when given password doesn't match user's password", async () => {
+      request = httpMocks.createRequest({
+        user: { password: "hashedPassword" },
+        body: mockPassword({}),
+      });
+      mockBcrypt.compare.mockResolvedValueOnce(false);
+
+      await authController.updatePassword(request, response);
+
+      expect(response.statusCode).toBe(400);
+      expect(response._getJSONData()).toEqual({
+        message: "Incorrect password",
+      });
+    });
+
+    test("return status 400 when password and newPassword are same", async () => {
+      request = httpMocks.createRequest({
+        user: { password: "hashedPassword" },
+        body: mockPassword({
+          newPassword: "1234",
+        }),
+      });
+      mockBcrypt.compare.mockResolvedValueOnce(true);
+
+      await authController.updatePassword(request, response);
+
+      expect(response.statusCode).toBe(400);
+      expect(response._getJSONData()).toEqual({
+        message: "Do not use the old password again",
+      });
+    });
+
+    test("return status 400 when newPassword and checkPassword are different", async () => {
+      request = httpMocks.createRequest({
+        user: { password: "hashedPassword" },
+        body: mockPassword({
+          checkPassword: "qwert",
+        }),
+      });
+      mockBcrypt.compare.mockResolvedValueOnce(true);
+
+      await authController.updatePassword(request, response);
+
+      expect(mockBcrypt.hash).not.toHaveBeenCalled();
+      expect(mockedUserRepository.updatePassword).not.toHaveBeenCalled();
+      expect(response.statusCode).toBe(400);
+      expect(response._getJSONData()).toEqual({
+        message: "Incorrect password",
+      });
+    });
+
+    test("return status 204 when succed", async () => {
+      request = httpMocks.createRequest({
+        user: { id: 2, password: "hashedPassword" },
+        body: mockPassword({}),
+      });
+      mockBcrypt.compare.mockResolvedValueOnce(true);
+      mockBcrypt.hash.mockResolvedValueOnce("newhashedPassword");
+      mockedUserRepository.updatePassword.mockResolvedValueOnce();
+
+      await authController.updatePassword(request, response);
+
+      expect(mockedUserRepository.updatePassword).toHaveBeenCalledWith(
+        2,
+        "newhashedPassword"
+      );
+      expect(response.statusCode).toBe(204);
     });
   });
 });

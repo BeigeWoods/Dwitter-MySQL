@@ -6,17 +6,17 @@ import DB from "../__dwitter__.d.ts/db/database";
 import { KindOfRepository } from "../__dwitter__.d.ts/exception/exception";
 
 export default class CommentRepository implements CommentDataHandler {
-  private readonly Select_Feild =
+  protected readonly Select_Feild =
     "SELECT J.id, text, good, tweetId, recipient, J.userId, username, name, url, G.userId AS clicked, createdAt, updatedAt";
-  private readonly With_User_Reply =
+  protected readonly With_User_Reply =
     "SELECT C.id, text, good, tweetId, R.username AS recipient, C.userId, U.username, U.name, U.url, createdAt, updatedAt \
     FROM comments C \
     JOIN users U ON C.userId = U.id \
     LEFT JOIN replies R ON C.id = R.commentId";
-  private readonly With_Good =
+  protected readonly With_Good =
     "LEFT JOIN (SELECT * FROM goodComments WHERE userId = ?) G ON G.commentId = J.id";
-  private readonly Order_By = "ORDER BY createdAt DESC";
-  private readonly Get_By_Id = `${this.Select_Feild} FROM (${this.With_User_Reply} WHERE C.id = ? AND tweetId = ?) J ${this.With_Good} ${this.Order_By}`;
+  protected readonly Order_By = "ORDER BY createdAt DESC";
+  protected readonly Get_By_Id = `${this.Select_Feild} FROM (${this.With_User_Reply} WHERE C.id = ? AND tweetId = ?) J ${this.With_Good} ${this.Order_By}`;
 
   constructor(
     private readonly db: DB,
@@ -26,7 +26,7 @@ export default class CommentRepository implements CommentDataHandler {
     >
   ) {}
 
-  async getAll(tweetId: string, userId: number) {
+  getAll = async (tweetId: string, userId: number) => {
     let conn;
     try {
       conn = await this.db.getConnection();
@@ -42,14 +42,14 @@ export default class CommentRepository implements CommentDataHandler {
     } finally {
       this.db.releaseConnection(conn!);
     }
-  }
+  };
 
-  async create(
+  create = async (
     userId: number,
     tweetId: string,
     text: string,
     recipient?: string
-  ) {
+  ) => {
     let conn;
     try {
       conn = await this.db.getConnection();
@@ -78,14 +78,14 @@ export default class CommentRepository implements CommentDataHandler {
     } finally {
       this.db.releaseConnection(conn!);
     }
-  }
+  };
 
-  async update(
+  update = async (
     tweetId: string,
     commentId: string,
     userId: number,
     text?: string
-  ) {
+  ) => {
     let conn;
     try {
       conn = await this.db.getConnection();
@@ -105,9 +105,9 @@ export default class CommentRepository implements CommentDataHandler {
     } finally {
       this.db.releaseConnection(conn!);
     }
-  }
+  };
 
-  async updateGood(commentId: string, good: number) {
+  updateGood = async (commentId: string, good: number) => {
     let conn;
     try {
       conn = await this.db.getConnection();
@@ -120,9 +120,9 @@ export default class CommentRepository implements CommentDataHandler {
     } finally {
       this.db.releaseConnection(conn!);
     }
-  }
+  };
 
-  async delete(commentId: string) {
+  delete = async (commentId: string) => {
     let conn;
     try {
       conn = await this.db.getConnection();
@@ -132,5 +132,5 @@ export default class CommentRepository implements CommentDataHandler {
     } finally {
       this.db.releaseConnection(conn!);
     }
-  }
+  };
 }

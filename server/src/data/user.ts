@@ -16,7 +16,7 @@ export default class UserRepository implements UserDataHandler {
     >
   ) {}
 
-  private queryToUpdateUser(user: UserForUpdate) {
+  private queryToUpdateUser = (user: UserForUpdate) => {
     let result = "";
     let key: keyof UserForUpdate;
     for (key in user) {
@@ -26,18 +26,18 @@ export default class UserRepository implements UserDataHandler {
       }
     }
     return result;
-  }
+  };
 
-  private valuesToUpdateUser(user: UserForUpdate) {
+  private valuesToUpdateUser = (user: UserForUpdate) => {
     let result: string[] = [];
     let key: keyof UserForUpdate;
     for (key in user) {
       if (user[key]) result.push(key);
     }
     return result;
-  }
+  };
 
-  async findById(userId: number) {
+  findById = async (userId: number) => {
     let conn;
     try {
       conn = await this.db.getConnection();
@@ -49,9 +49,9 @@ export default class UserRepository implements UserDataHandler {
     } finally {
       this.db.releaseConnection(conn!);
     }
-  }
+  };
 
-  async findByUsername(username: string) {
+  findByUsername = async (username: string) => {
     let conn;
     try {
       conn = await this.db.getConnection();
@@ -63,9 +63,9 @@ export default class UserRepository implements UserDataHandler {
     } finally {
       this.db.releaseConnection(conn!);
     }
-  }
+  };
 
-  async findByEmail(email: string) {
+  findByEmail = async (email: string) => {
     let conn;
     try {
       conn = await this.db.getConnection();
@@ -77,9 +77,9 @@ export default class UserRepository implements UserDataHandler {
     } finally {
       this.db.releaseConnection(conn!);
     }
-  }
+  };
 
-  async create(user: UserForCreate) {
+  create = async (user: UserForCreate) => {
     let conn;
     try {
       conn = await this.db.getConnection();
@@ -102,9 +102,9 @@ export default class UserRepository implements UserDataHandler {
     } finally {
       this.db.releaseConnection(conn!);
     }
-  }
+  };
 
-  async update(userId: number, user: UserForUpdate) {
+  update = async (userId: number, user: UserForUpdate) => {
     let conn;
     try {
       conn = await this.db.getConnection();
@@ -117,9 +117,9 @@ export default class UserRepository implements UserDataHandler {
     } finally {
       this.db.releaseConnection(conn!);
     }
-  }
+  };
 
-  async updatePassword(userId: number, password: string) {
+  updatePassword = async (userId: number, password: string) => {
     let conn;
     try {
       conn = await this.db.getConnection();
@@ -132,9 +132,9 @@ export default class UserRepository implements UserDataHandler {
     } finally {
       this.db.releaseConnection(conn!);
     }
-  }
+  };
 
-  async delete(userId: number) {
+  delete = async (userId: number) => {
     let conn;
     try {
       conn = await this.db.getConnection();
@@ -144,5 +144,5 @@ export default class UserRepository implements UserDataHandler {
     } finally {
       this.db.releaseConnection(conn!);
     }
-  }
+  };
 }

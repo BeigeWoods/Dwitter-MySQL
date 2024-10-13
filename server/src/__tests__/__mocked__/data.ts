@@ -1,6 +1,10 @@
 import httpMocks from "node-mocks-http";
-import { OutputUser } from "../../__dwitter__.d.ts/data/user";
-import { OutputTweet } from "../../__dwitter__.d.ts/data/tweet";
+import {
+  OutputUser,
+  Password,
+  UserForCreate,
+} from "../../__dwitter__.d.ts/data/user";
+import { InputTweet, OutputTweet } from "../../__dwitter__.d.ts/data/tweet";
 
 export const mockUser = (userId: number, username = ""): OutputUser => ({
   id: userId,
@@ -11,15 +15,39 @@ export const mockUser = (userId: number, username = ""): OutputUser => ({
   socialLogin: true,
 });
 
+export const mockUserForInput = (
+  isUpdate: boolean,
+  user?: Partial<UserForCreate>
+) => {
+  const basic = {
+    username: user?.username || "",
+    name: user?.name || "",
+    email: user?.email || "",
+    url: user?.url || "",
+  };
+  return isUpdate
+    ? basic
+    : {
+        ...basic,
+        password: user?.password || "1234",
+      };
+};
+
+export const mockPassword = (pw: Partial<Password>): Partial<Password> => ({
+  password: pw.password || "1234",
+  newPassword: pw.newPassword || "qwer",
+  checkPassword: pw.checkPassword || "qwer",
+});
+
 export const mockTweet = {
-  tweet: (text = "", video = "", image = ""): OutputTweet => ({
+  tweet: (tweet?: InputTweet): OutputTweet => ({
     username: "",
     name: "",
     url: "",
     id: 2,
-    text,
-    video,
-    image,
+    text: tweet?.text || "",
+    video: tweet?.video || "",
+    image: tweet?.image || "",
     good: 1,
     createdAt: "today" as any,
     updatedAt: "now" as any,
@@ -28,11 +56,8 @@ export const mockTweet = {
   }),
   reqOptions: (
     tweetId?: number,
-    tweet?: {
-      text?: string;
-      video?: string;
+    tweet?: InputTweet & {
       newImage?: string;
-      image?: string;
     },
     username?: string
   ): httpMocks.RequestOptions => ({

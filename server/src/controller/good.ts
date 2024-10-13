@@ -9,9 +9,9 @@ import { KindOfController } from "../__dwitter__.d.ts/exception/exception.js";
 
 export default class GoodController implements GoodHandler {
   constructor(
-    private tweetRepository: TweetDataHandler,
-    private commentRepository: CommentDataHandler,
-    private goodRepository: GoodDataHandler,
+    private readonly tweetRepository: TweetDataHandler,
+    private readonly commentRepository: CommentDataHandler,
+    private readonly goodRepository: GoodDataHandler,
     private readonly exc: ExceptionHandler<KindOfController, keyof GoodHandler>
   ) {}
 

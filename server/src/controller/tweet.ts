@@ -8,11 +8,11 @@ import TweetDataHandler from "../__dwitter__.d.ts/data/tweet";
 import { KindOfController } from "../__dwitter__.d.ts/exception/exception.js";
 
 export default class TweetController implements TweetHandler {
-  private readonly urlRegex =
+  protected readonly urlRegex =
     /(?!(youtu\.be\/)|(youtube\.com\/((watch\?v\=)|(embed\/))))[a-zA-Z0-9-_]{11}/;
   constructor(
-    private tweetRepository: TweetDataHandler,
-    private getSocketIO: () => Server,
+    private readonly tweetRepository: TweetDataHandler,
+    private readonly getSocketIO: () => Server,
     private readonly exc: ExceptionHandler<KindOfController, keyof TweetHandler>
   ) {}
 

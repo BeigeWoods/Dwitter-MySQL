@@ -7,16 +7,16 @@ import DB from "../__dwitter__.d.ts/db/database";
 import { KindOfRepository } from "../__dwitter__.d.ts/exception/exception";
 
 export default class TweetRepository implements TweetDataHandler {
-  private readonly Select_Feild =
+  protected readonly Select_Feild =
     "SELECT id, text, video, image, good, createdAt, updatedAt, J.userId, name, username, url, G.userId AS clicked";
-  private readonly With_User =
+  protected readonly With_User =
     "SELECT T.id, text, video, image, good, createdAt, updatedAt, userId, name, username, url \
     FROM tweets T, users U";
-  private readonly With_Good =
+  protected readonly With_Good =
     "LEFT JOIN (SELECT * FROM goodTweets WHERE userId = ?) G \
     ON G.tweetId = J.id";
-  private readonly Order_By = "ORDER BY createdAt DESC";
-  private readonly Get_By_Id = `${this.Select_Feild} FROM (${this.With_User} WHERE T.userId = U.id AND T.id = ?) J ${this.With_Good} ${this.Order_By}`;
+  protected readonly Order_By = "ORDER BY createdAt DESC";
+  protected readonly Get_By_Id = `${this.Select_Feild} FROM (${this.With_User} WHERE T.userId = U.id AND T.id = ?) J ${this.With_Good} ${this.Order_By}`;
 
   constructor(
     private readonly db: DB,

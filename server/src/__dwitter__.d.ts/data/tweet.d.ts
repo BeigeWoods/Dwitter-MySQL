@@ -39,36 +39,4 @@ declare interface TweetDataHandler {
   delete(tweetId: string): Promise<void>;
 }
 
-export declare class TweetRepository implements TweetDataHandler {
-  private readonly Select_Feild;
-  private readonly With_User;
-  private readonly With_Good;
-  private readonly Order_By;
-
-  constructor();
-
-  private queryToUpdateTweet(tweetContents: InputTweet): string;
-  private valuesToUpdateTweet(tweetContents: InputTweet): string[];
-  getAll: (userId: number) => Promise<OutputTweet[] | void>;
-  getAllByUsername: (
-    userId: number,
-    username: string
-  ) => Promise<OutputTweet[] | void>;
-  getById: (
-    tweetId: string | number,
-    userId: number
-  ) => Promise<OutputTweet | void>;
-  create: (
-    userId: number,
-    tweetContents: InputTweet
-  ) => Promise<OutputTweet | void>;
-  update: (
-    tweetId: string | number,
-    userId: number,
-    tweetContents: InputTweet
-  ) => Promise<OutputTweet | void>;
-  updateGood(tweetId: string, good: number): Promise<void>;
-  delete: (tweetId: string) => Promise<void>;
-}
-
 export default TweetDataHandler;

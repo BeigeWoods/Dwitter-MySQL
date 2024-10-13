@@ -15,8 +15,8 @@ import { KindOfController } from "../../__dwitter__.d.ts/exception/exception.js"
 export default class OauthController implements GithubOauthHandler {
   constructor(
     private readonly config: Config,
-    private tokenController: TokenHandler,
-    private userRepository: UserDataHandler,
+    private readonly tokenController: TokenHandler,
+    private readonly userRepository: UserDataHandler,
     private readonly exc: ExceptionHandler<
       KindOfController,
       keyof GithubOauthHandler
