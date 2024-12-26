@@ -1,9 +1,11 @@
 export declare type OutputComment = {
-  id: string;
+  id: number;
   text: string;
   good: number;
   tweetId: string;
+  recipient: string | null;
   userId: number;
+  clicked: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -22,7 +24,6 @@ declare interface CommentDataHandler {
     userId: number,
     text: string
   ): Promise<OutputComment | void>;
-  updateGood(id: string, good: number): Promise<void>;
   delete(commentId: string): Promise<void>;
 }
 

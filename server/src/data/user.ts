@@ -1,4 +1,5 @@
 import ExceptionHandler from "../exception/exception.js";
+import { PoolConnection } from "mysql2/promise.js";
 import UserDataHandler, {
   UserForCreate,
   UserForUpdate,
@@ -38,7 +39,7 @@ export default class UserRepository implements UserDataHandler {
   };
 
   findById = async (userId: number) => {
-    let conn;
+    let conn: PoolConnection;
     try {
       conn = await this.db.getConnection();
       return await conn
@@ -52,7 +53,7 @@ export default class UserRepository implements UserDataHandler {
   };
 
   findByUsername = async (username: string) => {
-    let conn;
+    let conn: PoolConnection;
     try {
       conn = await this.db.getConnection();
       return await conn
@@ -66,7 +67,7 @@ export default class UserRepository implements UserDataHandler {
   };
 
   findByEmail = async (email: string) => {
-    let conn;
+    let conn: PoolConnection;
     try {
       conn = await this.db.getConnection();
       return await conn
@@ -80,7 +81,7 @@ export default class UserRepository implements UserDataHandler {
   };
 
   create = async (user: UserForCreate) => {
-    let conn;
+    let conn: PoolConnection;
     try {
       conn = await this.db.getConnection();
       return await conn
@@ -105,7 +106,7 @@ export default class UserRepository implements UserDataHandler {
   };
 
   update = async (userId: number, user: UserForUpdate) => {
-    let conn;
+    let conn: PoolConnection;
     try {
       conn = await this.db.getConnection();
       await conn.execute(
@@ -120,7 +121,7 @@ export default class UserRepository implements UserDataHandler {
   };
 
   updatePassword = async (userId: number, password: string) => {
-    let conn;
+    let conn: PoolConnection;
     try {
       conn = await this.db.getConnection();
       await conn.execute("UPDATE users SET password = ? WHERE id = ?", [
@@ -135,7 +136,7 @@ export default class UserRepository implements UserDataHandler {
   };
 
   delete = async (userId: number) => {
-    let conn;
+    let conn: PoolConnection;
     try {
       conn = await this.db.getConnection();
       await conn.execute("DELETE FROM users WHERE id = ?", [userId]);

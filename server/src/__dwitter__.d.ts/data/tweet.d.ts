@@ -35,7 +35,6 @@ declare interface TweetDataHandler {
     userId: number,
     tweetContents: InputTweet
   ): Promise<OutputTweet | void>;
-  updateGood(tweetId: string, good: number): Promise<void>;
   delete(tweetId: string): Promise<void>;
 }
 

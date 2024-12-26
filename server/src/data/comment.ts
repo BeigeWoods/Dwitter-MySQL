@@ -1,4 +1,5 @@
 import ExceptionHandler from "../exception/exception.js";
+import { PoolConnection } from "mysql2/promise.js";
 import CommentDataHandler, {
   OutputComment,
 } from "../__dwitter__.d.ts/data/comments";
@@ -27,7 +28,7 @@ export default class CommentRepository implements CommentDataHandler {
   ) {}
 
   getAll = async (tweetId: string, userId: number) => {
-    let conn;
+    let conn: PoolConnection;
     try {
       conn = await this.db.getConnection();
       return await conn
@@ -50,10 +51,11 @@ export default class CommentRepository implements CommentDataHandler {
     text: string,
     recipient?: string
   ) => {
-    let conn;
+    let conn: PoolConnection;
     try {
       conn = await this.db.getConnection();
-      await this.db.beginTransaction(conn);
+
+      if (recipient) await this.db.beginTransaction(conn);
       const commentId = await conn
         .execute(
           "INSERT INTO comments (text, good, userId, tweetId, createdAt, updatedAt) \
@@ -62,18 +64,19 @@ export default class CommentRepository implements CommentDataHandler {
         )
         .then((result: any[]) => result[0].insertId as number);
       if (recipient) {
-        await conn.execute(
-          "INSERT INTO replies (commentId, username) VALUES(?, ?)",
-          [commentId, recipient]
-        );
+        await conn
+          .execute("INSERT INTO replies (commentId, username) VALUES(?, ?)", [
+            commentId,
+            recipient,
+          ])
+          .then(async () => await this.db.commit(conn));
       }
-      const result = await conn
+
+      return await conn
         .execute(this.Get_By_Id, [commentId, tweetId, userId])
         .then((result: any[]) => result[0][0] as OutputComment);
-      await this.db.commit(conn);
-      return result;
     } catch (e) {
-      await this.db.rollback(conn!);
+      if (recipient) await this.db.rollback(conn!);
       this.exc.throw(e, "create");
     } finally {
       this.db.releaseConnection(conn!);
@@ -86,44 +89,25 @@ export default class CommentRepository implements CommentDataHandler {
     userId: number,
     text?: string
   ) => {
-    let conn;
+    let conn: PoolConnection;
     try {
       conn = await this.db.getConnection();
-      await this.db.beginTransaction(conn);
       await conn.execute(
         "UPDATE comments SET text = ? , updatedAt = ? WHERE id = ?",
         [text, new Date(), commentId]
       );
-      const result = await conn
+      return await conn
         .execute(this.Get_By_Id, [commentId, tweetId, userId])
         .then((result: any[]) => result[0][0] as OutputComment);
-      await this.db.commit(conn);
-      return result;
     } catch (e) {
-      await this.db.rollback(conn!);
       this.exc.throw(e, "update");
     } finally {
       this.db.releaseConnection(conn!);
     }
   };
 
-  updateGood = async (commentId: string, good: number) => {
-    let conn;
-    try {
-      conn = await this.db.getConnection();
-      await conn.execute("UPDATE comments SET good = ? WHERE id = ?", [
-        good,
-        commentId,
-      ]);
-    } catch (e) {
-      this.exc.throw(e, "updateGood");
-    } finally {
-      this.db.releaseConnection(conn!);
-    }
-  };
-
   delete = async (commentId: string) => {
-    let conn;
+    let conn: PoolConnection;
     try {
       conn = await this.db.getConnection();
       await conn.execute("DELETE FROM comments WHERE id = ?", [commentId]);

@@ -3,7 +3,7 @@ import config from "../config.js";
 import DB from "../__dwitter__.d.ts/db/database.js";
 
 const { database, user, password, host } = config.db;
-const pool = mysql.createPool({ host, user, password, database });
+export const pool = mysql.createPool({ host, user, password, database });
 
 const db: DB = {
   getConnection: async () =>
