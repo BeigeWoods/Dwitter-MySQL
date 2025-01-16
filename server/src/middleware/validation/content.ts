@@ -8,24 +8,19 @@ const about = {
       .notEmpty()
       .withMessage(`Invalid ${title}_0`)
       .bail()
-      .exists({ values: "falsy" })
-      .withMessage(`Invalid ${title}_X`)
-      .bail()
       .trim()
       .isNumeric()
       .isInt({ allow_leading_zeroes: false, min: 1 }),
   ],
-  good: (title: string, subtitle = title) => [
-    body(title, `Invalid ${subtitle}`)
+  clicked: (subtitle: string) => [
+    body("clicked", `Invalid ${subtitle}`)
       .notEmpty()
       .withMessage(`Invalid ${subtitle}_0`)
       .bail()
-      .exists({ values: "null" })
+      .exists({ values: "undefined" })
       .withMessage(`Invalid ${subtitle}_X`)
       .bail()
-      .trim()
-      .isNumeric()
-      .isInt({ allow_leading_zeroes: true, min: 0 }),
+      .isBoolean(),
   ],
 };
 
@@ -38,11 +33,9 @@ const content = {
       .notEmpty()
       .withMessage("Invalid username_0")
       .bail()
-      .exists({ values: "falsy" })
-      .withMessage("Invalid username_X")
+      .isString()
       .bail()
       .trim()
-      .isString()
       .isLength({ min: 2 }),
   ],
   recipient: [
@@ -54,27 +47,26 @@ const content = {
       .exists({ values: "falsy" })
       .withMessage("Invalid reply_X")
       .bail()
-      .trim()
       .isString()
+      .bail()
+      .trim()
       .isLength({ min: 2 }),
   ],
   tweetContents: [
     body("text", "Invalid text")
-      .optional({ values: "falsy" })
-      .default("")
-      .trim()
+      .notEmpty()
+      .withMessage(`Invalid text_0`)
+      .bail()
+      .replace([null, false], "")
       .isString()
       .bail()
-      .isLength({ min: 1 })
-      .withMessage("Text should be at least 1 characters"),
+      .trim(),
     body("video", "Invalid video")
       .optional({ values: "falsy" })
-      .default("")
       .trim()
       .matches(
         /(https\:\/\/(www\.)?)?((youtube\.com\/(watch\?v\=|embed\/))|(youtu\.be\/))[a-zA-Z0-9-_]{11}/
-      )
-      .withMessage("Invalid youtube video url"),
+      ),
   ],
   existingImage: [
     body("image", "Invalid image")
@@ -108,10 +100,6 @@ const content = {
       .bail()
       .isLength({ min: 1 })
       .withMessage("Text should be at least 1 characters"),
-  ],
-  goodContents: [
-    ...about.good("clicked", "to click good"),
-    ...about.good("good"),
   ],
 };
 
@@ -147,6 +135,14 @@ export const commentValidator = {
 };
 
 export const goodValidator = {
-  tweet: [...content.tweetId, ...content.goodContents, expressValidator],
-  comment: [...content.commentId, ...content.goodContents, expressValidator],
+  tweet: [
+    ...content.tweetId,
+    ...about.clicked("to click good"),
+    expressValidator,
+  ],
+  comment: [
+    ...content.commentId,
+    ...about.clicked("to click good"),
+    expressValidator,
+  ],
 };

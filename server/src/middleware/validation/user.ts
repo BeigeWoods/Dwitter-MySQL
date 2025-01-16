@@ -2,7 +2,7 @@ import { body, check } from "express-validator";
 import expressValidator from "./validator.js";
 
 const about = {
-  name: (title: string, capital: string) => [
+  name: (title: string) => [
     body(title, `Invaild ${title}`)
       .notEmpty()
       .withMessage(`Invalid ${title}_0`)
@@ -10,11 +10,11 @@ const about = {
       .exists({ values: "falsy" })
       .withMessage(`Invalid ${title}_X`)
       .bail()
-      .trim()
       .isString()
       .bail()
+      .trim()
       .isLength({ min: 2 })
-      .withMessage(`${capital} should be at least 2 characters`),
+      .withMessage(`${title} should be at least 2 characters`),
   ],
   password: (title: string, subtitle = title) => [
     body(title, `Invaild ${subtitle}`)
@@ -24,28 +24,31 @@ const about = {
       .exists({ values: "falsy" })
       .withMessage(`Invalid ${subtitle}_X`)
       .bail()
-      .trim()
       .isString()
       .bail()
+      .trim()
       .isLength({ min: 4 })
       .withMessage("Password should be at least 4 characters"),
   ],
-  nameOfProfile: (title: string, capital: string) => [
+  nameToUpdate: (title: string) => [
     body(title, `Invaild ${title}`)
-      .optional({ values: "falsy" })
-      .trim()
+      .notEmpty()
+      .withMessage(`Invalid ${title}_0`)
+      .bail()
+      .replace([null, false], "")
       .isString()
       .bail()
+      .trim()
       .isLength({ min: 2 })
-      .withMessage(`${capital} should be at least 2 characters`),
+      .withMessage(`${title} should be at least 2 characters`),
   ],
 };
 
 const user = {
-  username: about.name("username", "Username"),
+  username: about.name("username"),
   password: about.password("password"),
-  userContents: [
-    ...about.name("name", "Name"),
+  userForSignup: [
+    ...about.name("name"),
     body("email", "Invaild email")
       .notEmpty()
       .withMessage("Invalid email_0")
@@ -57,18 +60,24 @@ const user = {
       .isEmail()
       .normalizeEmail(),
   ],
-  profileContents: [
-    ...about.nameOfProfile("username", "Username"),
-    ...about.nameOfProfile("name", "Name"),
+  userForUpdate: [
+    ...about.nameToUpdate("username"),
+    ...about.nameToUpdate("name"),
     body("email", "Invaild email")
-      .optional({ values: "falsy" })
+      .notEmpty()
+      .withMessage("Invalid email_0")
+      .bail()
+      .replace([null, false], "")
       .trim()
       .isEmail()
       .normalizeEmail(),
   ],
   avatarUrl: [
     body("url", "Invalid profile image url")
-      .optional({ values: "falsy" })
+      .notEmpty()
+      .withMessage("Invalid url_0")
+      .bail()
+      .replace([null, false], "")
       .trim()
       .isURL(),
   ],
@@ -94,13 +103,13 @@ const userValidator = {
   signUp: [
     ...user.username,
     ...user.password,
-    ...user.userContents,
+    ...user.userForSignup,
     ...user.avatarUrl,
     expressValidator,
   ],
   login: [...user.username, ...user.password, expressValidator],
   updateUser: [
-    ...user.profileContents,
+    ...user.userForUpdate,
     ...user.avatarUrl,
     ...user.isAllEmpty,
     expressValidator,
