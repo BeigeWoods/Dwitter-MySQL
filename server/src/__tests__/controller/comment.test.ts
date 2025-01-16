@@ -1,6 +1,5 @@
 import httpMocks from "node-mocks-http";
 import faker from "faker";
-import { NextFunction } from "express";
 import CommentController from "../../controller/comments";
 import {
   mockedCommentRepository,
@@ -23,8 +22,7 @@ describe("Comment Controller", () => {
     text = faker.random.words(3),
     recipient = "smith";
   let response: httpMocks.MockResponse<any>,
-    request: httpMocks.MockRequest<any>,
-    next: jest.Mock<NextFunction>;
+    request: httpMocks.MockRequest<any>;
 
   beforeEach(() => {
     response = httpMocks.createResponse();

@@ -70,8 +70,6 @@ const goodRepository = new GoodRepository(
   new ExceptionHandler("goodRepository")
 );
 const goodContoller = new GoodController(
-  tweetRepository,
-  commentRepository,
   goodRepository,
   new ExceptionHandler("goodController")
 );

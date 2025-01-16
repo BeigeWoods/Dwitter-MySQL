@@ -51,7 +51,7 @@ export const mockTweet = {
     good: 1,
     createdAt: "today" as any,
     updatedAt: "now" as any,
-    clicked: 1,
+    clicked: true,
     userId: 1,
   }),
   reqOptions: (
@@ -75,11 +75,13 @@ export const mockTweet = {
 
 export const mockComment = {
   comment: {
-    id: "",
+    id: 1,
     text: "",
     good: 1,
     tweetId: "",
     userId: 1,
+    recipient: "",
+    clicked: false,
     createdAt: "today" as any,
     updatedAt: "now" as any,
   },

@@ -12,7 +12,7 @@ export declare type OutputTweet = UserForTweet &
     createdAt: Date;
     updatedAt: Date;
     good: number;
-    clicked: number;
+    clicked: boolean;
     userId: number;
   };
 

@@ -8,16 +8,12 @@ import DB from "../__dwitter__.d.ts/db/database";
 import { KindOfRepository } from "../__dwitter__.d.ts/exception/exception";
 
 export default class TweetRepository implements TweetDataHandler {
-  protected readonly Select_Feild =
-    "SELECT id, text, video, image, good, createdAt, updatedAt, J.userId, name, username, url, G.userId AS clicked";
-  protected readonly With_User =
-    "SELECT T.id, text, video, image, good, createdAt, updatedAt, userId, name, username, url \
-    FROM tweets T, users U";
-  protected readonly With_Good =
-    "LEFT JOIN (SELECT * FROM goodTweets WHERE userId = ?) G \
-    ON G.tweetId = J.id";
+  protected readonly Select =
+    "SELECT T.id, text, video, image, good, createdAt, updatedAt, T.userId, name, username, url, clicked FROM tweets T\
+    JOIN users U ON T.userId = U.id\
+    LEFT JOIN (SELECT tweetId, IF(userId = ?, true, false) AS clicked FROM goodTweets) G ON G.tweetId = T.id";
   protected readonly Order_By = "ORDER BY createdAt DESC";
-  protected readonly Get_By_Id = `${this.Select_Feild} FROM (${this.With_User} WHERE T.userId = U.id AND T.id = ?) J ${this.With_Good} ${this.Order_By}`;
+  protected readonly Get_By_Id = `${this.Select} WHERE T.id = ? ${this.Order_By}`;
 
   constructor(
     private readonly db: DB,
@@ -53,11 +49,7 @@ export default class TweetRepository implements TweetDataHandler {
     try {
       conn = await this.db.getConnection();
       return await conn
-        .execute(
-          `${this.Select_Feild} FROM (${this.With_User} WHERE T.userId = U.id) J \
-          ${this.With_Good} ${this.Order_By}`,
-          [userId]
-        )
+        .execute(this.Select, [userId])
         .then((result) => result[0] as OutputTweet[]);
     } catch (e) {
       this.exc.throw(e, "getAll");
@@ -71,11 +63,10 @@ export default class TweetRepository implements TweetDataHandler {
     try {
       conn = await this.db.getConnection();
       return await conn
-        .execute(
-          `${this.Select_Feild} FROM (${this.With_User} WHERE T.userId = U.id AND U.username = ?) J \
-          ${this.With_Good} ${this.Order_By}`,
-          [username, userId]
-        )
+        .execute(`${this.Select} WHERE U.username = ? ${this.Order_By}`, [
+          userId,
+          username,
+        ])
         .then((result) => result[0] as OutputTweet[]);
     } catch (e) {
       this.exc.throw(e, "getAllByUsername");
@@ -89,7 +80,7 @@ export default class TweetRepository implements TweetDataHandler {
     try {
       conn = await this.db.getConnection();
       return await conn
-        .execute(this.Get_By_Id, [tweetId, userId])
+        .execute(this.Get_By_Id, [userId, tweetId])
         .then((result: any[]) => result[0][0] as OutputTweet);
     } catch (e) {
       this.exc.throw(e, "getById");
@@ -118,7 +109,7 @@ export default class TweetRepository implements TweetDataHandler {
         )
         .then((result: any[]) => result[0].insertId as number);
       return await conn
-        .execute(this.Get_By_Id, [tweetId, userId])
+        .execute(this.Get_By_Id, [userId, tweetId])
         .then((result: any[]) => result[0][0] as OutputTweet);
     } catch (e) {
       this.exc.throw(e, "create");
@@ -138,7 +129,7 @@ export default class TweetRepository implements TweetDataHandler {
         [...this.valuesToUpdateTweet(tweetContents), new Date(), tweetId]
       );
       return await conn
-        .execute(this.Get_By_Id, [tweetId, userId])
+        .execute(this.Get_By_Id, [userId, tweetId])
         .then((result: any[]) => result[0][0] as OutputTweet);
     } catch (e) {
       this.exc.throw(e, "update");

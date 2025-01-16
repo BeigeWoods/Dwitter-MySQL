@@ -7,17 +7,13 @@ import DB from "../__dwitter__.d.ts/db/database";
 import { KindOfRepository } from "../__dwitter__.d.ts/exception/exception";
 
 export default class CommentRepository implements CommentDataHandler {
-  protected readonly Select_Feild =
-    "SELECT J.id, text, good, tweetId, recipient, J.userId, username, name, url, G.userId AS clicked, createdAt, updatedAt";
-  protected readonly With_User_Reply =
-    "SELECT C.id, text, good, tweetId, R.username AS recipient, C.userId, U.username, U.name, U.url, createdAt, updatedAt \
-    FROM comments C \
-    JOIN users U ON C.userId = U.id \
-    LEFT JOIN replies R ON C.id = R.commentId";
-  protected readonly With_Good =
-    "LEFT JOIN (SELECT * FROM goodComments WHERE userId = ?) G ON G.commentId = J.id";
+  protected readonly Select =
+    "SELECT C.id, text, good, tweetId, R.username AS recipient, C.userId, U.username, U.name, url, createdAt, updatedAt, clicked FROM comments C\
+    JOIN users U ON C.userId = U.id\
+    LEFT JOIN replies R ON R.commentId = C.id\
+    LEFT JOIN (SELECT commentId, IF(userId = ?, true, false) AS clicked FROM goodComments) G ON G.commentId = C.id";
   protected readonly Order_By = "ORDER BY createdAt DESC";
-  protected readonly Get_By_Id = `${this.Select_Feild} FROM (${this.With_User_Reply} WHERE C.id = ? AND tweetId = ?) J ${this.With_Good} ${this.Order_By}`;
+  protected readonly Get_By_Id = `${this.Select} WHERE C.id = ? AND tweetId = ? ${this.Order_By}`;
 
   constructor(
     private readonly db: DB,
@@ -32,11 +28,10 @@ export default class CommentRepository implements CommentDataHandler {
     try {
       conn = await this.db.getConnection();
       return await conn
-        .execute(
-          `${this.Select_Feild} FROM (${this.With_User_Reply} WHERE tweetId = ?) J \
-          ${this.With_Good} ${this.Order_By}`,
-          [tweetId, userId]
-        )
+        .execute(`${this.Select} WHERE tweetId = ? ${this.Order_By}`, [
+          userId,
+          tweetId,
+        ])
         .then((result) => result[0] as OutputComment[]);
     } catch (e) {
       this.exc.throw(e, "getAll");
@@ -73,7 +68,7 @@ export default class CommentRepository implements CommentDataHandler {
       }
 
       return await conn
-        .execute(this.Get_By_Id, [commentId, tweetId, userId])
+        .execute(this.Get_By_Id, [userId, commentId, tweetId])
         .then((result: any[]) => result[0][0] as OutputComment);
     } catch (e) {
       if (recipient) await this.db.rollback(conn!);
@@ -97,7 +92,7 @@ export default class CommentRepository implements CommentDataHandler {
         [text, new Date(), commentId]
       );
       return await conn
-        .execute(this.Get_By_Id, [commentId, tweetId, userId])
+        .execute(this.Get_By_Id, [userId, commentId, tweetId])
         .then((result: any[]) => result[0][0] as OutputComment);
     } catch (e) {
       this.exc.throw(e, "update");
