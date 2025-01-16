@@ -49,9 +49,9 @@ const Tweets = memo(({ tweetService, commentService, username, addable }) => {
     return tweet;
   };
 
-  const onClickGoodTweet = (tweetId, good, clicked) =>
+  const onClickGoodTweet = (tweetId, clicked) =>
     tweetService
-      .clickGood(tweetId, good, clicked)
+      .clickGood(tweetId, clicked)
       .then((update) =>
         setTweets((tweets) =>
           tweets.map((item) =>

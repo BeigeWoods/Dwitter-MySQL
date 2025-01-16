@@ -66,9 +66,7 @@ const TweetCard = memo(
             )}
           </div>
           <tweetContent.Attention>
-            <tweetContent.Button
-              onClick={() => onClickGoodTweet(id, good, clicked)}
-            >
+            <tweetContent.Button onClick={() => onClickGoodTweet(id, clicked)}>
               {clicked ? "♥︎" : "♡"} {good}
             </tweetContent.Button>
             <tweetContent.Button

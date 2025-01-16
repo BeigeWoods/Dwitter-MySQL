@@ -32,12 +32,12 @@ export default class CommentService {
     );
   }
 
-  async clickGood(tweetId, commentId, good, clicked) {
+  async clickGood(tweetId, commentId, clicked) {
     return this.http.fetch(
       `/${tweetId}/comments/${commentId}/good`,
       {
         method: "PUT",
-        body: JSON.stringify({ good, clicked: Number(clicked) }),
+        body: JSON.stringify({ clicked }),
       },
       true
     );

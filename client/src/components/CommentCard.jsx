@@ -44,7 +44,7 @@ const CommentCard = memo(
           <commentContent.Attention>
             <commentContent.Button
               onClick={() => {
-                onClickGoodComment(id, good, clicked);
+                onClickGoodComment(id, clicked);
               }}
             >
               {clicked ? "♥︎" : "♡"} {good}

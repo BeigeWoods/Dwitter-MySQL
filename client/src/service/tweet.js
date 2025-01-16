@@ -42,12 +42,12 @@ export default class TweetService {
     );
   }
 
-  async clickGood(tweetId, good, clicked) {
+  async clickGood(tweetId, clicked) {
     return this.http.fetch(
       `/${tweetId}/good`,
       {
         method: "PUT",
-        body: JSON.stringify({ good, clicked: Number(clicked) }),
+        body: JSON.stringify({ clicked }),
       },
       true
     );
